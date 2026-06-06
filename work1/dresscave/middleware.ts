@@ -3,17 +3,32 @@ import { updateSession } from "@/lib/supabase/middleware";
 
 const protectedRoutes = ["/account", "/account/measurements", "/account/settings", "/account/delete"];
 
+const adminRoutes = ["/admin"];
+
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
 
-  // Protect account routes — redirect unauthenticated users to login
+  const pathname = request.nextUrl.pathname;
+
+  // Protect regular routes — redirect unauthenticated users to login
   const isProtectedRoute = protectedRoutes.some((route) =>
-    request.nextUrl.pathname.startsWith(route),
+    pathname.startsWith(route),
   );
 
   if (isProtectedRoute && !user) {
     const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    loginUrl.searchParams.set("redirect", pathname);
+    return Response.redirect(loginUrl);
+  }
+
+  // Protect admin routes — require authentication (admin check is done in the layout)
+  const isAdminRoute = adminRoutes.some((route) =>
+    pathname.startsWith(route),
+  );
+
+  if (isAdminRoute && !user) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
     return Response.redirect(loginUrl);
   }
 

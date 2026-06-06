@@ -1,27 +1,27 @@
-# DCW Summary — DressCave Phase 0: Prerequisite Setup
+# DCW Summary — Epic 1: User Authentication & Account Management (FR16-FR20)
 
 ## Meta
-- **Feature:** DressCave Phase 0 — Prerequisite Setup (No Supabase)
+- **Feature:** Epic 1 — User Authentication & Account Management (FR16-FR20)
 - **Phase:** FINALIZE
 - **Date:** 2026-06-06
 
 ## Phases Completed
 1. DISCOVER
 2. PLAN
-3. IMPLEMENT — 7 completed, 0 failed
-4. VALIDATE — All passed (4/4 checks)
-5. FINALIZE — Full git commit
+3. IMPLEMENT — 19 completed, 0 failed
+4. VALIDATE — All passed (14/14 checks)
+5. FINALIZE — Full git commit + PR (Option A)
 
 ## Git / PR Status
-- **Action chosen:** A — Full git commit
-- **Branch:** main
-- **Commit:** `86cd12c`
-- **PR URL:** N/A (no remote repository configured)
+- **Action chosen:** A — Full git commit + PR
+- **Branch:** `dresscave/epic-1`
+- **Commit:** `fdcc73f`
+- **PR URL:** https://github.com/Sudila-Kuruppu/ArchonTest/pull/2
 
 ## Warnings
-- No remote repository configured — commit is local only
-- Environment artifacts (`.idx/.data/`, `.playwright-cli/`, `PLAYWRIGHT-SETUP.md`) were excluded from commit
-- shadcn v4 generates Tailwind v4 code — adapted globals.css and tailwind.config.ts for Tailwind v3 compatibility
+- `@supabase/supabase-js` uses `process.version` which is unsupported in Edge Runtime (used by middleware). This is a known limitation of Supabase SSR middleware and does not affect build correctness.
+- `.env.local` contains placeholder Supabase credentials — requires manual Supabase project setup before app can authenticate users.
+- Environmental artifacts (`.idx/.data/`, `.playwright-cli/`, `PLAYWRIGHT-SETUP.md`) were excluded from commit.
 
 ## Artifacts
 - `.archon-artifacts/discovery.md`

@@ -1,243 +1,301 @@
-# DCW PLAN — Epic 1: User Authentication & Account Management (FR16-FR20)
+# DCW PLAN — Epic 2: Product Catalog Management
 
 ## Meta
-- **Feature:** Epic 1 — User Authentication & Account Management
+- **Feature:** Product Catalog Management (Epic 2)
 - **Phase:** PLAN
 - **Date:** 2026-06-06
+- **Codebase:** Next.js 14.x App Router + Supabase + Tailwind CSS + Zod + react-hook-form
 
 ## Summary
-Enable users to create accounts, log in securely, save custom measurements for made-to-order clothing, and manage their profiles. This epic delivers core user identity and personalization features that enable saved cart/wishlist persistence (FR21-FR25) and AI customer service (FR29-FR32).
+Enable store administrators to manage the entire product catalog: create products with variants (sizes, colors), upload/optimize images, organize into categories and subcategories, soft-delete products, and toggle featured/new arrival status.
 
 ### UX Flow
 ```
-Before: Bare Next.js app with no auth, no user menu, no header navigation
-After:  Users can sign up, log in, reset passwords, manage measurements, edit profiles, delete accounts — all with a consistent user menu dropdown in the header
+Before: Admin has no product management UI — only auth/profile features exist.
+After:  Admin navigates to /admin dashboard, manages products via list/create/edit/delete
+        forms, organizes categories, toggles featured/new badges, and uploads images.
 ```
 
 ## Scope
 
 ### In Scope
-- Install Supabase dependencies and create client infrastructure (`lib/supabase/`)
-- Implement auth forms and pages (signup, login, forgot/reset password, verify email)
-- Create Zustand auth store following existing `createStore` + Context pattern
-- Build AuthProvider for server-to-client session hydration
-- Protect `/account/*` routes via middleware with session refresh
-- Create header with user menu dropdown using `@base-ui/react/menu`
-- Build profile pages (dashboard, measurements, settings, account deletion)
-- Write validation schemas for all auth forms
-- Write tests for auth schemas, store, and form components
+- Supabase SQL migration: `products` table, `categories` table (hierarchical), RLS (public read / admin write), Storage bucket for product images
+- Zod schemas: expanded `ProductSchema` with `is_new_arrival`, `deleted_at`, `category_id`; new `CreateProductSchema`, `UpdateProductSchema`; new `CategorySchema` with hierarchy
+- Server Actions: full CRUD for products (create, read, update, soft delete) + image upload/delete + featured/new arrival toggle
+- Server Actions: full CRUD for categories (create, read, update, delete)
+- Middleware: `/admin/*` routes protected + admin role check against `profiles.is_admin`
+- Admin layout with sidebar navigation (Dashboard, Products, Categories)
+- Admin dashboard homepage with quick stats
+- Admin products list page with search/filter and inline featured/new arrival toggles
+- Reusable product form component (shared for create + edit modes)
+- Product creation page + edit page (with dynamic `[id]` route)
+- Delete product confirmation dialog (soft delete)
+- Image uploader component with drag-and-drop, preview, reorder, delete
+- Category management page with CRUD UI (tree hierarchy)
+- `next.config.mjs` update for Supabase Storage remote image patterns
+- Schema validation tests for product and category schemas
 
 ### Out of Scope
-- OAuth/social login providers (future enhancement)
-- Supabase project creation and configuration (manual prerequisite)
-- Database `profiles` table creation (handled as part of Supabase project setup or future migration)
-- Admin dashboard or role-based access control
-- Cart/wishlist persistence (Epic 4 scope)
-- AI customer service features (Epic 6 scope)
+- Storefront product display (homepage featured section, category browsing, product detail pages)
+- Shopping cart integration with products
+- Review/rating system
+- Order management from admin panel
+- Bulk product import/export
+- Product analytics or sales reports
+- Inventory tracking or stock management
+- Product sorting/filtering on storefront
+- Wishlist integration
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 ─► T2
- │
- └► T3 ─► T7 ─► T8 ─► T15 ─► T16
- │       │      │
- │       └► T13 │
- │              │
-T4 ─► T5 ─► T6  │
- │              │
- ├► T7 (above)  │
- ├► T9 ─► T12   │
- ├► T10─► T12   │
- ├► T11─► T12   │
- └► T17─► T18   │
-                │
-T14─────────────────► T18
+T1  T2  T3  T6  T7
+ │   │           │
+ │   ├── T4 ─────┤
+ │   ├── T5 ─────┤
+ │   │           │
+ │   │      T8 ←─┤
+ │   │           │
+ │   ├── T4 ── T9 ←─┤
+ │   ├── T5 ── T15←─┤
+ │   │              │
+ │   ├── T4 ── T14  │
+ │   │              │
+ │   ├── T2 ── T16  │
+ │   │              │
+ │   └── T4 ── T10 ─┤── T11 ── T12
+ │                   │
+ │              T9 ──┤── T13
+ │                   │
+ └── T1 (migration)  │
+                     │
+T3 (next.config)     │
+T6 (middleware)      │
+T7 (admin layout) ───┤
 ```
 
 ### Task Table
-| ID | Action | File | Depends | Validate |
-|----|--------|------|---------|----------|
-| T1 | UPDATE | `dresscave/package.json` | — | `ls node_modules/@supabase/*` |
-| T2 | CREATE | `dresscave/.env.local` | T1 | `grep SUPABASE_URL .env.local` |
-| T3 | CREATE | `dresscave/lib/supabase/` | T1 | `tsc --noEmit` |
-| T4 | UPDATE | `dresscave/lib/schemas/user.ts` | — | `tsc --noEmit` |
-| T5 | CREATE | `dresscave/lib/store/auth.ts` | T4 | `tsc --noEmit` |
-| T6 | UPDATE | `dresscave/lib/store/store-provider.tsx` | T5 | `tsc --noEmit` |
-| T7 | CREATE | `dresscave/lib/actions/auth.ts` | T3, T4 | `tsc --noEmit` |
-| T8 | CREATE | `dresscave/components/auth/auth-provider.tsx` | T5, T7 | `tsc --noEmit` |
-| T9 | CREATE | `dresscave/components/auth/signup-form.tsx` | T4, T7 | `tsc --noEmit` |
-| T10 | CREATE | `dresscave/components/auth/login-form.tsx` | T4, T7 | `tsc --noEmit` |
-| T11 | CREATE | `dresscave/components/auth/forgot-password-form.tsx, reset-password-form.tsx` | T4, T7 | `tsc --noEmit` |
-| T12 | CREATE | `dresscave/app/(auth)/` | T9, T10, T11 | `tsc --noEmit` |
-| T13 | CREATE | `dresscave/app/auth/confirm/route.ts` | T3, T7 | `tsc --noEmit` |
-| T14 | CREATE | `dresscave/middleware.ts` | T3 | `tsc --noEmit` |
-| T15 | CREATE | `dresscave/components/layout/header.tsx` | T8 | `tsc --noEmit` |
-| T16 | UPDATE | `dresscave/app/layout.tsx` | T8, T15 | `tsc --noEmit` |
-| T17 | CREATE | `dresscave/components/profile/` | T4, T7, T8 | `tsc --noEmit` |
-| T18 | CREATE | `dresscave/app/(dashboard)/` | T17, T14 | `tsc --noEmit` |
-| T19 | CREATE | `dresscave/tests/auth/` | T4, T5, T9, T10 | `npm test -- --run` |
+| ID | Action | Primary File | Depends | Validate |
+|----|--------|-------------|---------|----------|
+| T1 | CREATE | `supabase/migrations/002_create_products.sql` | — | File check |
+| T2 | UPDATE | `lib/schemas/product.ts` | — | `vitest run` |
+| T3 | UPDATE | `next.config.mjs` | — | `tsc --noEmit` |
+| T4 | CREATE | `lib/actions/products.ts` | T2 | `tsc --noEmit` |
+| T5 | CREATE | `lib/actions/categories.ts` | T2 | `tsc --noEmit` |
+| T6 | UPDATE | `middleware.ts` | — | `tsc --noEmit` |
+| T7 | CREATE | `app/(dashboard)/admin/layout.tsx` | — | `tsc --noEmit` |
+| T8 | CREATE | `app/(dashboard)/admin/page.tsx` | T7 | `tsc --noEmit` |
+| T9 | CREATE | `app/(dashboard)/admin/products/page.tsx` | T4, T7 | `tsc --noEmit` |
+| T10 | CREATE | `components/products/product-form.tsx` | T2, T4, T5 | `tsc --noEmit` |
+| T11 | CREATE | `app/(dashboard)/admin/products/new/page.tsx` | T10 | `tsc --noEmit` |
+| T12 | CREATE | `app/(dashboard)/admin/products/[id]/edit/page.tsx` | T10, T11 | `tsc --noEmit` |
+| T13 | CREATE | `components/products/delete-product-dialog.tsx` | T4, T9 | `tsc --noEmit` |
+| T14 | CREATE | `components/products/image-uploader.tsx` | T4 | `tsc --noEmit` |
+| T15 | CREATE | `app/(dashboard)/admin/categories/page.tsx` | T5, T7 | `tsc --noEmit` |
+| T16 | CREATE | `tests/products/schemas.test.ts` | T2 | `vitest run` |
 
 ### Task Details
 
-#### T1: Install Supabase dependencies
-- **Action:** UPDATE `dresscave/package.json`
-- **Details:** Add `@supabase/supabase-js` and `@supabase/ssr` to dependencies, then run `npm install`
-- **Validate:** `ls dresscave/node_modules/@supabase/supabase-js` and `npx tsc --noEmit`
+#### T1: Create SQL Migration File
+- **Action:** CREATE `dresscave/supabase/migrations/002_create_products.sql`
+- **Contents:**
+  - `categories` table: id (uuid PK), name (text), slug (text unique), parent_id (uuid self-ref FK nullable), created_at
+  - `products` table: id (uuid PK), name (text), description (text), category_id (uuid FK → categories), price (numeric), sizes (text[]), colors (text[]), images (jsonb[]), is_featured (boolean), is_new_arrival (boolean), age_range (jsonb), deleted_at (timestamptz nullable), created_at, updated_at
+  - Indexes on: category_id, is_featured, is_new_arrival, deleted_at, created_at, name search
+  - RLS: Enable on both tables — public SELECT, admin INSERT/UPDATE/DELETE (checks profiles.is_admin)
+  - Storage: `product-images` bucket with RLS — public SELECT, admin INSERT/UPDATE/DELETE
+- **Validate:** `test -f dresscave/supabase/migrations/002_create_products.sql && echo 'Migration file created'`
 
-#### T2: Create .env.local
-- **Action:** CREATE `dresscave/.env.local`
-- **Details:** Add `NEXT_PUBLIC_SUPABASE_URL=`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=` with placeholder values. Include `.env.local` in `.gitignore` (verify it already is).
-- **Validate:** File exists with both variables
-- **Note:** Actual Supabase credentials require manual Supabase project creation
+#### T2: Update Product Zod Schemas + Create Category Schema
+- **Action:** UPDATE `dresscave/lib/schemas/product.ts` + CREATE `dresscave/lib/schemas/category.ts`
+- **Patterns:** `dresscave/lib/schemas/user.ts` (barrel exports, inline types)
+- **Changes to product.ts:**
+  - Add `is_new_arrival: z.boolean().default(false)` to ProductSchema
+  - Add `deleted_at: z.string().datetime().nullable().optional()` to ProductSchema
+  - Refactor `category` from `z.enum(CATEGORIES)` to `category_id: z.string().uuid()`
+  - Create `CreateProductSchema` (omit `id` from ProductSchema, make `images` optional with default [])
+  - Create `UpdateProductSchema` (all fields optional, partial of CreateProductSchema)
+  - Keep backward compatibility with OrderItemSchema imports (SIZES, CATEGORIES exports)
+- **Category schema** (`lib/schemas/category.ts`):
+  - `CategorySchema`: id (uuid), name (string), slug (string), parent_id (uuid nullable), created_at
+  - `CreateCategorySchema`: name (required), parent_id (optional uuid)
+- **Validate:** `npx vitest run --reporter=verbose 2>&1 | tail -30`
 
-#### T3: Create Supabase client files
-- **Action:** CREATE `dresscave/lib/supabase/server.ts`, `client.ts`, `middleware.ts`
-- **Patterns:** Zustand store pattern (vanilla createStore) — mirror file structure style
-- **Details:**
-  - `server.ts`: `createServerClient()` with `cookies()` from `next/headers`
-  - `client.ts`: `createBrowserClient()` for client components
-  - `middleware.ts`: `createServerClient()` with `NextRequest`/`NextResponse` cookies
-- **Validate:** All 3 files exist, TypeScript compiles
+#### T3: Update next.config.mjs
+- **Action:** UPDATE `dresscave/next.config.mjs`
+- **Changes:** Add Supabase Storage remote pattern:
+  ```js
+  {
+    protocol: "https",
+    hostname: "*.supabase.co",
+    pathname: "/storage/v1/object/public/product-images/**",
+  }
+  ```
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T4: Extend Zod schemas
-- **Action:** UPDATE `dresscave/lib/schemas/user.ts`
-- **Patterns:** Mirror `product.ts` pattern (exported schemas + inferred types)
-- **Details:** Add:
-  - `SignupSchema`: email, password (8+ chars, mixed case), full_name
-  - `LoginSchema`: email, password
-  - `ForgotPasswordSchema`: email
-  - `ResetPasswordSchema`: new_password, confirm_password
-  - `ProfileUpdateSchema`: full_name, phone, avatar_url, communication_preferences
-  - `AccountDeletionSchema`: password confirmation
-- **Validate:** TypeScript compiles
+#### T4: Create Product Server Actions
+- **Action:** CREATE `dresscave/lib/actions/products.ts`
+- **Patterns:** `dresscave/lib/actions/auth.ts` (Server Action pattern with `"use server"`, `createClient()`, `revalidatePath`, `redirect`)
+- **Functions:**
+  - `getProducts(filter?)`: Fetch all non-deleted products with category info, optional search/filter
+  - `getProduct(id)`: Fetch single product by ID
+  - `createProduct(data: CreateProductInput)`: Insert new product, return success
+  - `updateProduct(id, data: UpdateProductInput)`: Update product fields, revalidate
+  - `deleteProduct(id)`: Soft delete (set `deleted_at`), revalidate
+  - `setFeatured(id, isFeatured)`: Toggle is_featured, revalidate
+  - `setNewArrival(id, isNewArrival)`: Toggle is_new_arrival, revalidate
+  - `uploadImage(productId, formData)`: Upload to Supabase Storage, return URL
+  - `deleteImage(productId, imageUrl)`: Remove from Storage + update product.images array
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T5: Create auth Zustand store
-- **Action:** CREATE `dresscave/lib/store/auth.ts`
-- **Patterns:** Mirror `cart.ts` (vanilla `createStore`, `AuthStore` type, `AuthStoreApi` type, `createAuthStore` factory)
-- **Details:** Store shape: `{ user, session, isLoading, setUser, setSession, clearAuth }`
-- **Validate:** TypeScript compiles
+#### T5: Create Category Server Actions
+- **Action:** CREATE `dresscave/lib/actions/categories.ts`
+- **Patterns:** `dresscave/lib/actions/auth.ts`
+- **Functions:**
+  - `getCategories()`: Fetch all categories with parent info for tree display
+  - `createCategory(data: CreateCategoryInput)`: Insert category, revalidate
+  - `updateCategory(id, data)`: Update category name/slug/parent, revalidate
+  - `deleteCategory(id)`: Delete category (only if no products reference it), revalidate
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T6: Add auth store to StoreProvider
-- **Action:** UPDATE `dresscave/lib/store/store-provider.tsx`
-- **Patterns:** Mirror existing cart/wishlist provider pattern
-- **Details:** Add `AuthStoreContext`, `AuthStoreApi`, `useAuthStore<T>()` hook. Wrap in provider alongside cart and wishlist.
-- **Validate:** TypeScript compiles
+#### T6: Update Middleware for Admin Route Protection
+- **Action:** UPDATE `dresscave/middleware.ts`
+- **Changes:**
+  - Add `/admin` to `protectedRoutes` array
+  - Add admin role check: query `profiles.is_admin` for authenticated users on `/admin/*` paths
+  - Redirect non-admin users to `/account` with error
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T7: Create auth server actions
-- **Action:** CREATE `dresscave/lib/actions/auth.ts`
-- **Details:** Implement using `"use server"` directives:
-  - `signup(email, password, full_name)` — calls `supabase.auth.signUp()`, creates profile
-  - `login(email, password)` — calls `supabase.auth.signInWithPassword()`
-  - `logout()` — calls `supabase.auth.signOut()`
-  - `resetPasswordRequest(email)` — calls `supabase.auth.resetPasswordForEmail()`
-  - `updatePassword(password)` — calls `supabase.auth.updateUser()`
-  - `updateProfile(data)` — updates `profiles` table
-  - `deleteAccount(password)` — deletes user and marks for GDPR removal
-- **Validate:** TypeScript compiles
+#### T7: Create Admin Layout with Sidebar
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/layout.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/layout.tsx`
+- **Features:**
+  - Sidebar with nav links: Dashboard (LayoutDashboardIcon), Products (PackageIcon), Categories (FolderTreeIcon)
+  - Active link highlighting using `usePathname()`
+  - Client component with `"use client"` for pathname tracking
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T8: Create AuthProvider component
-- **Action:** CREATE `dresscave/components/auth/auth-provider.tsx`
-- **Patterns:** Mirror `StoreProvider` pattern
-- **Details:** Client component that fetches session on mount via `supabase.auth.getUser()`, populates auth store, and renders children.
-- **Validate:** TypeScript compiles
+#### T8: Create Admin Dashboard Homepage
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/page.tsx`
+- **Features:**
+  - Server component fetching stats: total products count, featured count, new arrivals count, categories count
+  - Stat cards using Card component
+  - Quick action buttons: "Add Product", "Manage Categories"
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T9: Create signup form
-- **Action:** CREATE `dresscave/components/auth/signup-form.tsx`
-- **Patterns:** Mirror Card layout pattern, use Button + Input components
-- **Details:** `"use client"`, RHF + ZodResolver, fields: full_name, email, password, confirm_password. Show/hide password toggle. Submit calls signup server action. Displays validation errors inline. Shows loading state. Redirects to verify-email page on success.
-- **Validate:** TypeScript compiles
+#### T9: Create Admin Products List Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/page.tsx`
+- **Features:**
+  - Server component fetching all non-deleted products with category name join
+  - Table with columns: Name, Category, Price, Featured (toggle), New Arrival (toggle), Actions
+  - Search input filtering by name (URL state via nuqs)
+  - Client component for the interactive parts (toggles, search)
+  - "Add Product" button linking to `/admin/products/new`
+  - Inline toggle buttons for is_featured and is_new_arrival calling server actions
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T10: Create login form
-- **Action:** CREATE `dresscave/components/auth/login-form.tsx`
-- **Patterns:** Mirror Card layout pattern
-- **Details:** `"use client"`, RHF + ZodResolver, fields: email, password. "Remember me" checkbox. "Forgot Password?" link. Submit calls login server action. Shows errors for invalid credentials / unverified email. Redirects to account dashboard on success.
-- **Validate:** TypeScript compiles
+#### T10: Create Reusable Product Form Component
+- **Action:** CREATE `dresscave/components/products/product-form.tsx`
+- **Patterns:**
+  - `dresscave/components/auth/signup-form.tsx` (form structure, error display)
+  - `dresscave/components/profile/measurements-form.tsx` (complex form with selects)
+- **Features:**
+  - Props: `mode: 'create' | 'edit'`, `defaultValues?: Product`, `onSuccess: () => void`
+  - Fields: name (Input), description (textarea), category (Select from categories list), subcategory (Input), price (number Input), sizes (checkbox group from SIZES), colors (color picker + add/remove), age_range (min/max number inputs, shown only for children categories)
+  - Zod validation via zodResolver
+  - Server-side submit calling createProduct or updateProduct
+  - Loading state, error display, success redirect
+  - Includes ImageUploader component for product images
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T11: Create password reset forms
-- **Action:** CREATE `dresscave/components/auth/forgot-password-form.tsx` and `dresscave/components/auth/reset-password-form.tsx`
-- **Details:** Forgot: email field only, calls `resetPasswordRequest`. Reset: new_password + confirm_password, calls `updatePassword`. Both use RHF + Zod.
-- **Validate:** Both files exist, TypeScript compiles
+#### T11: Create Product Creation Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/new/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/measurements/page.tsx`
+- **Features:**
+  - Server component (shell) that wraps ProductForm in `mode="create"`
+  - Title: "New Product"
+  - On success redirects to `/admin/products`
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T12: Create auth route group pages
-- **Action:** CREATE `dresscave/app/(auth)/` with layout and pages
-- **Details:**
-  - `(auth)/layout.tsx` — centered card layout for all auth pages
-  - `(auth)/login/page.tsx` — renders login form
-  - `(auth)/signup/page.tsx` — renders signup form
-  - `(auth)/forgot-password/page.tsx` — renders forgot password form
-  - `(auth)/reset-password/page.tsx` — renders reset password form
-  - `(auth)/verify-email/page.tsx` — static "check your email" confirmation page
-- **Validate:** All pages exist, TypeScript compiles
+#### T12: Create Product Edit Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/[id]/edit/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/measurements/page.tsx`
+- **Features:**
+  - Dynamic route `[id]` parameter
+  - Server component that fetches product by ID
+  - Passes product data as defaultValues to ProductForm in `mode="edit"`
+  - Title: "Edit Product"
+  - 404 handling if product not found
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T13: Create auth callback route handler
-- **Action:** CREATE `dresscave/app/auth/confirm/route.ts`
-- **Details:** `GET` handler that exchanges auth code for session using `createServerClient()`, redirects to dashboard on success, login page on failure
-- **Validate:** TypeScript compiles
+#### T13: Create Delete Product Dialog
+- **Action:** CREATE `dresscave/components/products/delete-product-dialog.tsx`
+- **Patterns:** `dresscave/components/profile/delete-account-dialog.tsx`
+- **Features:**
+  - Dialog with confirmation text and product name
+  - Calls `deleteProduct` server action
+  - Loading state, error display
+  - On success refreshes product list and closes dialog
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T14: Create root middleware
-- **Action:** CREATE `dresscave/middleware.ts` (root of dresscave/)
-- **Patterns:** Mirror `lib/supabase/middleware.ts` pattern
-- **Details:** Uses `updateSession()` from Supabase middleware. Protects `/account/*` routes by redirecting unauthenticated users to `/login`. Refreshes session on every request.
-- **Validate:** TypeScript compiles
+#### T14: Create Image Uploader Component
+- **Action:** CREATE `dresscave/components/products/image-uploader.tsx`
+- **Patterns:** `dresscave/components/profile/measurements-form.tsx`
+- **Features:**
+  - Drag-and-drop zone with click-to-upload fallback
+  - Multiple file selection
+  - Preview thumbnails for uploaded images
+  - Set primary image (star/check indicator)
+  - Drag-to-reorder (using HTML5 drag events)
+  - Delete individual images with confirmation
+  - Calls `uploadImage` / `deleteImage` server actions
+  - Client component with `"use client"`
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T15: Create header with user menu
-- **Action:** CREATE `dresscave/components/layout/header.tsx`
-- **Patterns:** Mirror shadcn component patterns (data-slot, cn()), use `@base-ui/react/menu` for dropdown
-- **Details:** `"use client"`. Logo/brand link. Navigation links (Women, Kids, Men). If logged in: user avatar + dropdown menu (My Account, Measurements, Wishlist, Cart, Settings, Logout). If logged out: Login / Sign Up buttons. Mobile hamburger menu for small screens.
-- **Validate:** TypeScript compiles
+#### T15: Create Category Management Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/categories/page.tsx`
+- **Patterns:**
+  - `dresscave/app/(dashboard)/account/page.tsx`
+  - `dresscave/app/(dashboard)/admin/products/page.tsx`
+- **Features:**
+  - Server component fetching all categories
+  - Display categories in hierarchical tree/list
+  - Inline "Add Subcategory" button for each parent
+  - Edit inline (name change) or via dialog
+  - Delete with protection (won't delete if products reference it)
+  - Client component for interactive parts
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T16: Update root layout
-- **Action:** UPDATE `dresscave/app/layout.tsx`
-- **Details:** Import and render `<Header />` inside `<body>` before `<main>`. Wrap with `<AuthProvider>` inside `<StoreProvider>`. Update page structure to use semantic HTML.
-- **Validate:** TypeScript compiles
-
-#### T17: Create profile components
-- **Action:** CREATE `dresscave/components/profile/profile-form.tsx`, `measurements-form.tsx`, `delete-account-dialog.tsx`
-- **Patterns:** Mirror Dialog, Card, Select component patterns
-- **Details:**
-  - `profile-form.tsx`: edit full_name, phone, communication preferences; email change triggers verification
-  - `measurements-form.tsx`: chest, waist, hips, inseam, height, weight with unit toggle (cm/inches); multiple measurement profiles
-  - `delete-account-dialog.tsx`: Dialog with password confirmation, warning text, "I understand" checkbox
-- **Validate:** All 3 files exist, TypeScript compiles
-
-#### T18: Create dashboard route group pages
-- **Action:** CREATE `dresscave/app/(dashboard)/` with layout and pages
-- **Details:**
-  - `(dashboard)/layout.tsx` — sidebar layout with account navigation
-  - `(dashboard)/account/page.tsx` — overview with personalized greeting, order history summary
-  - `(dashboard)/account/measurements/page.tsx` — list/save measurements, unit toggle
-  - `(dashboard)/account/settings/page.tsx` — profile form, communication preferences
-  - `(dashboard)/account/delete/page.tsx` — account deletion with confirmation dialog
-- **Validate:** All 5+ files exist, TypeScript compiles
-
-#### T19: Write tests
-- **Action:** CREATE `dresscave/tests/auth/schemas.test.ts`, `store.test.ts`
-- **Patterns:** Mirror `tests/example.test.ts`
-- **Details:**
-  - `schemas.test.ts`: test each auth schema (valid input passes, invalid fails)
-  - `store.test.ts`: test auth store setters/getters (setUser, setSession, clearAuth)
-- **Validate:** `npm test -- --run` passes
+#### T16: Add Product Schema Tests
+- **Action:** CREATE `dresscave/tests/products/schemas.test.ts`
+- **Patterns:** `dresscave/tests/auth/schemas.test.ts`
+- **Test cases:**
+  - `CreateProductSchema` accepts valid data, rejects missing name, rejects negative price, rejects empty sizes/colors
+  - `UpdateProductSchema` accepts partial update, rejects invalid field types
+  - `ProductSchema` accepts full product data, handles optional deleted_at
+  - `CATEGORIES` and `SIZES` constants exported correctly
+  - `CategorySchema` accepts valid category, rejects missing name
+  - `CreateCategorySchema` accepts with/without parent_id
+- **Validate:** `npx vitest run --reporter=verbose 2>&1 | tail -30`
 
 ## Testing Strategy
-- **Unit tests**: Zod schema validation (valid/invalid inputs), Zustand store operations
-- **Component tests**: Form rendering, validation error display, loading states
-- **Integration tests**: Server action mocking with form submissions
-- **Edge cases**: Duplicate email, weak password, expired reset link, unverified login attempt, GDPR data retention period
+
+- **Unit tests (Vitest):** Zod schema validation tests for CreateProductSchema, UpdateProductSchema, ProductSchema, CategorySchema — following the pattern in `tests/auth/schemas.test.ts`
+- **Type checking:** `npx tsc --noEmit` after each task to catch type errors early
+- **Manual testing:** Admin can navigate to `/admin/products/new`, create a product, see it in the list, edit it, toggle featured/new, upload images, delete it
+- **Future (not in scope):** E2E tests with Playwright for admin flows, integration tests for server actions
 
 ## Validation Plan
-- **Type-check:** `npx tsc --noEmit` — must pass after each task
-- **Lint:** `npx next lint` — verify code quality
-- **Tests:** `npm test -- --run` — all tests pass
-- **Build:** `npm run build` — production build succeeds (may require Supabase project)
 
-## Manual Prerequisites
-Before starting T1, the following must be completed manually:
-1. Create a Supabase project at https://supabase.com
-2. Enable Email/Password auth in Supabase Auth settings
-3. Create a `profiles` table with RLS policies (or use Supabase's built-in user management)
-4. Note the `SUPABASE_URL` and `SUPABASE_ANON_KEY` for `.env.local`
+| Step | Command | When |
+|------|---------|------|
+| Type-check | `npx tsc --noEmit` | After each task |
+| Lint | `npx next lint` | After all tasks |
+| Test | `npx vitest run` | After T16 + at end |
+| Build | `npm run build` | At end |
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

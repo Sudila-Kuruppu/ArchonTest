@@ -1,33 +1,45 @@
-# Epic 1: User Authentication & Account Management
+# Epic 2: Product Catalog Management — DressCave
 
 ## Epic Goal
-Enable users to create accounts, log in securely, save custom measurements for made-to-order clothing, and manage their profiles. This epic delivers core user identity and personalization features that enable saved cart/wishlist persistence (FR21-FR25) and AI customer service (FR29-FR32).
+Enable store administrators to manage the product catalog including creating products with variants, uploading images, organizing by categories, and marking items as featured/new arrivals.
 
 ## Functional Requirements Covered
-- FR16: Users can create an account with email and password
-- FR17: Users can log in to their account
-- FR18: Users can reset their password
-- FR19: Users can save custom measurements in their profile
-- FR20: Users can edit their profile information
+FR1: Admin can create new products with name, description, category, price, and base sizes
+FR2: Admin can upload multiple images per product
+FR3: Admin can set product variants (colors, sizes)
+FR4: Admin can organize products into categories (Women, Kids, Men) and subcategories
+FR5: Admin can edit existing product details
+FR6: Admin can delete products from the catalog
+FR7: Admin can mark products as featured or new arrivals
 
 ## Stories
-1.1: User Registration Flow — signup with email/password, email verification via Supabase Auth
-1.2: User Login Flow — login with email/password, session via HttpOnly cookies, personalized greeting
-1.3: Password Reset Flow — forgot password via email, secure reset link, password update
-1.4: Save Custom Measurements in Profile — chest, waist, hips, inseam, height, weight; unit conversion (cm/inches); multiple profiles
-1.5: Edit Profile Information — name, email, communication preferences; email change requires verification
-1.6: Account Deletion (GDPR Compliance) — self-deletion with password confirmation, 30-day data retention, GDPR compliance (NFR7)
-1.7: User Menu and Navigation — dropdown menu with My Account, Measurements, Wishlist, Cart, Settings, Logout; mobile accessible
 
-## Tech Stack
-- Next.js 14.x App Router, React 18.x, TypeScript 5.x
-- Supabase Auth (email/password, HttpOnly cookies via @supabase/ssr)
-- Zod validation, React Hook Form
-- Zustand for client state, shadcn/ui components
-- Tailwind CSS 3.4+
+### Story 2.1: Create Products Table in Database
+Create the products table in Supabase with all required fields (id, name, description, category, subcategory, price, sizes[], colors[], images[], is_featured, is_new_arrival, age_range, created_at, updated_at). Add indexes on frequently queried columns. Enable RLS: public read, admin write. Implement as a SQL migration file.
 
-## Project Structure
-- Codebase at: work1/dresscave/
-- Phase 0 (Next.js, Supabase, shadcn/ui, Zod, Zustand, testing) already complete
-- Existing stores: lib/store/cart.ts, lib/store/wishlist.ts
-- Existing schemas: lib/schemas/product.ts, user.ts, order.ts
+### Story 2.2: Product Creation Form
+Admin form with fields: name, description, category dropdown, subcategory, price, size checkboxes, color picker, age range (if Kids), image upload. Saves to Supabase, redirects to product detail.
+
+### Story 2.3: Edit Existing Product Details
+Pre-filled edit form for products. Update any field, toggle featured/new arrival, add/remove images. Changes reflected immediately on storefront.
+
+### Story 2.4: Delete Product from Catalog
+Soft delete with confirmation dialog. Product no longer appears in catalog. Related records (reviews, orders) remain intact.
+
+### Story 2.5: Manage Product Categories
+CRUD for categories (Women, Kids, Men) and subcategories. Category hierarchy stored and maintained. Category navigation appears on storefront.
+
+### Story 2.6: Mark Products as Featured or New Arrivals
+Toggle is_featured and is_new_arrival flags on products. Featured products appear in homepage section. "New" badge on new arrivals. Configurable limits.
+
+### Story 2.7: Product Image Upload and Management
+Upload multiple images per product to Supabase Storage. Auto-optimize (WebP, max 1200x1600). Drag-and-drop reorder, set primary, delete individual images.
+
+## Current Codebase Context
+- Next.js 14.x App Router with Tailwind CSS
+- Supabase for auth and database
+- shadcn/ui components installed
+- Zustand and nuqs for state management
+- Epic 1 (FR16-FR20) already implemented: signup, login, password reset, measurements, profile, account deletion, user menu
+- Vitest + Playwright testing frameworks installed
+- Zod + react-hook-form for validation
