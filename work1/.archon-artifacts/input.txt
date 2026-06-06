@@ -1,15 +1,26 @@
-Create a coffee selling website in /home/user/archontesting/work1/coffee-shop
+# Feature: Fix E2E Test Issues — Brew & Bean Coffee Shop
 
-Tech stack: Node.js + Express + EJS (server-side rendered multi-page site)
+Fix the following issues identified by automated E2E testing (Chromium/Playwright across mobile/tablet/desktop):
 
-Requirements:
-- Multi-page website with navigation
-- Pages: Home (hero/menu preview), Menu (full coffee menu with prices), About (story/location), Contact (form)
-- Fully working navigation between pages
-- Responsive design (looks good on mobile and desktop)
-- Coffee-themed styling (warm browns, creams)
-- Contact form with server-side handling
-- Express server setup with routes for each page
-- EJS templating with layout/partials (header, footer, nav)
-- A "featured coffees" section on the home page
-- Each coffee item on menu page should show name, description, price, and an image placeholder
+## 1. CRITICAL — Mobile hamburger menu never visible
+- File: `public/css/style.css` (line ~172)
+- `.hamburger` has `display: none` with no media query to make it visible
+- Need: `@media (max-width: 767px)` that shows hamburger, hides nav-links by default, shows nav-links when `.nav-open` class is added
+
+## 2. MEDIUM — Missing meta description on all pages  
+- File: `views/partials/head.ejs` (line ~6)
+- No `<meta name="description">` tag — hurts SEO
+- Need: Add `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">` after viewport meta
+
+## 3. LOW — Emoji placeholders instead of real product images
+- Files: `views/pages/home.ejs:22`, `views/pages/menu.ejs:18`
+- Coffee cards use ☕ emoji as image placeholder (8 total)
+- Need: Replace with `<img>` tags pointing to actual Unsplash product images
+
+## 4. LOW — Google Fonts 404 when offline
+- File: `views/partials/head.ejs` (lines 7-9)
+- External Google Fonts CSS returns 404 when offline
+- Need: Add `@font-face` fallback in CSS or self-host
+
+## 5. Add suitable images for each place
+- Replace emoji placeholders with real coffee images from Unsplash for each coffee item

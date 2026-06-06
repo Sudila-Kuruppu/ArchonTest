@@ -3,6 +3,47 @@
    Coffee-themed, mobile-first responsive design
    ============================================ */
 
+/* ---------- Self-hosted Fonts ---------- */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/playfair-display-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/playfair-display-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-600.woff2') format('woff2');
+}
+
 /* ---------- CSS Variables / Palette ---------- */
 :root {
   --color-primary: #3b141c;
@@ -314,6 +355,13 @@ h4 { font-size: 1.125rem; }
   align-items: center;
   justify-content: center;
   font-size: 4rem;
+}
+
+.coffee-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .coffee-card-body {
@@ -683,5 +731,30 @@ h4 { font-size: 1.125rem; }
 
   .container {
     padding: 0 2rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVE — Mobile (max 767px)
+   ============================================ */
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background: var(--color-primary);
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+
+  .nav-links.nav-open {
+    display: flex;
   }
 }

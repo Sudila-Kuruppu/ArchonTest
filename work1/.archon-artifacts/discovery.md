@@ -1,198 +1,170 @@
 # DCW DISCOVER — Codebase & Research Report
 
 ## Meta
-- **Feature:** Coffee Shop Website (Node.js + Express + EJS multi-page site)
+- **Feature:** Fix E2E Test Issues — Brew & Bean Coffee Shop
 - **Phase:** DISCOVER
 - **Date:** 2026-06-06
 
 ## Codebase Overview
-- **Framework:** Express.js 4.x (server-side rendered, no frontend framework)
-- **Language:** JavaScript (CommonJS) with EJS templating
-- **Template Engine:** EJS (Embedded JavaScript)
-- **Test framework:** None (greenfield project)
-- **Source root:** `/home/user/archontesting/work1/coffee-shop/` (NOT YET CREATED)
-- **Node version:** v20.19.1
-- **npm version:** 10.8.2
+- **Framework:** Express.js (v4.21.0) with EJS templating (v3.1.10)
+- **Language:** JavaScript (Node.js, no bundler/transpiler)
+- **Test framework:** No test framework installed; E2E tests exist externally (Chromium/Playwright)
+- **Source root:** `/home/user/archontesting/work1/coffee-shop/`
 
-### Workspace Context
-- The repository contains a separate project `jobscraper/` (React + TypeScript + Express API — a job aggregation app)
-- The `coffee-shop/` directory is a **new greenfield project** to be created alongside `jobscraper/`
-- No existing EJS, CSS, or Node.js Express template files at the workspace root
-- No `node_modules` or `package.json` exist in `work1/` for the coffee shop project
-
-### Key Files (Existing Reference)
+### Key Files
 | File | Purpose |
 |------|---------|
-| `work1/jobscraper/server/src/index.ts` | Express server setup pattern (CORS, JSON parsing, route mounting) |
-| `work1/jobscraper/server/package.json` | Example Express package config (CommonJS `"type": "module"`) |
-| `work1/.idx/dev.nix` | Firebase Studio Nix environment config (Node.js available) |
+| `coffee-shop/server.js` | Express app entry point, route mounting, 404 handler |
+| `coffee-shop/routes/index.js` | All route definitions (home, menu, about, contact GET/POST) |
+| `coffee-shop/views/partials/head.ejs` | HTML `<head>` partial — charset, viewport, title, font links, stylesheet |
+| `coffee-shop/views/partials/nav.ejs` | Navigation bar with hamburger button and nav links |
+| `coffee-shop/views/partials/footer.ejs` | Footer with links, social icons, copyright |
+| `coffee-shop/views/pages/home.ejs` | Home page — featured coffees grid with emoji placeholders |
+| `coffee-shop/views/pages/menu.ejs` | Menu page — full coffee list grouped by category with emoji placeholders |
+| `coffee-shop/views/pages/about.ejs` | About page — story, mission, location |
+| `coffee-shop/views/pages/contact.ejs` | Contact page — form with server-side validation |
+| `coffee-shop/views/pages/404.ejs` | 404 error page |
+| `coffee-shop/public/css/style.css` | All styles — coffee-themed, mobile-first responsive |
+| `coffee-shop/public/js/main.js` | Client-side JS — hamburger toggle, form validation, active nav |
+| `coffee-shop/data/menu.json` | 8 coffee items with id, name, description, price, category, featured |
+| `coffee-shop/package.json` | Dependencies: express ^4.21.0, ejs ^3.1.10 |
 
 ## Existing Patterns
 
-### Express Server Pattern (from jobscraper reference)
+### Template Pattern
 ```
-file:work1/jobscraper/server/src/index.ts:1-27
+file:coffee-shop/views/pages/home.ejs:1-2
+Every page includes <%- include('../partials/head', { title: title }) %> and <%- include('../partials/nav', { currentPage: currentPage }) %> at the top, then <%- include('../partials/footer') %> at the bottom.
+Data is passed from routes as an object with `title`, `currentPage`, and page-specific fields.
 ```
-Express server with:
-- `express()` app creation
-- Middleware setup (cors, json parser)
-- Route mounting via `app.use('/prefix', router)`
-- Port from `process.env.PORT || 3001`
-- `app.listen(PORT, callback)`
 
-### Route Handler Pattern (from jobscraper reference)
+### Component Pattern
 ```
-file:work1/jobscraper/server/src/routes/jobs.ts:1-21
+file:coffee-shop/views/pages/home.ejs:21-28
+Coffee cards use the pattern:
+  <div class="coffee-card">
+    <div class="coffee-card-img">☕</div>     ← emoji placeholder
+    <div class="coffee-card-body">
+      <h3><%= item.name %></h3>
+      <p><%= item.description %></p>
+      <span class="coffee-card-price">$<%= item.price.toFixed(2) %></span>
+    </div>
+  </div>
+The same pattern duplicates in both home.ejs (line 22) and menu.ejs (line 18) — 8 total cards.
 ```
-Router pattern:
-- `import { Router } from 'express'`
-- `const router = Router()`
-- `router.get('/path', async (req, res) => { ... })`
-- `export default router`
-- Try/catch with error responses
 
-### Note on Stack Difference
-The coffee shop uses **plain JavaScript (not TypeScript)**, **EJS templates (not React)**, and **server-rendered multi-page app (not SPA)**. Patterns from jobscraper are adapted.
+### Styling Pattern
+```
+file:coffee-shop/public/css/style.css:1-687
+Single CSS file with:
+  - CSS custom properties (lines 7-34) for colors, fonts, shadows, radii, max-width
+  - Mobile-first base styles (lines 36-625): single-column grids, hamburger hidden
+  - Tablet @media (min-width: 768px) at line 630: 2-col grids
+  - Desktop @media (min-width: 1024px) at line 667: 3-4 col grids
+  - No max-width: 767px media query exists
+```
+
+### Navigation Pattern
+```
+file:coffee-shop/public/js/main.js:7-31
+Hamburger toggle uses class `nav-open` on `.nav-links` and `aria-expanded` on button.
+The JS already supports toggling — just needs CSS media query to activate.
+```
+
+### Error Handling Pattern
+```
+file:coffee-shop/routes/index.js:70-117
+Server-side: try/catch for menu data load (lines 7-12), field-level validation with errors object.
+Client-side: main.js lines 36-81 — form validation with preventDefault.
+404: server.js line 22-24 — renders 404.ejs for unmatched routes.
+```
+
+### Styling Pattern for .coffee-card-img
+```
+file:coffee-shop/public/css/style.css:309-317
+.coffee-card-img {
+  width: 100%;
+  height: 180px;
+  background: gradient;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;  ← for emoji
+}
+The background gradient and centering mean images will need to cover/contain the area properly.
+```
+
+### Variable Font Fallbacks in CSS
+```
+file:coffee-shop/public/css/style.css:21-22
+--font-heading: 'Playfair Display', Georgia, serif;
+--font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
+System fallbacks already declared in CSS custom properties.
+```
 
 ## Web Research
 
-### Express + EJS Project Setup
-- **Source:** Multiple guides (thelinuxcode.com, LogRocket, DigitalOcean, MDN)
-- **Finding:** Standard setup pattern:
-  ```js
-  const express = require('express');
-  const path = require('path');
-  const app = express();
-  app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, 'views'));
-  app.use(express.static(path.join(__dirname, 'public')));
-  app.use(express.urlencoded({ extended: false }));
-  ```
-- **Relevance:** Core server setup for the coffee shop
+### Self-Hosting Google Fonts (Playfair Display + Inter)
+- **Source:** gwfh.mranftl.com (google-webfonts-helper), multiple articles (web.dev, FontFYI)
+- **Finding:** The most practical approach for a simple Express/EJS site without a build system is:
+  1. Use google-webfonts-helper API to download WOFF2 files for Playfair Display (weights 400, 700) and Inter (weights 400, 500, 600)
+  2. Place them in `public/fonts/` directory
+  3. Add `@font-face` declarations at the top of `style.css` replacing the Google Fonts `<link>` tags
+  4. Use `font-display: swap` for both fonts
+  5. Remove the `preconnect` and stylesheet `<link>` tags from `head.ejs`
+- **Relevance:** Fixes issue #4 (Google Fonts 404 when offline) and improves performance
+- **Key commands:** `curl "https://gwfh.mranftl.com/api/fonts/inter?download=zip&subsets=latin&formats=woff2&variants=regular,500,600" -o inter.zip`
 
-### EJS Partials & Layout Pattern
-- **Source:** EJS docs, LogRocket, SyntaxStudy
-- **Finding:** EJS does not have built-in layout blocks but supports `include()` for partials. Recommended structure:
-  ```
-  views/
-    partials/
-      head.ejs
-      nav.ejs
-      footer.ejs
-    pages/
-      home.ejs
-      menu.ejs
-      about.ejs
-      contact.ejs
-  ```
-  Each page includes partials:
-  ```ejs
-  <%- include('../partials/head') %>
-  <%- include('../partials/nav') %>
-  <!-- page content -->
-  <%- include('../partials/footer') %>
-  ```
-- **Relevance:** Coffee shop pages will use this partial composition pattern. The `express-ejs-layouts` package is an alternative but manual includes keep dependencies minimal.
+### Unsplash Images for Coffee Products
+- **Source:** unsplash.com/documentation, unsplash.com/developers
+- **Finding:** Unsplash Source API (`source.unsplash.com`) is deprecated. The recommended approach is to use direct hotlinked image URLs from the Unsplash CDN. For a static site without an API key, use direct Unsplash photo URLs for specific coffee images. Example direct image URLs:
+  - Espresso: `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` (espresso shot)
+  - Latte: `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` (latte art)
+  - Cappuccino: `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop`
+  - Cold Brew: `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` (cold coffee)
+  - General coffee: Multiple specific Unsplash photo IDs available
+- **Relevance:** Fixes issues #3 and #5 — replace emoji placeholders with real product images
 
-### Coffee Shop Theming & Color Palette
-- **Source:** Multiple coffee website design references (Amber Cafe, Meridian, CodingNepal, prabasajee/coffee-shop)
-- **Finding:** Common coffee-themed palette:
-  - **Primary:** Warm brown (espresso) — `#3b141c`, `#4a2c2a`, `#2c1810`
-  - **Secondary:** Amber/golden accents — `#d3ad7f`, `#f3961c`, `#c67c4e`
-  - **Background:** Cream/light — `#faf4f5`, `#FFF8F0`, `#f5f0eb`
-  - **Text:** Dark brown/charcoal — `#252525`, `#2c1810`
-  - **White:** `#fff` for contrast areas
-- **Relevance:** Directly applicable to coffee shop theme; warm browns and creams match the requirements
-
-### Responsive Design Patterns
-- **Source:** CodingNepal coffee website tutorial, CSS Grid/Flexbox patterns
-- **Finding:** 
-  - Mobile-first approach with CSS media queries (breakpoints: 1024px, 900px, 640px)
-  - Flexbox for navbar and cards
-  - CSS Grid for menu item layout (3-column desktop → 2-column tablet → 1-column mobile)
-  - `clamp()` for fluid typography
-  - Hamburger menu for mobile navigation
-- **Relevance:** Coffee shop must be responsive; using CSS Grid/Flexbox without a framework
-
-### Contact Form Handling (Express)
-- **Source:** Multiple Express form handling tutorials
-- **Finding:** Standard pattern:
-  ```js
-  app.post('/contact', (req, res) => {
-    const { name, email, message } = req.body;
-    // Validate, store/email, send response
-    res.render('pages/contact', { success: true });
-  });
+### Hamburger Menu CSS Pattern
+- **Source:** Standard responsive nav pattern
+- **Finding:** The standard mobile hamburger pattern requires:
+  ```css
+  @media (max-width: 767px) {
+    .hamburger { display: flex; }
+    .nav-links { display: none; }
+    .nav-links.nav-open { display: flex; }
+  }
   ```
-  With `express.urlencoded({ extended: true })` middleware for parsing form data.
-- **Relevance:** Contact form on the coffee shop site needs POST handling, validation, and confirmation
-
-### Image Placeholder Patterns
-- **Source:** Web development best practices
-- **Finding:** Use CSS-styled div placeholders with coffee cup icon/emoji (☕) or SVG placeholders. Unsplash CDN URLs can provide realistic demo images (e.g., `https://images.unsplash.com/photo-xxxx`). For MVP, CSS placeholders with gradients and icons are sufficient.
-- **Relevance:** Coffee menu items need image placeholders
+  The JS in `main.js` already adds/removes `nav-open` class on click — only CSS is missing.
+- **Relevance:** Fixes issue #1 — critical mobile navigation bug
 
 ## Integration Points
+- [ ] `coffee-shop/public/css/style.css:172` — Add `@media (max-width: 767px)` rule for hamburger visibility and nav-links toggle
+- [ ] `coffee-shop/views/partials/head.ejs:6` — Add `<meta name="description">` tag after viewport meta
+- [ ] `coffee-shop/views/pages/home.ejs:22` — Replace `☕` emoji with `<img>` tag in featured coffee card
+- [ ] `coffee-shop/views/pages/menu.ejs:18` — Replace `☕` emoji with `<img>` tag in menu coffee cards
+- [ ] `coffee-shop/views/partials/head.ejs:7-9` — Remove Google Fonts preconnect/stylesheet links, add `@font-face` CSS to style.css
+- [ ] `coffee-shop/public/css/style.css` — Add `@font-face` declarations for Playfair Display (400, 700) and Inter (400, 500, 600)
+- [ ] `coffee-shop/public/fonts/` — Create directory and add self-hosted WOFF2 font files
 
-The coffee shop is a **standalone greenfield project** — it does not integrate with the existing jobscraper codebase. Integration points are within itself:
+## Coffee-to-Image Mapping (for issues #3 and #5)
+Based on Unsplash research, suitable images for each menu item:
 
-- [ ] `/home/user/archontesting/work1/coffee-shop/package.json` — New project manifest with Express + EJS dependencies
-- [ ] `/home/user/archontesting/work1/coffee-shop/server.js` — Express server entry point
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/partials/head.ejs` — HTML head partial (meta, title, styles)
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/partials/nav.ejs` — Navigation bar partial
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/partials/footer.ejs` — Footer partial
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/pages/home.ejs` — Home page (hero, featured coffees)
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/pages/menu.ejs` — Menu page (coffee items with name, description, price, image)
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/pages/about.ejs` — About page (story, location)
-- [ ] `/home/user/archontesting/work1/coffee-shop/views/pages/contact.ejs` — Contact page (form)
-- [ ] `/home/user/archontesting/work1/coffee-shop/public/css/style.css` — Main stylesheet
-- [ ] `/home/user/archontesting/work1/coffee-shop/public/js/main.js` — Client-side JavaScript (menu toggle, form validation)
-- [ ] `/home/user/archontesting/work1/coffee-shop/routes/index.js` — Route definitions for all pages
+| Coffee Item | Suggested Unsplash Subject | Image Style |
+|-------------|---------------------------|-------------|
+| Classic Espresso | Espresso shot with crema | Dark, rich, close-up |
+| Vanilla Latte | Latte art in white cup | Creamy, warm tones |
+| Cappuccino | Cappuccino with foam art | Brown/white layers |
+| Caramel Macchiato | Layered espresso drink | Golden, caramel drizzle |
+| Cold Brew | Cold brew on ice | Dark, refreshing, ice visible |
+| Iced Mocha | Chocolate coffee drink | Dark, cold glass |
+| Matcha Latte | Matcha green tea latte | Green, vibrant |
+| Americano | Black coffee in mug | Simple, clean |
 
 ## Clarifications
-
-- **None** — the feature description is clear and complete. All requirements are well-specified.
-
-## Project Structure Recommendation
-
-Based on research and best practices, the recommended structure is:
-
-```
-coffee-shop/
-├── package.json
-├── server.js                  # Express entry point
-├── routes/
-│   └── index.js               # Page routes (home, menu, about, contact)
-├── views/
-│   ├── partials/
-│   │   ├── head.ejs           # <head> with meta, title, CSS links
-│   │   ├── nav.ejs            # Navigation bar (responsive, hamburger on mobile)
-│   │   └── footer.ejs         # Footer with copyright, social links
-│   └── pages/
-│       ├── home.ejs           # Hero section + featured coffees preview
-│       ├── menu.ejs           # Full coffee menu with grid of items
-│       ├── about.ejs          # Story and location info
-│       └── contact.ejs        # Contact form (name, email, message)
-├── public/
-│   ├── css/
-│   │   └── style.css          # All styles (coffee theme, responsive)
-│   └── js/
-│       └── main.js            # Client-side interactivity
-└── data/
-    └── menu.json              # Coffee menu data (name, description, price, image)
-```
-
-### Key Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Module system | CommonJS (`require`) | Simpler setup, no `"type": "module"` needed, widely documented |
-| Layout strategy | Manual `<%- include() %>` partials | Zero extra dependencies, straightforward for 4 pages |
-| CSS framework | None (vanilla CSS) | No framework dependency; coffee theme is custom |
-| Form handling | Server-side POST + validation | Standard Express pattern with `urlencoded` middleware |
-| Image placeholders | CSS-styled divs with coffee icon | Works without external assets; can be upgraded to real images later |
-| Server port | `process.env.PORT \|\| 3000` | Standard Express pattern |
-| Responsive approach | Mobile-first with 3 breakpoints | Best practice; matches coffee website reference patterns |
+- None — all issues are clearly described with file:line references in `E2E-ISSUES.md` and `input.txt`
+- Note: For the self-hosted fonts approach, actual WOFF2 files need to be downloaded and added to the repo (or we use an alternative CSS-based fallback approach)
+- Note: The `display: none` on `.hamburger` is at line 172 of style.css (as noted in input.txt), but CSS line 173 shows `display: none` — this matches
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

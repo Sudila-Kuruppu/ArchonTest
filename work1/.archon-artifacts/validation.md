@@ -1,7 +1,7 @@
 # DCW VALIDATE — Validation Results
 
 ## Meta
-- **Feature:** coffee-shop-website
+- **Feature:** fix-e2e-test-issues
 - **Phase:** VALIDATE
 - **Date:** 2026-06-06
 
@@ -9,29 +9,37 @@
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Syntax check (node -c) | PASS | All 3 JS files pass syntax check |
-| Directory structure | PASS | Complete project structure in place |
-| npm install (node_modules) | PASS | node_modules exists, 76 packages installed |
-| Server start | PASS | Server starts on port 3000 |
-| Menu data (JSON load) | PASS | 8 items loaded, 2 categories (hot, cold) |
-| All views exist | PASS | 3 partials + 5 pages (incl. 404) |
-| Static files serve | PASS | CSS (12516B) and JS (3148B) served correctly |
-| GET / (home) | PASS | HTTP 200, 4257 bytes |
-| GET /menu | PASS | HTTP 200, 5787 bytes |
-| GET /about | PASS | HTTP 200, 4534 bytes |
-| GET /contact | PASS | HTTP 200, 3665 bytes |
-| POST /contact (invalid) | PASS | HTTP 200, form validation renders with errors |
-| 404 handler | PASS | HTTP 404, custom 404 page (2344 bytes) |
+| Syntax check (`node --check server.js + routes/index.js`) | PASS | No syntax errors |
+| JSON validity (`menu.json` parse) | PASS | Valid JSON |
+| Server smoke test (start + shutdown) | PASS | Server starts successfully |
+| Integration test (HTTP request) | PASS | Home page renders with expected content |
+| Lint | SKIP | No linter configured (plan.yaml) |
+| Tests | SKIP | No test framework configured (plan.yaml) |
+| Build | SKIP | No build step configured (plan.yaml) |
+| T1: Media query `@media (max-width: 767px)` | PASS | Media query rule found in style.css |
+| T1b: Hamburger menu `.hamburger { display: flex }` | PASS | Hamburger flex rule found |
+| T2: Meta description tag | PASS | `<meta name="description">` found in head.ejs |
+| T3: Coffee card image CSS `.coffee-card-img img` | PASS | Image rule found in style.css |
+| T4: Image URLs in menu.json | PASS | All 8 items have `image` field |
+| T5: `<img>` tag in home.ejs | PASS | Image tags found in featured coffee cards |
+| T6: `<img>` tag in menu.ejs | PASS | Image tags found in all menu items |
+| T7a: Fonts directory | PASS | `public/fonts/` directory exists |
+| T7b: WOFF2 font files | PASS | 5 woff2 files present (Playfair Display + Inter variants) |
+| T8a: `@font-face` declarations | PASS | `@font-face` rules found in style.css |
+| T8b: Playfair Display font-family | PASS | `font-family: 'Playfair Display'` declared |
+| T8c: Inter font-family | PASS | `font-family: 'Inter'` declared |
+| T9a: Google Fonts external links | PASS | All `fonts.googleapis.com` links removed from head.ejs |
+| T9b: Local stylesheet reference | PASS | Local `style.css` still referenced in head.ejs |
 
 ## Failures
 
-No failures encountered.
+*No failures encountered.*
 
 ## Summary
-- **Total checks:** 13
-- **Passed:** 13
+- **Total checks:** 21
+- **Passed:** 15
 - **Failed:** 0
-- **Skipped (N/A):** 0
+- **Skipped (N/A):** 3
 - **All pass:** YES
 
 ---

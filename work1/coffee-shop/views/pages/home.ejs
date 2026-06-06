@@ -19,7 +19,13 @@
       <% if (typeof featured !== 'undefined' && featured.length > 0) { %>
         <% featured.forEach(function(item) { %>
           <div class="coffee-card">
-            <div class="coffee-card-img">☕</div>
+            <div class="coffee-card-img">
+              <% if (item.image) { %>
+                <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
+              <% } else { %>
+                ☕
+              <% } %>
+            </div>
             <div class="coffee-card-body">
               <h3><%= item.name %></h3>
               <p><%= item.description %></p>

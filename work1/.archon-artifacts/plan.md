@@ -1,175 +1,211 @@
-# DCW PLAN — Coffee Shop Website
+# DCW PLAN — Fix E2E Test Issues (Brew & Bean Coffee Shop)
 
 ## Meta
-- **Feature:** Coffee Shop Website (Node.js + Express + EJS multi-page site)
+- **Feature:** Fix E2E Test Issues
 - **Phase:** PLAN
 - **Date:** 2026-06-06
 
 ## Summary
-Create a fully functional, multi-page coffee shop website under `coffee-shop/` using Node.js + Express + EJS for server-side rendering. The site will have a warm brown/cream coffee theme, responsive design for mobile and desktop, and a contact form with server-side handling.
+Fix 5 issues identified by automated Chromium/Playwright E2E testing across mobile/tablet/desktop viewports: mobile hamburger menu never visible (CRITICAL), missing meta description (MEDIUM), emoji image placeholders (LOW/LOW), and Google Fonts 404 when offline (LOW).
 
 ### UX Flow
 ```
-Before: No coffee shop site exists
-After:  Users visit coffee-shop/ and see:
-        1. Home page — hero banner + featured coffees preview
-        2. Menu page — full coffee grid with name, description, price, image
-        3. About page — story, mission, location
-        4. Contact page — form with name/email/message → POST handler
-        Navigate via responsive navbar with hamburger on mobile
+Before: Mobile nav is broken (hamburger always hidden), no SEO meta tags, coffee cards use emoji placeholders, fonts 404 offline
+After:  Mobile nav works with hamburger toggle, pages have meta descriptions, coffee cards show real product images, fonts load from local files
 ```
 
 ## Scope
 
 ### In Scope
-- Create `coffee-shop/` directory with full project structure (package.json, server.js, routes/, views/, public/)
-- Express server with EJS view engine, static file serving, and URL-encoded body parsing
-- 4 server-rendered pages: Home (hero + featured coffees), Menu (full coffee grid), About (story/location), Contact (form)
-- EJS partials for head, nav, and footer — reused across all pages
-- Responsive coffee-themed CSS with warm browns and creams (mobile-first with 3 breakpoints)
-- Contact form with server-side POST handling (validation, success/error states)
-- Coffee menu data stored in `data/menu.json` (6+ items with name, description, price)
-- Client-side JavaScript for hamburger menu toggle and form validation
-- CSS-styled image placeholders with coffee emoji (☕) for menu items
-- `npm install` and server startup verification
+- Add `@media (max-width: 767px)` CSS rule to make hamburger visible and toggle nav-links on mobile
+- Add `<meta name="description">` tag to `head.ejs` for SEO
+- Add `.coffee-card-img img` CSS rule for proper image display in coffee cards
+- Add `image` URL field to all 8 menu items in `menu.json`
+- Replace ☕ emoji with `<img>` tags in `home.ejs` (featured coffees — up to 4 cards)
+- Replace ☕ emoji with `<img>` tags in `menu.ejs` (all 8 menu items across categories)
+- Create `public/fonts/` directory and download WOFF2 font files for Playfair Display (400, 700) and Inter (400, 500, 600)
+- Add `@font-face` declarations at top of `style.css` for self-hosted fonts with `font-display: swap`
+- Remove Google Fonts external `<link>` tags from `head.ejs`
 
 ### Out of Scope
-- Database integration (data stored in static JSON file)
-- User authentication or login system
-- Payment/checkout/e-commerce functionality
-- Real image assets (CSS placeholders used instead)
-- Email delivery for contact form (server-side logging to console only)
-- Automated testing framework
-- Deployment configuration (Docker, CI/CD, hosting)
-- Admin panel or content management system
+- Adding a build system or bundler
+- Adding a test framework or unit tests
+- Redesigning layout or visual style
+- Adding new pages, routes, or functionality
+- Changing menu data structure beyond adding `image` URLs
+- Accessibility features beyond what's specified
+- Performance optimization beyond font self-hosting
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 (package.json & dirs)
-├── T2 (server.js)
-├── T3 (routes/index.js)
-├── T4 (data/menu.json)
-├── T5 (view partials: head, nav, footer)
-│   ├── T6 (views/pages/home.ejs)
-│   ├── T7 (views/pages/menu.ejs)
-│   ├── T8 (views/pages/about.ejs)
-│   └── T9 (views/pages/contact.ejs)
-├── T10 (public/css/style.css)
-├── T11 (public/js/main.js)
-└── T12 (npm install + verify) [depends on all above]
+T1 ─┐
+T2 ─┤
+T3 ─┤
+T4 ─┤
+T7 ─┤
+    ├──> T5 (depends T4)
+    ├──> T6 (depends T4)
+    ├──> T8 (depends T7)
+    └──> T9 (depends T7)
 ```
+
+Root tasks (T1, T2, T3, T4, T7) can be done in parallel. T5/T6 depend on T4 (image URLs). T8/T9 depend on T7 (font files).
 
 ### Task Table
 | ID | Action | File | Depends | Validate |
 |----|--------|------|---------|----------|
-| T1 | CREATE | `coffee-shop/package.json` | — | `test -f coffee-shop/package.json` |
-| T2 | CREATE | `coffee-shop/server.js` | T1 | `node -c coffee-shop/server.js` |
-| T3 | CREATE | `coffee-shop/routes/index.js` | T1 | `node -c coffee-shop/routes/index.js` |
-| T4 | CREATE | `coffee-shop/data/menu.json` | T1 | `node -e "require('./data/menu.json')"` |
-| T5 | CREATE | `coffee-shop/views/partials/{head,nav,footer}.ejs` | T1 | All 3 files exist |
-| T6 | CREATE | `coffee-shop/views/pages/home.ejs` | T5 | File exists |
-| T7 | CREATE | `coffee-shop/views/pages/menu.ejs` | T5 | File exists |
-| T8 | CREATE | `coffee-shop/views/pages/about.ejs` | T5 | File exists |
-| T9 | CREATE | `coffee-shop/views/pages/contact.ejs` | T5 | File exists |
-| T10 | CREATE | `coffee-shop/public/css/style.css` | T1 | File exists |
-| T11 | CREATE | `coffee-shop/public/js/main.js` | T1 | `node -c main.js` |
-| T12 | UPDATE | `coffee-shop/package.json` | All | `npm install` + server start |
+| T1 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for media query + `.hamburger { display: flex` |
+| T2 | UPDATE | `coffee-shop/views/partials/head.ejs` | — | `grep` for meta description tag |
+| T3 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for `.coffee-card-img img` |
+| T4 | UPDATE | `coffee-shop/data/menu.json` | — | `node` JSON check — all 8 items have `image` field |
+| T5 | UPDATE | `coffee-shop/views/pages/home.ejs` | T4 | `grep` for `<img` + server syntax check |
+| T6 | UPDATE | `coffee-shop/views/pages/menu.ejs` | T4 | `grep` for `<img` + server syntax check |
+| T7 | CREATE | `coffee-shop/public/fonts/` | — | Dir exists + `.woff2` files present |
+| T8 | UPDATE | `coffee-shop/public/css/style.css` | T7 | `grep` for `@font-face` + Playfair + Inter |
+| T9 | UPDATE | `coffee-shop/views/partials/head.ejs` | T7 | Google Fonts link removed, local stylesheet kept |
 
 ### Task Details
 
-#### T1: Create project directory and package.json
-- **Action:** CREATE `coffee-shop/package.json`
-- **Patterns:** `jobscraper/server/package.json` (reference for structure — adapted to CommonJS, no TypeScript)
-- **Description:** Create `coffee-shop/` directory structure and write package.json with dependencies: `express`, `ejs`. Dev script: `node server.js`.
-- **Validate:** `test -f coffee-shop/package.json && echo 'package.json exists'`
+#### T1: Add responsive hamburger menu CSS rule for mobile
+- **Action:** UPDATE `coffee-shop/public/css/style.css`
+- **Details:** Add `@media (max-width: 767px)` block at the end of the file (after the desktop section at line 687) with:
+  - `.hamburger { display: flex; }` — show hamburger button on mobile
+  - `.nav-links { display: none; flex-direction: column; position: absolute; top: var(--header-height); left: 0; right: 0; background: var(--color-primary); padding: 1rem; gap: 0.5rem; }` — hide nav by default on mobile, style as dropdown
+  - `.nav-links.nav-open { display: flex; }` — show nav when toggled
+- **Validate:** `grep -q 'max-width: 767px'` and `grep -q '.hamburger { display: flex'`
 
-#### T2: Create Express server entry point (server.js)
-- **Action:** CREATE `coffee-shop/server.js`
-- **Patterns:** `jobscraper/server/src/index.ts` (Express app pattern — adapted to CommonJS `require()`, `app.set('view engine', 'ejs')`, static file middleware)
-- **Description:** Express server with: EJS view engine config, `express.static()` for `public/`, `express.urlencoded()` for form parsing, route mounting from `./routes/index.js`, port from `process.env.PORT || 3000`. Includes `app.listen()` startup message.
-- **Validate:** `test -f coffee-shop/server.js && node -c coffee-shop/server.js`
+#### T2: Add meta description tag to head.ejs
+- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
+- **Details:** After line 5 (`<meta name="viewport">`), add:
+  `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">`
+- **Validate:** `grep -q 'meta name="description"'`
 
-#### T3: Create route handler (routes/index.js)
-- **Action:** CREATE `coffee-shop/routes/index.js`
-- **Description:** Express Router with GET routes: `/` (render home with featured coffees), `/menu` (render menu with full list), `/about` (render about), `/contact` (render contact). POST route: `/contact` (parse body, validate name/email/message, log to console, re-render contact with success/error flash). Routes load menu data from `../data/menu.json`.
-- **Validate:** `test -f coffee-shop/routes/index.js && node -c coffee-shop/routes/index.js`
+#### T3: Add CSS rule for coffee card images
+- **Action:** UPDATE `coffee-shop/public/css/style.css`
+- **Details:** After the `.coffee-card-img` rule block (line 317), add:
+  ```css
+  .coffee-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  ```
+- **Validate:** `grep -q '.coffee-card-img img'`
 
-#### T4: Create menu data (data/menu.json)
-- **Action:** CREATE `coffee-shop/data/menu.json`
-- **Description:** JSON array of 6-8 coffee items. Each item: `{ id, name, description, price, category, featured }`. Includes classic espresso, latte, cappuccino, cold brew, mocha, Americano, etc. 3-4 items marked as `featured: true` for home page display.
-- **Validate:** `test -f coffee-shop/data/menu.json && node -e "const d=require('./coffee-shop/data/menu.json'); console.log('Items:', d.length)"`
+#### T4: Add image URLs to all 8 menu items in menu.json
+- **Action:** UPDATE `coffee-shop/data/menu.json`
+- **Details:** Add an `image` field with Unsplash photo URL to each menu item:
+  | id | Name | Image URL |
+  |----|------|-----------|
+  | 1 | Classic Espresso | `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` |
+  | 2 | Vanilla Latte | `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` |
+  | 3 | Cappuccino | `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop` |
+  | 4 | Caramel Macchiato | `https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=300&fit=crop` |
+  | 5 | Cold Brew | `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` |
+  | 6 | Iced Mocha | `https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop` |
+  | 7 | Matcha Latte | `https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=300&fit=crop` |
+  | 8 | Americano | `https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop` |
+- **Validate:** Node script that loads JSON and asserts each item has `image`
 
-#### T5: Create EJS view partials (head, nav, footer)
-- **Action:** CREATE `coffee-shop/views/partials/`
-- **Description:**
-  - `head.ejs` — `<head>` with charset, viewport meta, title variable (`<%= title %>`), CSS links to style.css, Google Fonts (optional)
-  - `nav.ejs` — Responsive navbar with logo/brand name "Brew & Bean", nav links (Home, Menu, About, Contact), hamburger toggle button for mobile. Highlights active page based on current URL.
-  - `footer.ejs` — Footer with copyright ©, tagline, social media icon links (CSS-styled)
-- **Validate:** `test -f coffee-shop/views/partials/head.ejs && test -f coffee-shop/views/partials/nav.ejs && test -f coffee-shop/views/partials/footer.ejs`
+#### T5: Replace emoji with <img> in home.ejs featured coffees
+- **Action:** UPDATE `coffee-shop/views/pages/home.ejs`
+- **Details:** Replace line 22:
+  ```ejs
+  <div class="coffee-card-img">☕</div>
+  ```
+  with:
+  ```ejs
+  <div class="coffee-card-img">
+    <% if (item.image) { %>
+      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
+    <% } else { %>
+      ☕
+    <% } %>
+  </div>
+  ```
+- **Patterns:** Mirror the `<img>` pattern (also used in T6 for menu.ejs)
+- **Depends:** T4 (menu.json with image URLs)
+- **Validate:** `grep -q '<img'` in home.ejs + server syntax check
 
-#### T6: Create home page (views/pages/home.ejs)
-- **Action:** CREATE `coffee-shop/views/pages/home.ejs`
-- **Depends:** T5 (uses partials)
-- **Description:** Home page with: (1) Hero section — large background area with shop name, tagline, and CTA button linking to menu; (2) Featured coffees section — grid of 3-4 featured items (name, price, image placeholder with ☕), each linking to menu or details. Includes partials via `<%- include() %>`.
-- **Validate:** `test -f coffee-shop/views/pages/home.ejs`
+#### T6: Replace emoji with <img> in menu.ejs all coffee cards
+- **Action:** UPDATE `coffee-shop/views/pages/menu.ejs`
+- **Details:** Replace line 18:
+  ```ejs
+  <div class="coffee-card-img">☕</div>
+  ```
+  with:
+  ```ejs
+  <div class="coffee-card-img">
+    <% if (item.image) { %>
+      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
+    <% } else { %>
+      ☕
+    <% } %>
+  </div>
+  ```
+- **Patterns:** Mirror the same pattern from T5 (home.ejs)
+- **Depends:** T4 (menu.json with image URLs)
+- **Validate:** `grep -q '<img'` in menu.ejs + server syntax check
 
-#### T7: Create menu page (views/pages/menu.ejs)
-- **Action:** CREATE `coffee-shop/views/pages/menu.ejs`
-- **Depends:** T5 (uses partials)
-- **Description:** Full coffee menu displayed in responsive grid. Each item card shows: (1) CSS image placeholder with ☕ emoji, (2) Coffee name, (3) Short description, (4) Price. Items grouped by category (hot, cold, etc.) with section headers. Includes partials.
-- **Validate:** `test -f coffee-shop/views/pages/menu.ejs`
+#### T7: Create fonts directory and download WOFF2 files
+- **Action:** CREATE `coffee-shop/public/fonts/`
+- **Details:**
+  1. Create directory: `mkdir -p coffee-shop/public/fonts/`
+  2. Download Playfair Display (400, 700) and Inter (400, 500, 600) WOFF2 files using google-webfonts-helper or Fontsource API. Expected files:
+     - `playfair-display-regular.woff2`
+     - `playfair-display-700.woff2`
+     - `inter-regular.woff2`
+     - `inter-500.woff2`
+     - `inter-600.woff2`
+- **Validate:** Directory exists + at least one `.woff2` file present
 
-#### T8: Create about page (views/pages/about.ejs)
-- **Action:** CREATE `coffee-shop/views/pages/about.ejs`
-- **Depends:** T5 (uses partials)
-- **Description:** About page with: (1) Story section — narrative about the coffee shop's founding and passion for coffee; (2) Mission/values section; (3) Location section with address and "find us" info. Warm, inviting tone. Includes partials.
-- **Validate:** `test -f coffee-shop/views/pages/about.ejs`
+#### T8: Add @font-face declarations to style.css
+- **Action:** UPDATE `coffee-shop/public/css/style.css`
+- **Details:** Insert at line 1 (before CSS variables), 5 `@font-face` blocks:
+  - Playfair Display (400) — `url('/fonts/playfair-display-regular.woff2') format('woff2')`
+  - Playfair Display (700) — `url('/fonts/playfair-display-700.woff2') format('woff2')`
+  - Inter (400) — `url('/fonts/inter-regular.woff2') format('woff2')`
+  - Inter (500) — `url('/fonts/inter-500.woff2') format('woff2')`
+  - Inter (600) — `url('/fonts/inter-600.woff2') format('woff2')`
+  - All with `font-display: swap`
+- **Depends:** T7 (font files must exist — referenced in `url()`)
+- **Validate:** `grep` for `@font-face`, `Playfair Display`, `Inter`
 
-#### T9: Create contact page (views/pages/contact.ejs)
-- **Action:** CREATE `coffee-shop/views/pages/contact.ejs`
-- **Depends:** T5 (uses partials)
-- **Description:** Contact page with: (1) Intro text — "We'd love to hear from you"; (2) Form with fields: name (text), email (email), message (textarea), submit button; (3) Success message display (conditionally shown when `success` variable is passed); (4) Error messages per field (conditionally shown when `errors` object is passed). Includes partials. Form action POST to `/contact`.
-- **Validate:** `test -f coffee-shop/views/pages/contact.ejs`
-
-#### T10: Create CSS stylesheet (public/css/style.css)
-- **Action:** CREATE `coffee-shop/public/css/style.css`
-- **Description:** Complete coffee-themed stylesheet:
-  - Color palette: warm browns (`#3b141c`, `#4a2c2a`, `#54372a`), amber/gold accents (`#d3ad7f`, `#c67c4e`), cream backgrounds (`#faf4f5`, `#FFF8F0`), dark text (`#252525`)
-  - Mobile-first responsive design with breakpoints at 768px (tablet) and 1024px (desktop)
-  - Flexbox navbar with hamburger toggle styling
-  - CSS Grid for menu items (1-col mobile → 2-col tablet → 3-col desktop)
-  - Card styles for coffee items with image placeholder styling
-  - Hero section with gradient overlay
-  - Form styling (inputs, textarea, button)
-  - Footer styling
-  - Smooth transitions and hover effects
-- **Validate:** `test -f coffee-shop/public/css/style.css`
-
-#### T11: Create client-side JS (public/js/main.js)
-- **Action:** CREATE `coffee-shop/public/js/main.js`
-- **Description:** Client-side JavaScript with: (1) Hamburger menu toggle — click handler to show/hide nav links on mobile; (2) Contact form validation — checks name not empty, email format, message not empty, shows inline error messages before submit; (3) Smooth scroll for anchor links. Uses vanilla JavaScript (no frameworks).
-- **Validate:** `test -f coffee-shop/public/js/main.js && node -c coffee-shop/public/js/main.js`
-
-#### T12: npm install and verify server start
-- **Action:** UPDATE `coffee-shop/package.json` (post-setup validation)
-- **Depends:** All prior tasks (T1 through T11)
-- **Description:** Run `npm install` in the coffee-shop directory to install Express and EJS. Then start the server briefly to verify it boots without errors. This task validates the entire project is functional.
-- **Validate:** `npm install 2>&1 | tail -5` then `timeout 5 node coffee-shop/server.js 2>&1 || true`
+#### T9: Remove Google Fonts external <link> tags from head.ejs
+- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
+- **Details:** Remove lines 7-9 (3 link tags):
+  ```html
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display...&family=Inter...&display=swap" rel="stylesheet">
+  ```
+  Keep the local stylesheet link (line 10).
+- **Depends:** T7 (font files must be available since external links are removed)
+- **Validate:** Confirm `fonts.googleapis.com` NOT present, but `<link rel="stylesheet" href="/css/style.css">` still present
 
 ## Testing Strategy
-- **Syntax validation:** Run `node -c` on all `.js` files to check for syntax errors
-- **JSON validation:** Node.js `require()` on `data/menu.json` valid JSON
-- **Build verification:** `npm install` completes without errors
-- **Server smoke test:** Start server with timeout, verify it binds and logs startup message
-- **Visual verification:** Manually open `http://localhost:3000` and navigate all pages
+Since no test framework is configured:
+- **Syntax validation:** `node --check server.js` and `node --check routes/index.js` after EJS template changes (EJS templates are validated at render time)
+- **JSON validation:** Parse `menu.json` with Node.js to confirm valid JSON with all required fields
+- **Server smoke test:** Start the Express server briefly to confirm it loads without errors
+- **File content checks:** Use `grep` to confirm expected patterns exist in modified files
+- **Negative checks:** Confirm Google Fonts external URLs are removed
+
+### Edge Cases Handled
+- **Missing image fallback:** If `item.image` is missing in EJS templates, emoji fallback still renders
+- **Font file missing:** If font files fail to download, browser falls back to Georgia/Arial via existing CSS `font-family` stacks
+- **Mobile nav close:** JS already handles click-outside and link-click close behaviors
 
 ## Validation Plan
-- **File structure check:** `ls -R coffee-shop/` to confirm all expected files exist
-- **Syntax check:** `for f in $(find coffee-shop -name '*.js' -not -path '*/node_modules/*'); do node -c "$f"; done`
-- **npm install:** `test -d coffee-shop/node_modules && echo 'node_modules exists'`
-- **Server start:** `timeout 3 node coffee-shop/server.js 2>&1 || true` (server will be killed by timeout, that's OK)
+- **Syntax check:** `node --check coffee-shop/server.js && node --check coffee-shop/routes/index.js`
+- **JSON validity:** `node -e "JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))"`
+- **Server start:** `timeout 3 node -e "const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);"`
+- **Lint:** No linter configured — skipped
+- **Tests:** No test framework configured — skipped
+- **Build:** No build step configured — skipped
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*
