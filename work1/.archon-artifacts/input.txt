@@ -1,40 +1,15 @@
-# JobScraper MVP — Full Stack Implementation
+Create a coffee selling website in /home/user/archontesting/work1/coffee-shop
 
-## Description
-Build the complete MVP for JobScraper, a multi-board job aggregation web app. This is a greenfield project — no code exists yet.
+Tech stack: Node.js + Express + EJS (server-side rendered multi-page site)
 
-## P0 Requirements (all must be implemented)
-
-### FR-01: Multi-board search
-Search across 3+ job boards (LinkedIn, Indeed, and at least one more such as Glassdoor or SimplyHired) in a single query.
-
-### FR-02: Keyword & location input
-Accept keyword and location input from the user for search queries.
-
-### FR-03: Unified results display
-Display search results in a unified list with title, company, location, and a link to the original posting.
-
-### FR-04: Save/bookmark listings
-Allow users to save/bookmark an unlimited number of job listings to a personal collection.
-
-### FR-05: User registration & login
-Support user registration and login to persist saved jobs and preferences. Passwords must be hashed with bcrypt.
-
-### FR-06: Export to CSV & Excel
-Allow users to export search results or saved listings to CSV and Excel formats.
-
-### FR-07: Graceful error handling
-Surface errors gracefully when a specific job board is unreachable or returns no results.
-
-## Environment
-- Node.js v20.19.1 available
-- npm available
-- No other runtimes available
-- Working directory: /home/user/archontesting/work1
-- Repo root: /home/user/archontesting
-
-## Constraints
-- No external database service — use SQLite or similar file-based DB
-- All traffic local/dev for now (no HTTPS requirement in dev)
-- UI should be usable on desktop browsers
-- Keep it simple — this is an MVP
+Requirements:
+- Multi-page website with navigation
+- Pages: Home (hero/menu preview), Menu (full coffee menu with prices), About (story/location), Contact (form)
+- Fully working navigation between pages
+- Responsive design (looks good on mobile and desktop)
+- Coffee-themed styling (warm browns, creams)
+- Contact form with server-side handling
+- Express server setup with routes for each page
+- EJS templating with layout/partials (header, footer, nav)
+- A "featured coffees" section on the home page
+- Each coffee item on menu page should show name, description, price, and an image placeholder

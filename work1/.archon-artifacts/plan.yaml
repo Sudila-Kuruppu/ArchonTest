@@ -1,0 +1,136 @@
+meta:
+  name: "coffee-shop-website"
+  description: "Multi-page coffee selling website with Node.js + Express + EJS"
+  created: "2026-06-06"
+
+scope:
+  in_scope:
+    - "Create coffee-shop/ directory with full project structure"
+    - "Express server with EJS view engine, static file serving, URL-encoded body parsing"
+    - "4 pages: Home (hero + featured coffees), Menu (full coffee grid), About (story/location), Contact (form)"
+    - "EJS partials for head, nav, and footer reused across all pages"
+    - "Responsive coffee-themed CSS (warm browns, creams, mobile-first)"
+    - "Contact form with server-side POST handling and validation"
+    - "Coffee menu data stored in JSON file"
+    - "Client-side JS for mobile hamburger menu and form validation"
+    - "CSS-styled image placeholders with coffee emoji for menu items"
+    - "npm install and basic server verification"
+
+  out_of_scope:
+    - "Database integration (no SQLite/Postgres — static JSON data)"
+    - "User authentication or login system"
+    - "Payment/checkout functionality"
+    - "Real image assets (using CSS placeholders instead)"
+    - "Email delivery for contact form (server-side logging only)"
+    - "Testing framework or automated tests"
+    - "Deployment configuration (Docker, CI/CD)"
+    - "Admin panel or content management"
+
+tasks:
+  - id: "T1"
+    description: "Create coffee-shop directory and package.json with Express + EJS dependencies"
+    action: "CREATE"
+    path: "coffee-shop/package.json"
+    depends: []
+    patterns:
+      - "jobscraper/server/package.json"
+    validate:
+      - "test -f coffee-shop/package.json && echo 'package.json exists'"
+
+  - id: "T2"
+    description: "Create Express server entry point (server.js) with EJS config, static files, body parsing, and route mounting"
+    action: "CREATE"
+    path: "coffee-shop/server.js"
+    depends: ["T1"]
+    patterns:
+      - "jobscraper/server/src/index.ts"
+    validate:
+      - "test -f coffee-shop/server.js && node -c coffee-shop/server.js"
+
+  - id: "T3"
+    description: "Create route handler (routes/index.js) with GET routes for /, /menu, /about, /contact and POST /contact handler"
+    action: "CREATE"
+    path: "coffee-shop/routes/index.js"
+    depends: ["T1"]
+    validate:
+      - "test -f coffee-shop/routes/index.js && node -c coffee-shop/routes/index.js"
+
+  - id: "T4"
+    description: "Create menu data file (data/menu.json) with 6+ coffee items including name, description, price, and image placeholder info"
+    action: "CREATE"
+    path: "coffee-shop/data/menu.json"
+    depends: ["T1"]
+    validate:
+      - "test -f coffee-shop/data/menu.json && node -e \"const d=require('./coffee-shop/data/menu.json'); console.log('Items:', d.length)\""
+
+  - id: "T5"
+    description: "Create EJS view partials: head.ejs (meta, title, CSS links), nav.ejs (responsive navbar with hamburger), footer.ejs (copyright)"
+    action: "CREATE"
+    path: "coffee-shop/views/partials/"
+    depends: ["T1"]
+    validate:
+      - "test -f coffee-shop/views/partials/head.ejs && test -f coffee-shop/views/partials/nav.ejs && test -f coffee-shop/views/partials/footer.ejs"
+
+  - id: "T6"
+    description: "Create home page (views/pages/home.ejs) with hero section and featured coffees preview using partials"
+    action: "CREATE"
+    path: "coffee-shop/views/pages/home.ejs"
+    depends: ["T5"]
+    validate:
+      - "test -f coffee-shop/views/pages/home.ejs"
+
+  - id: "T7"
+    description: "Create menu page (views/pages/menu.ejs) with full coffee menu grid showing name, description, price, and image placeholder"
+    action: "CREATE"
+    path: "coffee-shop/views/pages/menu.ejs"
+    depends: ["T5"]
+    validate:
+      - "test -f coffee-shop/views/pages/menu.ejs"
+
+  - id: "T8"
+    description: "Create about page (views/pages/about.ejs) with coffee shop story, mission, and location details"
+    action: "CREATE"
+    path: "coffee-shop/views/pages/about.ejs"
+    depends: ["T5"]
+    validate:
+      - "test -f coffee-shop/views/pages/about.ejs"
+
+  - id: "T9"
+    description: "Create contact page (views/pages/contact.ejs) with name/email/message form and success/error display"
+    action: "CREATE"
+    path: "coffee-shop/views/pages/contact.ejs"
+    depends: ["T5"]
+    validate:
+      - "test -f coffee-shop/views/pages/contact.ejs"
+
+  - id: "T10"
+    description: "Create CSS stylesheet (public/css/style.css) with coffee theme colors, responsive design, and menu grid layout"
+    action: "CREATE"
+    path: "coffee-shop/public/css/style.css"
+    depends: ["T1"]
+    validate:
+      - "test -f coffee-shop/public/css/style.css"
+
+  - id: "T11"
+    description: "Create client-side JS (public/js/main.js) with hamburger menu toggle and contact form validation"
+    action: "CREATE"
+    path: "coffee-shop/public/js/main.js"
+    depends: ["T1"]
+    validate:
+      - "test -f coffee-shop/public/js/main.js && node -c coffee-shop/public/js/main.js"
+
+  - id: "T12"
+    description: "Run npm install and verify server starts correctly"
+    action: "UPDATE"
+    path: "coffee-shop/package.json"
+    depends: ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11"]
+    validate:
+      - "npm install 2>&1 | tail -5"
+      - "timeout 5 node coffee-shop/server.js 2>&1 || true"
+
+validation:
+  commands:
+    syntax_check: "for f in $(find coffee-shop -name '*.js' -not -path '*/node_modules/*'); do node -c \"$f\"; done"
+    dir_structure: "ls -R coffee-shop/ 2>&1 | head -40"
+    server_start: "timeout 3 node coffee-shop/server.js 2>&1 || true"
+    npm_install: "test -d coffee-shop/node_modules && echo 'node_modules exists'"

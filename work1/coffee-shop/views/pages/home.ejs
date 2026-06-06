@@ -1,0 +1,36 @@
+<%- include('../partials/head', { title: title }) %>
+<%- include('../partials/nav', { currentPage: currentPage }) %>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Welcome to Brew &amp; Bean</h1>
+      <p class="hero-tagline">Handcrafted coffee, warm conversations, and a cozy atmosphere — right in your neighbourhood.</p>
+      <a href="/menu" class="btn btn-primary btn-large">Explore Our Menu</a>
+    </div>
+  </section>
+
+  <!-- Featured Coffees -->
+  <section class="section">
+    <h2 class="section-title">Featured Brews</h2>
+    <p class="section-subtitle">Our most-loved selections, made fresh daily</p>
+
+    <div class="featured-grid">
+      <% if (typeof featured !== 'undefined' && featured.length > 0) { %>
+        <% featured.forEach(function(item) { %>
+          <div class="coffee-card">
+            <div class="coffee-card-img">☕</div>
+            <div class="coffee-card-body">
+              <h3><%= item.name %></h3>
+              <p><%= item.description %></p>
+              <span class="coffee-card-price">$<%= item.price.toFixed(2) %></span>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p style="text-align:center; grid-column:1/-1;">No featured items at the moment. Check back soon!</p>
+      <% } %>
+    </div>
+  </section>
+
+<%- include('../partials/footer') %>

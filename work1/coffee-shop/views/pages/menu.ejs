@@ -1,0 +1,35 @@
+<%- include('../partials/head', { title: title }) %>
+<%- include('../partials/nav', { currentPage: currentPage }) %>
+
+  <div class="menu-header">
+    <h1>Our Menu</h1>
+    <p class="section-subtitle">Every cup tells a story — discover your new favourite</p>
+  </div>
+
+  <% if (typeof categories !== 'undefined' && Object.keys(categories).length > 0) { %>
+    <% Object.keys(categories).forEach(function(cat) { %>
+      <section class="menu-section">
+        <h2 class="menu-section-title">
+          <%= cat.charAt(0).toUpperCase() + cat.slice(1) %> Drinks
+        </h2>
+        <div class="menu-grid">
+          <% categories[cat].forEach(function(item) { %>
+            <div class="coffee-card">
+              <div class="coffee-card-img">☕</div>
+              <div class="coffee-card-body">
+                <h3><%= item.name %></h3>
+                <p><%= item.description %></p>
+                <span class="coffee-card-price">$<%= item.price.toFixed(2) %></span>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </section>
+    <% }); %>
+  <% } else { %>
+    <section class="menu-section">
+      <p style="text-align:center;">Our menu is being updated. Please check back later!</p>
+    </section>
+  <% } %>
+
+<%- include('../partials/footer') %>

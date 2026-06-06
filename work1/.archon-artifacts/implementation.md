@@ -1,72 +1,109 @@
-# JobScraper MVP - Implementation Progress
+# DCW IMPLEMENT — Task Execution Report
 
-## Task 1: Initialize Project Structure and Config Files ✅
-**Files created:**
-- `work1/package.json` (root, with workspaces for server and client)
-- `work1/tsconfig.json` (strict mode, ES2022 target)
-- `work1/tsconfig.node.json`
-- `work1/.gitignore`
-- `work1/.env.example`
-- `work1/server/package.json` (workspace member)
-- `work1/server/tsconfig.json`
+## Meta
+- **Feature:** coffee-shop-website
+- **Phase:** IMPLEMENT
+- **Date:** 2026-06-06
+- **Plan file:** plan.yaml
+- **Total tasks:** 12
+- **Completed:** 12
+- **Failed:** 0
+- **Skipped:** 0
 
-**Validation:** `npm install` succeeded (292 packages). Root tsc errors are expected since no source files exist initially.
+## Tasks Completed
 
-## Task 2: Set Up Database Schema and Connection ✅
-**Files created:**
-- `work1/server/src/db/schema.ts` — users table (id, email, password_hash, created_at) and saved_jobs table (id, user_id, board, job_id, title, company, location, url, description, posted_at, saved_at) with UNIQUE(user_id, board, job_id)
-- `work1/server/src/db/connection.ts` — SQLite connection via better-sqlite3 with WAL mode, auto-creates data/ directory, runs schema on init
+### T1: Create coffee-shop directory and package.json with Express + EJS dependencies
+- **Action:** CREATE `coffee-shop/package.json`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Created full directory structure (`routes/`, `data/`, `views/partials/`, `views/pages/`, `public/css/`, `public/js/`). Package.json written with `express` ^4.21.0 and `ejs` ^3.1.10 dependencies.
 
-**Validation:** `npx tsx server/src/db/connection.ts` — "Database initialized successfully at ./data/jobscraper.db"
+### T2: Create Express server entry point (server.js) with EJS config, static files, body parsing, and route mounting
+- **Action:** CREATE `coffee-shop/server.js`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Express server with EJS view engine, `express.static()` for `public/`, `express.urlencoded()` for form parsing, route mounting from `./routes/index.js`, port from `process.env.PORT || 3000`. Also includes a 404 handler rendering `pages/404`.
 
-## Task 3: Build Scraper Module ✅
-**Files created:**
-- `work1/server/src/scrapers/base.ts` — Scraper interface with `search(keyword, location): Promise<JobListing[]>`
-- `work1/server/src/scrapers/linkedin.ts` — LinkedIn scraper (real axios+cheerio scraping with mock data fallback)
-- `work1/server/src/scrapers/indeed.ts` — Indeed scraper (real axios+cheerio scraping with mock data fallback)
-- `work1/server/src/scrapers/simplyhired.ts` — SimplyHired scraper (real axios+cheerio scraping with mock data fallback)
-- `work1/server/src/scrapers/registry.ts` — Aggregator that runs all scrapers in parallel via Promise.allSettled, collects results and per-board errors
+### T3: Create route handler (routes/index.js) with GET routes for /, /menu, /about, /contact and POST /contact handler
+- **Action:** CREATE `coffee-shop/routes/index.js`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Express Router with GET routes for all 4 pages. Menu route groups items by category. POST /contact validates name/email/message, logs to console, and re-renders contact with success/error flash messages.
 
-**Validation:** `searchAll('react developer', 'San Francisco')` returned 25 real job listings with no errors.
+### T4: Create menu data file (data/menu.json) with 6+ coffee items including name, description, price, and image placeholder info
+- **Action:** CREATE `coffee-shop/data/menu.json`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (8 items loaded)
+- **Notes:** 8 coffee items across "hot" and "cold" categories. 4 items marked as `featured: true`. Each item has id, name, description, price, category, and featured flag.
 
-## Task 4: Build Backend API ✅
-**Files created:**
-- `work1/server/src/validation/schemas.ts` — Zod schemas for register, login, search, saveJob
-- `work1/server/src/middleware/auth.ts` — JWT auth middleware (authRequired, authOptional) + generateToken
-- `work1/server/src/routes/auth.ts` — POST /api/auth/register, POST /api/auth/login, GET /api/auth/me
-- `work1/server/src/routes/jobs.ts` — GET /api/jobs/search?q=&location=
-- `work1/server/src/routes/saved.ts` — GET /api/saved (auth), POST /api/saved (auth), DELETE /api/saved/:id (auth)
-- `work1/server/src/routes/export.ts` — GET /api/export/csv (auth optional), GET /api/export/excel (auth optional)
-- `work1/server/src/index.ts` — Express app with CORS, JSON parser, routes, listens on PORT (default 3001)
+### T5: Create EJS view partials: head.ejs (meta, title, CSS links), nav.ejs (responsive navbar with hamburger), footer.ejs (copyright)
+- **Action:** CREATE `coffee-shop/views/partials/`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:**
+  - `head.ejs` — DOCTYPE, charset, viewport, dynamic title, Google Fonts (Playfair Display + Inter), CSS link
+  - `nav.ejs` — Fixed header with "Brew & Bean" brand, 4 nav links with active state highlighting, hamburger button
+  - `footer.ejs` — Footer with brand info, quick links, social icons, copyright with dynamic year
 
-**Validation:** All endpoints tested with curl:
-- Health check: `{"status":"ok",...}`
-- Register: returns JWT + user
-- Login: returns JWT + user
-- Me: returns user from token
-- Search: returns jobs from all 3 scrapers
-- Save job: inserts and returns saved job
-- List saved: returns user's saved jobs
-- Export CSV: downloads properly formatted CSV
-- Export Excel: downloads valid .xlsx file
-- Delete saved: removes and confirms
+### T6: Create home page (views/pages/home.ejs) with hero section and featured coffees preview using partials
+- **Action:** CREATE `coffee-shop/views/pages/home.ejs`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Hero section with gradient background, tagline, CTA button to menu. Featured coffees grid iterating over `featured` array with coffee cards (image placeholder, name, description, price).
 
-## Task 5: Build Frontend App ✅
-**Files created (26 files):**
-- Config: `client/package.json`, `client/tsconfig.json`, `client/tsconfig.node.json`, `client/vite.config.ts`, `client/index.html`
-- API layer: `client/src/api/client.ts`, `auth.ts`, `jobs.ts`, `saved.ts`, `export.ts`
-- Context: `client/src/context/AuthContext.tsx`
-- Components: `Layout.tsx`, `ProtectedRoute.tsx`, `SearchForm.tsx`, `JobCard.tsx`, `JobList.tsx`, `ExportMenu.tsx`
-- Pages: `HomePage.tsx`, `SearchResults.tsx`, `LoginPage.tsx`, `RegisterPage.tsx`, `SavedJobsPage.tsx`
-- App: `client/src/App.tsx`, `client/src/main.tsx`
-- Styles: `client/src/styles/global.css`, `client/src/styles/components.css`
+### T7: Create menu page (views/pages/menu.ejs) with full coffee menu grid showing name, description, price, and image placeholder
+- **Action:** CREATE `coffee-shop/views/pages/menu.ejs`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Menu grouped by category (hot/cold) with section headers. Responsive grid of coffee cards with ☕ emoji image placeholders.
 
-**Validation:** Vite dev server starts successfully on port 5173. Client type-check passes clean.
+### T8: Create about page (views/pages/about.ejs) with coffee shop story, mission, and location details
+- **Action:** CREATE `coffee-shop/views/pages/about.ejs`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Story section with founding narrative, 3-column mission grid (Quality First, Community, Sustainability), location card with address and hours.
 
-## Task 6: Wire Everything Together ✅
-- Root `package.json` has workspace scripts: `dev` (concurrently server+client), `build`, `typecheck`
-- Vite config proxies `/api` to `http://localhost:3001`
-- Both server and client type-check pass with `npx tsc --noEmit`
+### T9: Create contact page (views/pages/contact.ejs) with name/email/message form and success/error display
+- **Action:** CREATE `coffee-shop/views/pages/contact.ejs`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Contact form with name/email/message fields, server-side error display per field, success message banner. Form action POSTs to `/contact`. Includes `novalidate` attribute for client-side validation to complement server validation.
 
-## Final File Count: 47 files created
-All files from the plan's file list have been created.
+### T10: Create CSS stylesheet (public/css/style.css) with coffee theme colors, responsive design, and menu grid layout
+- **Action:** CREATE `coffee-shop/public/css/style.css`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Complete coffee-themed stylesheet with CSS variables for warm brown/cream palette. Mobile-first responsive design with breakpoints at 768px (tablet: 2-col grids) and 1024px (desktop: 3-4 col grids). Includes hero gradient, card styles, form styling, hamburger, footer, 404 page, smooth transitions and hover effects. Google Fonts integration.
+
+### T11: Create client-side JS (public/js/main.js) with hamburger menu toggle and contact form validation
+- **Action:** CREATE `coffee-shop/public/js/main.js`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** Vanilla JS in IIFE. Hamburger toggle with aria-expanded, close on outside click and link click. Client-side contact form validation matching server rules (name ≥ 2 chars, valid email, message ≥ 10 chars). Active nav link highlighting from current URL.
+
+### T12: Run npm install and verify server starts correctly
+- **Action:** UPDATE `coffee-shop/package.json`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS
+- **Notes:** `npm install` completed — 76 packages added, 0 vulnerabilities. Server starts and logs `☕ Brew & Bean Coffee Shop running at http://localhost:3000`.
+
+## Issues Encountered
+- None. All 12 tasks completed on first attempt with validations passing.
+
+## Deviations from Plan
+- **Added `views/pages/404.ejs`** — The server.js includes a 404 handler that renders this page. It was not listed in the plan explicitly but is a minimal extension required for the server to function correctly. All plan tasks completed as specified.
+
+---
+*DCW artifact — generated by deterministic-code-workflow*
