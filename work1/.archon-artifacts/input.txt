@@ -1,26 +1,40 @@
-# Feature: Fix E2E Test Issues — Brew & Bean Coffee Shop
+# DressCave Phase 0 — Prerequisite Setup (No Supabase)
 
-Fix the following issues identified by automated E2E testing (Chromium/Playwright across mobile/tablet/desktop):
+**Project:** DressCave — Next.js e-commerce platform for women and children's clothing
+**Location:** /home/user/archontesting/work1/dresscave
+**Supabase:** NOT needed — skip all Supabase-related setup. Use local/mock data instead.
 
-## 1. CRITICAL — Mobile hamburger menu never visible
-- File: `public/css/style.css` (line ~172)
-- `.hamburger` has `display: none` with no media query to make it visible
-- Need: `@media (max-width: 767px)` that shows hamburger, hides nav-links by default, shows nav-links when `.nav-open` class is added
+## Tasks
 
-## 2. MEDIUM — Missing meta description on all pages  
-- File: `views/partials/head.ejs` (line ~6)
-- No `<meta name="description">` tag — hurts SEO
-- Need: Add `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">` after viewport meta
+1. **Initialize Next.js Project** — create-next-app with TypeScript, Tailwind CSS, ESLint, App Router (work in dresscave/ directory)
+2. **Install shadcn/ui** — init and add core components: button, card, input, select, dialog
+3. **State Management** — install Zustand (cart, wishlist stores) and nuqs (URL state)
+4. **Testing** — install Vitest, React Testing Library (Playwright CLI already available in environment — skip installing Playwright)
+5. **Data Validation** — install Zod, react-hook-form, @hookform/resolvers
+6. **Image Optimization** — configure Next.js Image component (no Supabase CDN — use local/public domain or placeholder)
+7. **Tailwind Config** — mobile-first breakpoints, custom design tokens, 44px touch targets, 60fps animations
 
-## 3. LOW — Emoji placeholders instead of real product images
-- Files: `views/pages/home.ejs:22`, `views/pages/menu.ejs:18`
-- Coffee cards use ☕ emoji as image placeholder (8 total)
-- Need: Replace with `<img>` tags pointing to actual Unsplash product images
+## Project Structure (from architecture.md)
+```
+dresscave/
+├── app/                    # App Router routes
+│   ├── layout.tsx
+│   ├── page.tsx            # Home page
+│   └── globals.css
+├── public/
+├── lib/
+│   ├── supabase/           # SKIP — no supabase
+│   └── store/              # Zustand stores
+├── components/
+│   └── ui/                 # shadcn/ui components
+├── package.json
+├── next.config.js
+├── tsconfig.json
+└── tailwind.config.js
+```
 
-## 4. LOW — Google Fonts 404 when offline
-- File: `views/partials/head.ejs` (lines 7-9)
-- External Google Fonts CSS returns 404 when offline
-- Need: Add `@font-face` fallback in CSS or self-host
-
-## 5. Add suitable images for each place
-- Replace emoji placeholders with real coffee images from Unsplash for each coffee item
+## Key Constraints
+- Next.js 14.x, React 18.x, Tailwind CSS 3.4+, TypeScript, Node.js 18+ or 20+
+- Mobile-first responsive design
+- No payments/checkout in Phase 0
+- All work in dresscave/ directory

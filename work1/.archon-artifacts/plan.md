@@ -1,211 +1,196 @@
-# DCW PLAN — Fix E2E Test Issues (Brew & Bean Coffee Shop)
+# DCW PLAN — DressCave Phase 0: Prerequisite Setup
 
 ## Meta
-- **Feature:** Fix E2E Test Issues
+- **Feature:** DressCave Phase 0 — Prerequisite Setup (No Supabase)
 - **Phase:** PLAN
 - **Date:** 2026-06-06
+- **Project:** Next.js e-commerce platform for women and children's clothing
+- **Working directory:** `/home/user/archontesting/work1/dresscave/`
 
 ## Summary
-Fix 5 issues identified by automated Chromium/Playwright E2E testing across mobile/tablet/desktop viewports: mobile hamburger menu never visible (CRITICAL), missing meta description (MEDIUM), emoji image placeholders (LOW/LOW), and Google Fonts 404 when offline (LOW).
+
+Set up the complete development foundation for the DressCave e-commerce platform. Phase 0 installs and configures all required tooling — Next.js 14.x with TypeScript/Tailwind/ESLint/App Router, shadcn/ui components, Zustand + nuqs state management, Vitest + React Testing Library for tests, Zod + react-hook-form for validation, Next.js Image optimization, and Tailwind CSS design tokens — without any Supabase dependencies. After Phase 0, the project will be ready for Epic 1 (Authentication) implementation.
 
 ### UX Flow
 ```
-Before: Mobile nav is broken (hamburger always hidden), no SEO meta tags, coffee cards use emoji placeholders, fonts 404 offline
-After:  Mobile nav works with hamburger toggle, pages have meta descriptions, coffee cards show real product images, fonts load from local files
+Before: No project exists — only documentation files in dresscave/
+After:  Fully scaffolded Next.js 14.x project with build, test, and type-check passing
 ```
 
 ## Scope
 
 ### In Scope
-- Add `@media (max-width: 767px)` CSS rule to make hamburger visible and toggle nav-links on mobile
-- Add `<meta name="description">` tag to `head.ejs` for SEO
-- Add `.coffee-card-img img` CSS rule for proper image display in coffee cards
-- Add `image` URL field to all 8 menu items in `menu.json`
-- Replace ☕ emoji with `<img>` tags in `home.ejs` (featured coffees — up to 4 cards)
-- Replace ☕ emoji with `<img>` tags in `menu.ejs` (all 8 menu items across categories)
-- Create `public/fonts/` directory and download WOFF2 font files for Playfair Display (400, 700) and Inter (400, 500, 600)
-- Add `@font-face` declarations at top of `style.css` for self-hosted fonts with `font-display: swap`
-- Remove Google Fonts external `<link>` tags from `head.ejs`
+1. Initialize Next.js 14.x project via `create-next-app@14.2` with TypeScript, Tailwind CSS, ESLint, App Router, `@/*` import alias
+2. Initialize shadcn/ui with default style and add core components: button, card, input, select, dialog
+3. Install Zustand + nuqs; create SSR-safe Zustand stores (cart, wishlist) using Context provider pattern; add NuqsAdapter to root layout
+4. Install Vitest, React Testing Library, jsdom; configure vitest.config.ts with path aliases; create tests/setup.ts
+5. Install Zod, react-hook-form, @hookform/resolvers; create validation schemas (product, order, user) in lib/schemas/
+6. Configure Next.js Image component for local/placeholder image domains (no Supabase CDN)
+7. Configure Tailwind CSS with custom design tokens, mobile-first breakpoints, 44px touch targets, 60fps animations
 
 ### Out of Scope
-- Adding a build system or bundler
-- Adding a test framework or unit tests
-- Redesigning layout or visual style
-- Adding new pages, routes, or functionality
-- Changing menu data structure beyond adding `image` URLs
-- Accessibility features beyond what's specified
-- Performance optimization beyond font self-hosting
+- Supabase setup, libraries, configurations, or client files (lib/supabase/ is skipped entirely)
+- Playwright installation or configuration (CLI is pre-installed in environment)
+- Any e-commerce feature code (product pages, cart UI, API routes, auth, admin dashboard)
+- Payment, checkout, or WhatsApp integration
+- TanStack Query (deferred to later phases if needed)
+- Additional route groups, route handlers, or pages beyond default scaffold
+- Any custom application components beyond shadcn/ui base components
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 ─┐
-T2 ─┤
-T3 ─┤
-T4 ─┤
-T7 ─┤
-    ├──> T5 (depends T4)
-    ├──> T6 (depends T4)
-    ├──> T8 (depends T7)
-    └──> T9 (depends T7)
+T1 (scaffold) → T2 (shadcn) 
+              → T3 (state mgmt)
+              → T4 (testing)     (all depend on T1 only; implement sequentially)
+              → T5 (validation)
+              → T6 (next.config)
+              → T7 (tailwind)
 ```
-
-Root tasks (T1, T2, T3, T4, T7) can be done in parallel. T5/T6 depend on T4 (image URLs). T8/T9 depend on T7 (font files).
 
 ### Task Table
 | ID | Action | File | Depends | Validate |
 |----|--------|------|---------|----------|
-| T1 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for media query + `.hamburger { display: flex` |
-| T2 | UPDATE | `coffee-shop/views/partials/head.ejs` | — | `grep` for meta description tag |
-| T3 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for `.coffee-card-img img` |
-| T4 | UPDATE | `coffee-shop/data/menu.json` | — | `node` JSON check — all 8 items have `image` field |
-| T5 | UPDATE | `coffee-shop/views/pages/home.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T6 | UPDATE | `coffee-shop/views/pages/menu.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T7 | CREATE | `coffee-shop/public/fonts/` | — | Dir exists + `.woff2` files present |
-| T8 | UPDATE | `coffee-shop/public/css/style.css` | T7 | `grep` for `@font-face` + Playfair + Inter |
-| T9 | UPDATE | `coffee-shop/views/partials/head.ejs` | T7 | Google Fonts link removed, local stylesheet kept |
+| T1 | CREATE | `dresscave/` (project dir) | — | `ls package.json`, `ls app/layout.tsx`, node version check |
+| T2 | CREATE | `dresscave/` (shadcn init) | T1 | `ls components/ui/button.tsx`, `ls lib/utils.ts` |
+| T3 | CREATE | `dresscave/lib/store/` + `app/layout.tsx` | T1 | `ls lib/store/cart.ts`, `ls lib/store/wishlist.ts`, `ls lib/store/store-provider.tsx` |
+| T4 | CREATE | `dresscave/vitest.config.ts`, `tests/setup.ts` | T1 | `ls vitest.config.ts`, `ls tests/setup.ts` |
+| T5 | CREATE | `dresscave/lib/schemas/` | T1 | `ls lib/schemas/product.ts`, `order.ts`, `user.ts` |
+| T6 | UPDATE | `dresscave/next.config.*` | T1 | `npx tsc --noEmit` |
+| T7 | UPDATE | `dresscave/tailwind.config.*` + `app/globals.css` | T1 | `npx tsc --noEmit` |
 
 ### Task Details
 
-#### T1: Add responsive hamburger menu CSS rule for mobile
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Add `@media (max-width: 767px)` block at the end of the file (after the desktop section at line 687) with:
-  - `.hamburger { display: flex; }` — show hamburger button on mobile
-  - `.nav-links { display: none; flex-direction: column; position: absolute; top: var(--header-height); left: 0; right: 0; background: var(--color-primary); padding: 1rem; gap: 0.5rem; }` — hide nav by default on mobile, style as dropdown
-  - `.nav-links.nav-open { display: flex; }` — show nav when toggled
-- **Validate:** `grep -q 'max-width: 767px'` and `grep -q '.hamburger { display: flex'`
+#### T1: Initialize Next.js 14.x project
+- **Action:** CREATE `dresscave/` (project scaffold via CLI)
+- **Command:** `npx create-next-app@14.2.0 dresscave --ts --tailwind --eslint --app --import-alias "@/*" --use-npm`
+- **Patterns:** N/A (greenfield create-next-app scaffold)
+- **Validate:**
+  - `ls dresscave/package.json` — project manifest exists
+  - `ls dresscave/app/layout.tsx` — root layout created
+  - `ls dresscave/tsconfig.json` — TypeScript configured
+  - `ls dresscave/tailwind.config.*` — Tailwind CSS configured
+  - `ls dresscave/next.config.*` — Next.js config exists
+  - `node -e "require('./dresscave/package.json').dependencies.next"` — Next.js 14.x pinned
+- **Key dependencies created:** `package.json`, `tsconfig.json`, `next.config.js`, `tailwind.config.js`, `postcss.config.js`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
 
-#### T2: Add meta description tag to head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** After line 5 (`<meta name="viewport">`), add:
-  `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">`
-- **Validate:** `grep -q 'meta name="description"'`
+#### T2: Install and initialize shadcn/ui with core components
+- **Action:** CREATE `dresscave/` (via shadcn CLI)
+- **Command:** `cd dresscave && npx shadcn@latest init --defaults && npx shadcn@latest add button card input select dialog`
+- **Patterns:** N/A (standard shadcn/ui init)
+- **Validate:**
+  - `ls dresscave/components/ui/button.tsx` — Button component exists
+  - `ls dresscave/components/ui/card.tsx` — Card component exists
+  - `ls dresscave/components/ui/input.tsx` — Input component exists
+  - `ls dresscave/components/ui/select.tsx` — Select component exists
+  - `ls dresscave/components/ui/dialog.tsx` — Dialog component exists
+  - `ls dresscave/lib/utils.ts` — cn() utility created by shadcn init
+  - `ls dresscave/components.json` — shadcn configuration created
 
-#### T3: Add CSS rule for coffee card images
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** After the `.coffee-card-img` rule block (line 317), add:
-  ```css
-  .coffee-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  ```
-- **Validate:** `grep -q '.coffee-card-img img'`
+#### T3: Install state management (Zustand + nuqs) and create stores
+- **Action:** CREATE (stores) + UPDATE (layout.tsx)
+- **Command:** `cd dresscave && npm install zustand nuqs`
+- **Files to CREATE:**
+  - `lib/store/cart.ts` — Zustand cart store (items, addItem, removeItem, updateQuantity, clearCart, computed totals)
+  - `lib/store/wishlist.ts` — Zustand wishlist store (productIds, toggleItem, isInWishlist)
+  - `lib/store/store-provider.tsx` — React Context provider wrapping Zustand stores for SSR safety (createStore + useRef pattern)
+- **Files to UPDATE:**
+  - `app/layout.tsx` — Wrap children with `NuqsAdapter` for URL state management
+- **Patterns:** Architecture.md State Management section — use `createStore` from `zustand/vanilla` with Context provider pattern for SSR compatibility
+- **Validate:**
+  - `node -e "require('./node_modules/zustand/package.json')"` — Zustand installed
+  - `node -e "require('./node_modules/nuqs/package.json')"` — nuqs installed
+  - `ls dresscave/lib/store/cart.ts` — Cart store created
+  - `ls dresscave/lib/store/wishlist.ts` — Wishlist store created
+  - `ls dresscave/lib/store/store-provider.tsx` — Provider created
 
-#### T4: Add image URLs to all 8 menu items in menu.json
-- **Action:** UPDATE `coffee-shop/data/menu.json`
-- **Details:** Add an `image` field with Unsplash photo URL to each menu item:
-  | id | Name | Image URL |
-  |----|------|-----------|
-  | 1 | Classic Espresso | `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` |
-  | 2 | Vanilla Latte | `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` |
-  | 3 | Cappuccino | `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop` |
-  | 4 | Caramel Macchiato | `https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=300&fit=crop` |
-  | 5 | Cold Brew | `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` |
-  | 6 | Iced Mocha | `https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop` |
-  | 7 | Matcha Latte | `https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=300&fit=crop` |
-  | 8 | Americano | `https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop` |
-- **Validate:** Node script that loads JSON and asserts each item has `image`
+#### T4: Install and configure testing frameworks
+- **Action:** CREATE (vitest.config.ts, tests/setup.ts, test examples)
+- **Command:** `cd dresscave && npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event @vitejs/plugin-react jsdom`
+- **Files to CREATE:**
+  - `vitest.config.ts` — Vitest config with jsdom environment, React plugin, `@/` path alias, globals: true, setup file
+  - `tests/setup.ts` — Import `@testing-library/jest-dom` for extended matchers
+  - `tests/example.test.ts` — Basic placeholder test verifying setup works
+- **Patterns:** Architecture.md Testing Framework section — vitest config structure with `@vitejs/plugin-react`, `environment: 'jsdom'`, path alias resolution
+- **Validate:**
+  - `node -e "require('./node_modules/vitest/package.json')"` — Vitest installed
+  - `node -e "require('./node_modules/@testing-library/react/package.json')"` — RTL installed
+  - `ls dresscave/vitest.config.ts` — Config file exists
+  - `ls dresscave/tests/setup.ts` — Setup file exists
+  - `npx vitest run --reporter=verbose` — Tests execute and pass
 
-#### T5: Replace emoji with <img> in home.ejs featured coffees
-- **Action:** UPDATE `coffee-shop/views/pages/home.ejs`
-- **Details:** Replace line 22:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the `<img>` pattern (also used in T6 for menu.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in home.ejs + server syntax check
+#### T5: Install data validation and create schemas
+- **Action:** CREATE (validation schemas)
+- **Command:** `cd dresscave && npm install zod react-hook-form @hookform/resolvers`
+- **Files to CREATE:**
+  - `lib/schemas/product.ts` — Product schema: name, description, price, category (enum), sizes, colors, images, featured/sale flags, age_range for kids
+  - `lib/schemas/order.ts` — Order schema: items (array), total, status enum, notes, timestamps
+  - `lib/schemas/user.ts` — User schema: email, profile, custom measurements
+- **Patterns:** Architecture.md Data Validation section — Zod schemas with z.infer<T> for type inference, enums for constrained fields, optional/nullable for flexible fields
+- **Validate:**
+  - `node -e "require('./node_modules/zod/package.json')"` — Zod installed
+  - `node -e "require('./node_modules/react-hook-form/package.json')"` — RHF installed
+  - `node -e "require('./node_modules/@hookform/resolvers/package.json')"` — Resolvers installed
+  - `ls dresscave/lib/schemas/product.ts` — Product schema
+  - `ls dresscave/lib/schemas/order.ts` — Order schema
+  - `ls dresscave/lib/schemas/user.ts` — User schema
 
-#### T6: Replace emoji with <img> in menu.ejs all coffee cards
-- **Action:** UPDATE `coffee-shop/views/pages/menu.ejs`
-- **Details:** Replace line 18:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the same pattern from T5 (home.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in menu.ejs + server syntax check
+#### T6: Configure Next.js Image optimization
+- **Action:** UPDATE `dresscave/next.config.*`
+- **Description:** Add `images` configuration to next.config.js with:
+  - `remotePatterns` for localhost development + placeholder services (no Supabase CDN)
+  - `formats: ['image/avif', 'image/webp']` for modern format conversion
+  - `deviceSizes: [640, 750, 828, 1080, 1200]` for responsive images
+  - `imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]` for thumbnails
+- **Patterns:** Adapted from architecture.md Image Optimization section — replace `*.supabase.co` with `localhost` and placeholders
+- **Validate:**
+  - `npx tsc --noEmit` — TypeScript compiles cleanly
+  - Config file contains `images` key with expected structure
 
-#### T7: Create fonts directory and download WOFF2 files
-- **Action:** CREATE `coffee-shop/public/fonts/`
-- **Details:**
-  1. Create directory: `mkdir -p coffee-shop/public/fonts/`
-  2. Download Playfair Display (400, 700) and Inter (400, 500, 600) WOFF2 files using google-webfonts-helper or Fontsource API. Expected files:
-     - `playfair-display-regular.woff2`
-     - `playfair-display-700.woff2`
-     - `inter-regular.woff2`
-     - `inter-500.woff2`
-     - `inter-600.woff2`
-- **Validate:** Directory exists + at least one `.woff2` file present
-
-#### T8: Add @font-face declarations to style.css
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Insert at line 1 (before CSS variables), 5 `@font-face` blocks:
-  - Playfair Display (400) — `url('/fonts/playfair-display-regular.woff2') format('woff2')`
-  - Playfair Display (700) — `url('/fonts/playfair-display-700.woff2') format('woff2')`
-  - Inter (400) — `url('/fonts/inter-regular.woff2') format('woff2')`
-  - Inter (500) — `url('/fonts/inter-500.woff2') format('woff2')`
-  - Inter (600) — `url('/fonts/inter-600.woff2') format('woff2')`
-  - All with `font-display: swap`
-- **Depends:** T7 (font files must exist — referenced in `url()`)
-- **Validate:** `grep` for `@font-face`, `Playfair Display`, `Inter`
-
-#### T9: Remove Google Fonts external <link> tags from head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** Remove lines 7-9 (3 link tags):
-  ```html
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display...&family=Inter...&display=swap" rel="stylesheet">
-  ```
-  Keep the local stylesheet link (line 10).
-- **Depends:** T7 (font files must be available since external links are removed)
-- **Validate:** Confirm `fonts.googleapis.com` NOT present, but `<link rel="stylesheet" href="/css/style.css">` still present
+#### T7: Configure Tailwind CSS with custom design tokens
+- **Action:** UPDATE `dresscave/tailwind.config.*` + `app/globals.css`
+- **Description:** Extend Tailwind config with:
+  - Custom color palette matching DressCave brand (from UX spec)
+  - Spacing scale optimized for e-commerce (card gaps, section padding)
+  - Typography scale for headings, body, captions
+  - 44px minimum touch target utilities for mobile accessibility
+  - Animation utilities: `transform` + `opacity` based for 60fps performance
+  - Keyframes for skeleton loading, fade-in, slide-up patterns
+  - All breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1536px)
+- **Patterns:** Adapted from architecture.md Performance Optimization section and UX design specification
+- **Validate:**
+  - `npx tsc --noEmit` — TypeScript compiles cleanly
+  - Custom tokens referenceable in components
 
 ## Testing Strategy
-Since no test framework is configured:
-- **Syntax validation:** `node --check server.js` and `node --check routes/index.js` after EJS template changes (EJS templates are validated at render time)
-- **JSON validation:** Parse `menu.json` with Node.js to confirm valid JSON with all required fields
-- **Server smoke test:** Start the Express server briefly to confirm it loads without errors
-- **File content checks:** Use `grep` to confirm expected patterns exist in modified files
-- **Negative checks:** Confirm Google Fonts external URLs are removed
 
-### Edge Cases Handled
-- **Missing image fallback:** If `item.image` is missing in EJS templates, emoji fallback still renders
-- **Font file missing:** If font files fail to download, browser falls back to Georgia/Arial via existing CSS `font-family` stacks
-- **Mobile nav close:** JS already handles click-outside and link-click close behaviors
+**Phase 0** focuses on infrastructure setup, not application logic. Testing validation:
+1. **Type checking** (`npx tsc --noEmit`) ensures all TypeScript compiles correctly
+2. **Vitest initialization** — a minimal smoke test (`tests/example.test.ts`) verifies Vitest + jsdom + React Testing Library are wired correctly
+3. **Build** (`npm run build`) confirms the entire project builds without errors
+4. **Manual verifications:**
+   - shadcn/ui components render with correct default styling
+   - Zustand stores can be instantiated via the SSR-safe provider
+   - nuqs URL state hook works in client components
+   - Zod schemas produce correct type inference
+   - Tailwind custom tokens are available in className
+   - Next.js Image component accepts configured domains
+
+**Edge cases considered:**
+- `create-next-app` may fail if dresscave/ directory has existing files (it's currently documentation only — should be clean)
+- shadcn init may prompt for style/color selection — use `--defaults` or non-interactive flags
+- npm install conflicts from running multiple installs sequentially (each just adds to package.json)
+- Next.js 14.x compatible versions must be resolved by npm for all packages
 
 ## Validation Plan
-- **Syntax check:** `node --check coffee-shop/server.js && node --check coffee-shop/routes/index.js`
-- **JSON validity:** `node -e "JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))"`
-- **Server start:** `timeout 3 node -e "const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);"`
-- **Lint:** No linter configured — skipped
-- **Tests:** No test framework configured — skipped
-- **Build:** No build step configured — skipped
+
+| Check | Command | When |
+|-------|---------|------|
+| Type-check | `cd dresscave && npx tsc --noEmit` | After each task |
+| Build | `cd dresscave && npm run build` | After all tasks |
+| Unit tests | `cd dresscave && npx vitest run --reporter=verbose` | After T4 |
+| Dev server | `cd dresscave && npm run dev` (manual smoke test) | After all tasks |
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

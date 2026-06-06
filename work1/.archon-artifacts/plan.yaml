@@ -1,128 +1,126 @@
 meta:
-  name: "fix-e2e-test-issues"
-  description: "Fix 5 E2E test issues: hamburger menu, meta description, product images, emoji placeholders, and Google Fonts self-hosting"
+  name: "dresscave-phase0-setup"
+  description: "Phase 0 prerequisite setup for DressCave Next.js e-commerce — project init, UI library, state management, testing, validation, image config, Tailwind tokens"
   created: "2026-06-06"
 
 scope:
   in_scope:
-    - "Add @media (max-width: 767px) CSS rule to show hamburger button and toggle nav-links"
-    - "Add <meta name='description'> tag to head.ejs for SEO"
-    - "Add .coffee-card-img img CSS rule for proper image display in coffee cards"
-    - "Add image URL field to all 8 menu items in menu.json"
-    - "Replace ☕ emoji with <img> tags in home.ejs (featured coffees)"
-    - "Replace ☕ emoji with <img> tags in menu.ejs (all menu items)"
-    - "Create public/fonts/ directory and download WOFF2 font files for Playfair Display and Inter"
-    - "Add @font-face declarations at top of style.css for self-hosted fonts"
-    - "Remove Google Fonts external <link> tags from head.ejs"
+    - "Initialize Next.js 14.x project with TypeScript, Tailwind CSS, ESLint, App Router via create-next-app@14.2"
+    - "Install and initialize shadcn/ui with core components: button, card, input, select, dialog"
+    - "Install Zustand (cart/wishlist stores) and nuqs (URL state management) with SSR-safe patterns"
+    - "Create Zustand stores: cart.ts, wishlist.ts, store-provider.tsx (SSR-safe Context pattern)"
+    - "Add NuqsAdapter to root layout for URL state management"
+    - "Install Vitest, React Testing Library, jsdom for unit/component testing"
+    - "Configure vitest.config.ts with jsdom environment and path aliases"
+    - "Install Zod, react-hook-form, @hookform/resolvers for data validation"
+    - "Create Zod schema files: product.ts, order.ts, user.ts in lib/schemas/"
+    - "Configure Next.js Image optimization with local/placeholder domains (no Supabase CDN)"
+    - "Configure Tailwind CSS with mobile-first breakpoints, custom design tokens, 44px touch targets, 60fps animations"
+    - "All work in dresscave/ directory"
   out_of_scope:
-    - "Adding a build system or bundler"
-    - "Adding a test framework or unit tests"
-    - "Redesigning the layout or visual style"
-    - "Adding new pages or routes"
-    - "Changing menu data structure beyond adding image URLs"
-    - "Adding accessibility features beyond what's specified"
-    - "Performance optimization beyond font self-hosting"
+    - "Supabase setup, libraries, or configuration of any kind"
+    - "Lib/supabase/ directory creation or client files"
+    - "Playwright installation or configuration (CLI is pre-installed in environment)"
+    - "Any e-commerce feature implementation (no product pages, cart UI, API routes, etc.)"
+    - "Payment or checkout implementation"
+    - "Auth implementation (will be Epic 1)"
+    - "TanStack Query installation (deferred to later phases)"
+    - "Any custom application components beyond shadcn/ui base components"
+    - "Route groups or additional pages beyond scaffold defaults"
 
 tasks:
   - id: "T1"
-    description: "Add responsive hamburger menu CSS rule for mobile (max-width: 767px)"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
+    description: "Initialize Next.js 14.x project with create-next-app@14.2"
+    action: "CREATE"
+    path: "dresscave/"
     depends: []
     patterns: []
     validate:
-      - "grep -q 'max-width: 767px' coffee-shop/public/css/style.css && echo 'PASS: media query found' || echo 'FAIL: media query missing'"
-      - "grep -q '.hamburger { display: flex' coffee-shop/public/css/style.css && echo 'PASS: hamburger flex found' || echo 'FAIL: hamburger flex missing'"
+      - "ls /home/user/archontesting/work1/dresscave/package.json 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/app/layout.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/tsconfig.json 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/tailwind.config.* 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/next.config.* 2>&1"
+      - "node -e \"const p = require('/home/user/archontesting/work1/dresscave/package.json'); console.log(p.dependencies.next)\" 2>&1"
 
   - id: "T2"
-    description: "Add <meta name='description'> tag to head.ejs after viewport meta"
-    action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
-    depends: []
+    description: "Install and initialize shadcn/ui with core components"
+    action: "CREATE"
+    path: "dresscave/"
+    depends: ["T1"]
     patterns: []
     validate:
-      - "grep -q 'meta name=\"description\"' coffee-shop/views/partials/head.ejs && echo 'PASS: meta description found' || echo 'FAIL: meta description missing'"
+      - "ls /home/user/archontesting/work1/dresscave/components/ui/button.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/components/ui/card.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/components/ui/input.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/components/ui/select.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/components/ui/dialog.tsx 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/utils.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/components.json 2>&1"
 
   - id: "T3"
-    description: "Add CSS rule for coffee card images (.coffee-card-img img)"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
-    depends: []
-    patterns: []
+    description: "Install Zustand and nuqs, create SSR-safe stores, add NuqsAdapter to layout"
+    action: "CREATE"
+    path: "dresscave/"
+    depends: ["T1"]
+    patterns:
+      - "/home/user/archontesting/work1/dresscave/architecture.md#state-management-section"
     validate:
-      - "grep -q '.coffee-card-img img' coffee-shop/public/css/style.css && echo 'PASS: img rule found' || echo 'FAIL: img rule missing'"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/zustand/package.json')\" 2>&1"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/nuqs/package.json')\" 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/store/cart.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/store/wishlist.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/store/store-provider.tsx 2>&1"
 
   - id: "T4"
-    description: "Add image URL field to all 8 menu items in menu.json"
-    action: "UPDATE"
-    path: "coffee-shop/data/menu.json"
-    depends: []
-    patterns: []
+    description: "Install Vitest, React Testing Library; configure vitest.config.ts and test setup"
+    action: "CREATE"
+    path: "dresscave/"
+    depends: ["T1"]
+    patterns:
+      - "/home/user/archontesting/work1/dresscave/architecture.md#testing-framework"
     validate:
-      - "node -e \"const d=require('./coffee-shop/data/menu.json'); d.forEach(i=>{if(!i.image)throw new Error('T4 FAIL: item '+i.id+' missing image')}); console.log('PASS: all ' + d.length + ' items have images')\""
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/vitest/package.json')\" 2>&1"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/@testing-library/react/package.json')\" 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/vitest.config.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/tests/setup.ts 2>&1"
 
   - id: "T5"
-    description: "Replace emoji with <img> tag in home.ejs featured coffee cards"
-    action: "UPDATE"
-    path: "coffee-shop/views/pages/home.ejs"
-    depends:
-      - "T4"
+    description: "Install Zod, react-hook-form, @hookform/resolvers; create validation schemas"
+    action: "CREATE"
+    path: "dresscave/"
+    depends: ["T1"]
     patterns:
-      - "coffee-shop/views/pages/menu.ejs"
+      - "/home/user/archontesting/work1/dresscave/architecture.md#data-validation"
     validate:
-      - "grep -q '<img' coffee-shop/views/pages/home.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/zod/package.json')\" 2>&1"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/react-hook-form/package.json')\" 2>&1"
+      - "node -e \"require('/home/user/archontesting/work1/dresscave/node_modules/@hookform/resolvers/package.json')\" 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/schemas/product.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/schemas/order.ts 2>&1"
+      - "ls /home/user/archontesting/work1/dresscave/lib/schemas/user.ts 2>&1"
 
   - id: "T6"
-    description: "Replace emoji with <img> tag in menu.ejs all menu coffee cards"
+    description: "Configure Next.js Image optimization with local/placeholder domains"
     action: "UPDATE"
-    path: "coffee-shop/views/pages/menu.ejs"
-    depends:
-      - "T4"
-    patterns:
-      - "coffee-shop/views/pages/home.ejs"
+    path: "dresscave/next.config.*"
+    depends: ["T1"]
+    patterns: []
     validate:
-      - "grep -q '<img' coffee-shop/views/pages/menu.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
+      - "npx --prefix /home/user/archontesting/work1/dresscave tsc --noEmit 2>&1 | tail -5"
+      - "test -f /home/user/archontesting/work1/dresscave/next.config.* 2>&1"
 
   - id: "T7"
-    description: "Create public/fonts/ directory and download WOFF2 font files for self-hosting"
-    action: "CREATE"
-    path: "coffee-shop/public/fonts/"
-    depends: []
-    patterns: []
-    validate:
-      - "test -d coffee-shop/public/fonts/ && echo 'PASS: fonts dir exists' || echo 'FAIL: fonts dir missing'"
-      - "ls coffee-shop/public/fonts/*.woff2 2>/dev/null && echo 'PASS: woff2 files found' || echo 'FAIL: no woff2 files'"
-
-  - id: "T8"
-    description: "Add @font-face declarations for Playfair Display and Inter at top of style.css"
+    description: "Configure Tailwind CSS with mobile-first tokens, 44px touch targets, 60fps animations"
     action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
-    depends:
-      - "T7"
+    path: "dresscave/tailwind.config.*"
+    depends: ["T1"]
     patterns: []
     validate:
-      - "grep -q '@font-face' coffee-shop/public/css/style.css && echo 'PASS: @font-face found' || echo 'FAIL: @font-face missing'"
-      - "grep -q \"font-family: 'Playfair Display'\" coffee-shop/public/css/style.css && echo 'PASS: Playfair Display found' || echo 'FAIL: Playfair Display missing'"
-      - "grep -q \"font-family: 'Inter'\" coffee-shop/public/css/style.css && echo 'PASS: Inter found' || echo 'FAIL: Inter missing'"
-
-  - id: "T9"
-    description: "Remove Google Fonts external <link> tags from head.ejs"
-    action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
-    depends:
-      - "T7"
-    patterns: []
-    validate:
-      - "grep -q 'fonts.googleapis.com' coffee-shop/views/partials/head.ejs && echo 'FAIL: Google Fonts link still present' || echo 'PASS: Google Fonts link removed'"
-      - "grep -q 'stylesheet' coffee-shop/views/partials/head.ejs && echo 'PASS: local stylesheet still referenced' || echo 'FAIL: local stylesheet reference missing'"
+      - "npx --prefix /home/user/archontesting/work1/dresscave tsc --noEmit 2>&1 | tail -5"
 
 validation:
   commands:
-    syntax: "node --check coffee-shop/server.js 2>&1 && node --check coffee-shop/routes/index.js 2>&1 && echo 'PASS: syntax OK' || echo 'FAIL: syntax error'"
-    json: "node -e \"JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))\" && echo 'PASS: menu.json valid' || echo 'FAIL: menu.json invalid'"
-    server: "timeout 3 node -e \"const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);\" 2>&1 | tail -5"
-    lint: "echo 'INFO: No linter configured — skipping'"
-    test: "echo 'INFO: No test framework configured — skipping'"
-    build: "echo 'INFO: No build step configured — skipping'"
+    dev_build: "cd /home/user/archontesting/work1/dresscave && npm run build 2>&1 | tail -20"
+    type_check: "cd /home/user/archontesting/work1/dresscave && npx tsc --noEmit 2>&1"
+    test: "cd /home/user/archontesting/work1/dresscave && npx vitest run --reporter=verbose 2>&1 | tail -30"
