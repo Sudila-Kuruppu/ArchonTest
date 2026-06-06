@@ -1,170 +1,142 @@
 # DCW DISCOVER — Codebase & Research Report
 
 ## Meta
-- **Feature:** Fix E2E Test Issues — Brew & Bean Coffee Shop
+- **Feature:** DressCave Phase 0 — Prerequisite Setup (No Supabase)
 - **Phase:** DISCOVER
 - **Date:** 2026-06-06
 
 ## Codebase Overview
-- **Framework:** Express.js (v4.21.0) with EJS templating (v3.1.10)
-- **Language:** JavaScript (Node.js, no bundler/transpiler)
-- **Test framework:** No test framework installed; E2E tests exist externally (Chromium/Playwright)
-- **Source root:** `/home/user/archontesting/work1/coffee-shop/`
+- **Framework:** Next.js 14.x (App Router), React 18.x
+- **Language:** TypeScript 5.x
+- **Test framework:** Vitest + React Testing Library (to be installed); Playwright CLI pre-installed in environment
+- **Source root:** `/home/user/archontesting/work1/dresscave/`
 
 ### Key Files
 | File | Purpose |
 |------|---------|
-| `coffee-shop/server.js` | Express app entry point, route mounting, 404 handler |
-| `coffee-shop/routes/index.js` | All route definitions (home, menu, about, contact GET/POST) |
-| `coffee-shop/views/partials/head.ejs` | HTML `<head>` partial — charset, viewport, title, font links, stylesheet |
-| `coffee-shop/views/partials/nav.ejs` | Navigation bar with hamburger button and nav links |
-| `coffee-shop/views/partials/footer.ejs` | Footer with links, social icons, copyright |
-| `coffee-shop/views/pages/home.ejs` | Home page — featured coffees grid with emoji placeholders |
-| `coffee-shop/views/pages/menu.ejs` | Menu page — full coffee list grouped by category with emoji placeholders |
-| `coffee-shop/views/pages/about.ejs` | About page — story, mission, location |
-| `coffee-shop/views/pages/contact.ejs` | Contact page — form with server-side validation |
-| `coffee-shop/views/pages/404.ejs` | 404 error page |
-| `coffee-shop/public/css/style.css` | All styles — coffee-themed, mobile-first responsive |
-| `coffee-shop/public/js/main.js` | Client-side JS — hamburger toggle, form validation, active nav |
-| `coffee-shop/data/menu.json` | 8 coffee items with id, name, description, price, category, featured |
-| `coffee-shop/package.json` | Dependencies: express ^4.21.0, ejs ^3.1.10 |
+| `dresscave/input.txt` | Feature description (Phase 0 setup tasks) |
+| `dresscave/architecture.md` | Full architecture document with patterns, schemas, decisions |
+| `dresscave/epics.md` | Epic breakdown with stories, acceptance criteria, Phase 0 tasks |
+| `dresscave/prd.md` | Product requirements — 49 FRs, 15 NFRs |
+| `dresscave/ux-design-specification.md` | Comprehensive UX design spec (4465 lines) |
+| `dresscave/implementation-readiness-report-2026-03-07.md` | Readiness assessment |
+
+### Current State
+**Greenfield project** — the `dresscave/` directory contains only documentation files. No application code, `package.json`, or build configuration exists yet. All Phase 0 tasks are about project initialization and dependency setup.
 
 ## Existing Patterns
+No existing code patterns exist (greenfield). The architecture.md provides extensive guidance on patterns to implement:
 
-### Template Pattern
-```
-file:coffee-shop/views/pages/home.ejs:1-2
-Every page includes <%- include('../partials/head', { title: title }) %> and <%- include('../partials/nav', { currentPage: currentPage }) %> at the top, then <%- include('../partials/footer') %> at the bottom.
-Data is passed from routes as an object with `title`, `currentPage`, and page-specific fields.
-```
+### Component Pattern (from architecture.md)
+- `'use client'` directive for interactive components
+- Server Components by default in App Router
+- shadcn/ui components in `components/ui/` directory
+- `cn()` utility from `lib/utils.ts` for className merging
 
-### Component Pattern
-```
-file:coffee-shop/views/pages/home.ejs:21-28
-Coffee cards use the pattern:
-  <div class="coffee-card">
-    <div class="coffee-card-img">☕</div>     ← emoji placeholder
-    <div class="coffee-card-body">
-      <h3><%= item.name %></h3>
-      <p><%= item.description %></p>
-      <span class="coffee-card-price">$<%= item.price.toFixed(2) %></span>
-    </div>
-  </div>
-The same pattern duplicates in both home.ejs (line 22) and menu.ejs (line 18) — 8 total cards.
-```
+### State Management Pattern (from architecture.md)
+- **URL State:** `nuqs` with `useQueryState`/`useQueryStates` hooks (requires `NuqsAdapter` wrapper in root layout)
+- **Client State:** Zustand stores in `lib/store/` (cart, wishlist)
+- **Server State:** Server Components with direct data fetching (no TanStack Query initially)
 
-### Styling Pattern
-```
-file:coffee-shop/public/css/style.css:1-687
-Single CSS file with:
-  - CSS custom properties (lines 7-34) for colors, fonts, shadows, radii, max-width
-  - Mobile-first base styles (lines 36-625): single-column grids, hamburger hidden
-  - Tablet @media (min-width: 768px) at line 630: 2-col grids
-  - Desktop @media (min-width: 1024px) at line 667: 3-4 col grids
-  - No max-width: 767px media query exists
-```
+### Data Validation Pattern (from architecture.md)
+- Zod schemas in `lib/schemas/` (product, order, user)
+- React Hook Form + `@hookform/resolvers/zod` for forms
+- Server Actions for form mutations
 
-### Navigation Pattern
-```
-file:coffee-shop/public/js/main.js:7-31
-Hamburger toggle uses class `nav-open` on `.nav-links` and `aria-expanded` on button.
-The JS already supports toggling — just needs CSS media query to activate.
-```
-
-### Error Handling Pattern
-```
-file:coffee-shop/routes/index.js:70-117
-Server-side: try/catch for menu data load (lines 7-12), field-level validation with errors object.
-Client-side: main.js lines 36-81 — form validation with preventDefault.
-404: server.js line 22-24 — renders 404.ejs for unmatched routes.
-```
-
-### Styling Pattern for .coffee-card-img
-```
-file:coffee-shop/public/css/style.css:309-317
-.coffee-card-img {
-  width: 100%;
-  height: 180px;
-  background: gradient;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4rem;  ← for emoji
-}
-The background gradient and centering mean images will need to cover/contain the area properly.
-```
-
-### Variable Font Fallbacks in CSS
-```
-file:coffee-shop/public/css/style.css:21-22
---font-heading: 'Playfair Display', Georgia, serif;
---font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
-System fallbacks already declared in CSS custom properties.
-```
+### Testing Pattern (from architecture.md)
+- Vitest config with jsdom environment
+- Tests in `tests/unit/` and `tests/component/`
+- React Testing Library with `renderHook` for store tests
 
 ## Web Research
 
-### Self-Hosting Google Fonts (Playfair Display + Inter)
-- **Source:** gwfh.mranftl.com (google-webfonts-helper), multiple articles (web.dev, FontFYI)
-- **Finding:** The most practical approach for a simple Express/EJS site without a build system is:
-  1. Use google-webfonts-helper API to download WOFF2 files for Playfair Display (weights 400, 700) and Inter (weights 400, 500, 600)
-  2. Place them in `public/fonts/` directory
-  3. Add `@font-face` declarations at the top of `style.css` replacing the Google Fonts `<link>` tags
-  4. Use `font-display: swap` for both fonts
-  5. Remove the `preconnect` and stylesheet `<link>` tags from `head.ejs`
-- **Relevance:** Fixes issue #4 (Google Fonts 404 when offline) and improves performance
-- **Key commands:** `curl "https://gwfh.mranftl.com/api/fonts/inter?download=zip&subsets=latin&formats=woff2&variants=regular,500,600" -o inter.zip`
+### 1. create-next-app with Next.js 14.x
+- **Source:** Next.js docs, shadcn/ui docs
+- **Finding:** Use `npx create-next-app@latest dresscave` with TypeScript, Tailwind CSS, ESLint, App Router. The input.txt specifies Next.js 14.x, but `create-next-app@latest` may install 15.x. Need to pin with `--version 14.2.x` or specific tag if 14.x is required.
+- **Key flags:** `--typescript --tailwind --eslint --app`
+- **Relevance:** Task 0.1 — project initialization
 
-### Unsplash Images for Coffee Products
-- **Source:** unsplash.com/documentation, unsplash.com/developers
-- **Finding:** Unsplash Source API (`source.unsplash.com`) is deprecated. The recommended approach is to use direct hotlinked image URLs from the Unsplash CDN. For a static site without an API key, use direct Unsplash photo URLs for specific coffee images. Example direct image URLs:
-  - Espresso: `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` (espresso shot)
-  - Latte: `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` (latte art)
-  - Cappuccino: `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop`
-  - Cold Brew: `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` (cold coffee)
-  - General coffee: Multiple specific Unsplash photo IDs available
-- **Relevance:** Fixes issues #3 and #5 — replace emoji placeholders with real product images
+### 2. shadcn/ui Installation (Next.js 14)
+- **Source:** https://ui.shadcn.com/docs/installation/next
+- **Finding:** Run `npx shadcn@latest init` (selects Default style, Slate/Zinc base, CSS variables) → then `npx shadcn@latest add button card input select dialog` for required Phase 0 components.
+- **Key details:**
+  - Creates `components.json`, `components/ui/`, `lib/utils.ts`
+  - Works with existing Next.js + Tailwind CSS setup
+  - Components are editable copies (full ownership)
+- **Relevance:** Task 0.3 — shadcn/ui initialization
 
-### Hamburger Menu CSS Pattern
-- **Source:** Standard responsive nav pattern
-- **Finding:** The standard mobile hamburger pattern requires:
-  ```css
-  @media (max-width: 767px) {
-    .hamburger { display: flex; }
-    .nav-links { display: none; }
-    .nav-links.nav-open { display: flex; }
-  }
-  ```
-  The JS in `main.js` already adds/removes `nav-open` class on click — only CSS is missing.
-- **Relevance:** Fixes issue #1 — critical mobile navigation bug
+### 3. Zustand in Next.js 14 (SSR Best Practices)
+- **Source:** https://zustand.docs.pmnd.rs/learn/guides/nextjs, community articles
+- **Finding:** For Next.js App Router, use the **store factory + Context pattern** (not module-level `create()`):
+  - Use `createStore` from `zustand/vanilla` to create factory
+  - Wrap in React Context with `useRef` for singleton-per-request
+  - Create provider component `StoreProvider` in root layout
+  - Avoid hydration errors by using `skipHydration` on persisted stores
+- **Key packages:** `zustand` (v4/v5)
+- **Relevance:** Task 0.4 — Zustand store setup (cart, wishlist)
+
+### 4. nuqs URL State Management
+- **Source:** https://nuqs.dev, https://47ng-nuqs.mintlify.app/adapters/nextjs-app
+- **Finding:** Requires Next.js `>=14.2.0`. Add `NuqsAdapter` in root `layout.tsx`. Provides `useQueryState` and `useQueryStates` with built-in parsers (`parseAsInteger`, `parseAsString`, etc.).
+- **Key details:**
+  - Shallow updates by default (client-side only)
+  - `shallow: false` for server re-renders
+  - Supports debouncing via `throttleMs`
+- **Relevance:** Task 0.4 — nuqs installation
+
+### 5. Vitest + React Testing Library with Next.js
+- **Source:** Vitest docs, community patterns
+- **Finding:** Install `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jsdom`. Configure `vitest.config.ts` with `jsdom` environment and `@/` path alias. Playwright CLI says it's already available in the environment — skip installing Playwright.
+- **Relevance:** Task 0.5 — testing setup
+
+### 6. Zod + react-hook-form
+- **Source:** Zod docs, react-hook-form docs
+- **Finding:** Install `zod`, `react-hook-form`, `@hookform/resolvers`. Create schemas in `lib/schemas/`. Use `zodResolver` with `useForm`.
+- **Relevance:** Task 0.6 — data validation setup
+
+### 7. Next.js Image Optimization (No Supabase)
+- **Source:** Next.js docs
+- **Finding:** Configure `next.config.js` with `images.remotePatterns` for placeholder domains (or local `/public`). No Supabase CDN needed. Use `formats: ['image/avif', 'image/webp']` and appropriate `deviceSizes`.
+- **Relevance:** Task 0.7 — image optimization config (adapted from architecture.md which used Supabase CDN)
+
+### 8. Tailwind CSS Mobile-First Configuration
+- **Source:** Tailwind docs
+- **Finding:** Mobile-first is default in Tailwind (unprefixed = mobile). Add custom design tokens in `tailwind.config.js` (colors, spacing, typography). Ensure 44px touch targets. Use `transform` + `opacity` for 60fps animations.
+- **Relevance:** Task 0.8 — Tailwind config
 
 ## Integration Points
-- [ ] `coffee-shop/public/css/style.css:172` — Add `@media (max-width: 767px)` rule for hamburger visibility and nav-links toggle
-- [ ] `coffee-shop/views/partials/head.ejs:6` — Add `<meta name="description">` tag after viewport meta
-- [ ] `coffee-shop/views/pages/home.ejs:22` — Replace `☕` emoji with `<img>` tag in featured coffee card
-- [ ] `coffee-shop/views/pages/menu.ejs:18` — Replace `☕` emoji with `<img>` tag in menu coffee cards
-- [ ] `coffee-shop/views/partials/head.ejs:7-9` — Remove Google Fonts preconnect/stylesheet links, add `@font-face` CSS to style.css
-- [ ] `coffee-shop/public/css/style.css` — Add `@font-face` declarations for Playfair Display (400, 700) and Inter (400, 500, 600)
-- [ ] `coffee-shop/public/fonts/` — Create directory and add self-hosted WOFF2 font files
 
-## Coffee-to-Image Mapping (for issues #3 and #5)
-Based on Unsplash research, suitable images for each menu item:
+### Files to Create in dresscave/:
 
-| Coffee Item | Suggested Unsplash Subject | Image Style |
-|-------------|---------------------------|-------------|
-| Classic Espresso | Espresso shot with crema | Dark, rich, close-up |
-| Vanilla Latte | Latte art in white cup | Creamy, warm tones |
-| Cappuccino | Cappuccino with foam art | Brown/white layers |
-| Caramel Macchiato | Layered espresso drink | Golden, caramel drizzle |
-| Cold Brew | Cold brew on ice | Dark, refreshing, ice visible |
-| Iced Mocha | Chocolate coffee drink | Dark, cold glass |
-| Matcha Latte | Matcha green tea latte | Green, vibrant |
-| Americano | Black coffee in mug | Simple, clean |
+- `dresscave/package.json` — via `create-next-app` (Task 0.1)
+- `dresscave/tsconfig.json` — via `create-next-app` (Task 0.1)
+- `dresscave/next.config.js` — via `create-next-app` then modify (Task 0.1, 0.7)
+- `dresscave/tailwind.config.js` — via `create-next-app` then modify (Task 0.1, 0.8)
+- `dresscave/postcss.config.js` — via `create-next-app` (Task 0.1)
+- `dresscave/app/layout.tsx` — root layout (Task 0.1, needs NuqsAdapter in Task 0.4)
+- `dresscave/app/page.tsx` — home page (Task 0.1)
+- `dresscave/app/globals.css` — global styles (Task 0.1, 0.3, 0.8)
+- `dresscave/components/ui/` — shadcn components (Task 0.3)
+- `dresscave/lib/utils.ts` — cn() utility (Task 0.3 via shadcn init)
+- `dresscave/lib/store/cart.ts` — Zustand cart store (Task 0.4)
+- `dresscave/lib/store/wishlist.ts` — Zustand wishlist store (Task 0.4)
+- `dresscave/lib/store/store-provider.tsx` — Zustand provider (Task 0.4)
+- `dresscave/vitest.config.ts` — Vitest configuration (Task 0.5)
+- `dresscave/tests/setup.ts` — test setup file (Task 0.5)
+- `dresscave/lib/schemas/` — Zod validation schemas (Task 0.6)
+- `dresscave/components.json` — shadcn config (Task 0.3)
+
+### Key Adaptations from architecture.md for "No Supabase":
+1. **Task 0.2 (Supabase) — SKIP entirely.** The architecture.md has extensive Supabase guidance but input.txt explicitly says no Supabase.
+2. **Task 0.7 (Image Optimization)** — use local `/public` domain or placeholder service instead of `*.supabase.co`.
+3. **State Management** — Zustand stores will use mock/local data instead of Supabase-backed data.
+4. **Testing** — No Supabase mock needed; use simple mock data.
 
 ## Clarifications
-- None — all issues are clearly described with file:line references in `E2E-ISSUES.md` and `input.txt`
-- Note: For the self-hosted fonts approach, actual WOFF2 files need to be downloaded and added to the repo (or we use an alternative CSS-based fallback approach)
-- Note: The `display: none` on `.hamburger` is at line 172 of style.css (as noted in input.txt), but CSS line 173 shows `display: none` — this matches
+- **Supabase Task 0.2:** Skipped entirely per input.txt instructions. The input.txt explicitly states "No Supabase — skip all Supabase-related setup. Use local/mock data instead."
+- **Next.js version:** Input.txt says "Next.js 14.x" and architecture.md also says 14.x. However `create-next-app@latest` may install Next.js 15. We should ask the user whether to explicitly pin Next.js 14.x or use the latest available.
+- **Playwright:** Input.txt says "Playwright CLI already available in environment — skip installing Playwright." So Task 0.5 should only install Vitest + RTL, not Playwright.
+- **Architecture divergence:** The architecture.md assumes Supabase heavily. For Phase 0, we're intentionally diverging. This will affect future epics (auth, product catalog, etc.) which will need local/mock adapters.
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*
