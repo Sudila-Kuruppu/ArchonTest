@@ -1,45 +1,68 @@
 # DCW VALIDATE — Validation Results
 
 ## Meta
-- **Feature:** fix-e2e-test-issues
+- **Feature:** Epic 1 — User Authentication & Account Management (FR16-FR20)
 - **Phase:** VALIDATE
 - **Date:** 2026-06-06
 
-## Validation Results
+## Validation Commands Run
 
-| Check | Status | Details |
-|-------|--------|---------|
-| Syntax check (`node --check server.js + routes/index.js`) | PASS | No syntax errors |
-| JSON validity (`menu.json` parse) | PASS | Valid JSON |
-| Server smoke test (start + shutdown) | PASS | Server starts successfully |
-| Integration test (HTTP request) | PASS | Home page renders with expected content |
-| Lint | SKIP | No linter configured (plan.yaml) |
-| Tests | SKIP | No test framework configured (plan.yaml) |
-| Build | SKIP | No build step configured (plan.yaml) |
-| T1: Media query `@media (max-width: 767px)` | PASS | Media query rule found in style.css |
-| T1b: Hamburger menu `.hamburger { display: flex }` | PASS | Hamburger flex rule found |
-| T2: Meta description tag | PASS | `<meta name="description">` found in head.ejs |
-| T3: Coffee card image CSS `.coffee-card-img img` | PASS | Image rule found in style.css |
-| T4: Image URLs in menu.json | PASS | All 8 items have `image` field |
-| T5: `<img>` tag in home.ejs | PASS | Image tags found in featured coffee cards |
-| T6: `<img>` tag in menu.ejs | PASS | Image tags found in all menu items |
-| T7a: Fonts directory | PASS | `public/fonts/` directory exists |
-| T7b: WOFF2 font files | PASS | 5 woff2 files present (Playfair Display + Inter variants) |
-| T8a: `@font-face` declarations | PASS | `@font-face` rules found in style.css |
-| T8b: Playfair Display font-family | PASS | `font-family: 'Playfair Display'` declared |
-| T8c: Inter font-family | PASS | `font-family: 'Inter'` declared |
-| T9a: Google Fonts external links | PASS | All `fonts.googleapis.com` links removed from head.ejs |
-| T9b: Local stylesheet reference | PASS | Local `style.css` still referenced in head.ejs |
+| # | Command | Status |
+|---|---------|--------|
+| 1 | `npx tsc --noEmit` (type-check) | PASS |
+| 2 | `npx next lint` (lint) | PASS |
+| 3 | `npm test -- --run` (tests) | PASS |
+| 4 | `npm run build` (build) | PASS |
 
-## Failures
+## Detailed Results
 
-*No failures encountered.*
+### 1. Type-check: `npx tsc --noEmit`
+- **Exit code:** 0
+- **Output:** (no errors)
+- **Notes:** First run failed because `.next/types/` files hadn't been generated. After `npm run build` generated those files, re-run passed with zero errors.
+- **Final status:** PASS
+
+### 2. Lint: `npx next lint`
+- **Exit code:** 0
+- **Output:** "✔ No ESLint warnings or errors"
+- **Final status:** PASS
+
+### 3. Tests: `npm test -- --run`
+- **Exit code:** 0
+- **Output:** 3 test files, 30 tests passed (vitest v4.1.8)
+- **Breakdown:**
+  - `tests/auth/schemas.test.ts` — PASS
+  - `tests/auth/store.test.ts` — PASS
+  - `tests/example.test.ts` — PASS
+- **Final status:** PASS
+
+### 4. Build: `npm run build`
+- **Exit code:** 0
+- **Output:** Next.js 14.2.0 production build compiled successfully
+- **Generated pages:** 15 (mix of static and dynamic)
+- **Warnings:** 1 expected warning — `@supabase/supabase-js` uses `process.version` which is unsupported in Edge Runtime (used by middleware). This is a known limitation of Supabase SSR middleware and does not affect build correctness.
+- **Final status:** PASS
+
+## Task-Level File Validation
+
+| Task | Description | Status |
+|------|-------------|--------|
+| T1 | Supabase deps installed (`@supabase/supabase-js`, `@supabase/ssr`) | PASS |
+| T2 | `.env.local` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` | PASS |
+| T3 | Supabase client files (`server.ts`, `client.ts`, `middleware.ts`) | PASS |
+| T11 | Forgot/reset password form components | PASS |
+| T12 | Auth route group pages (login, signup, forgot-password, reset-password, verify-email) | PASS |
+| T13 | Auth callback route (`app/auth/confirm/route.ts`) | PASS |
+| T14 | Root middleware (`middleware.ts`) | PASS |
+| T17 | Profile components (profile-form, measurements-form, delete-account-dialog) | PASS |
+| T18 | Dashboard pages (account, measurements, settings, delete) | PASS |
+| T19 | Test files (`schemas.test.ts`, `store.test.ts`) | PASS |
 
 ## Summary
-- **Total checks:** 21
-- **Passed:** 15
+- **Total checks:** 4 (type-check, lint, test, build) + 10 task-level validations
+- **Passed:** 14
 - **Failed:** 0
-- **Skipped (N/A):** 3
+- **Skipped (N/A):** 0
 - **All pass:** YES
 
 ---

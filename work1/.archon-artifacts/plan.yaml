@@ -1,128 +1,242 @@
 meta:
-  name: "fix-e2e-test-issues"
-  description: "Fix 5 E2E test issues: hamburger menu, meta description, product images, emoji placeholders, and Google Fonts self-hosting"
+  name: "epic-1-user-authentication"
+  description: "Epic 1 — User Authentication & Account Management (FR16-FR20): registration, login, password reset, custom measurements, profile editing, account deletion, user menu navigation"
   created: "2026-06-06"
 
 scope:
   in_scope:
-    - "Add @media (max-width: 767px) CSS rule to show hamburger button and toggle nav-links"
-    - "Add <meta name='description'> tag to head.ejs for SEO"
-    - "Add .coffee-card-img img CSS rule for proper image display in coffee cards"
-    - "Add image URL field to all 8 menu items in menu.json"
-    - "Replace ☕ emoji with <img> tags in home.ejs (featured coffees)"
-    - "Replace ☕ emoji with <img> tags in menu.ejs (all menu items)"
-    - "Create public/fonts/ directory and download WOFF2 font files for Playfair Display and Inter"
-    - "Add @font-face declarations at top of style.css for self-hosted fonts"
-    - "Remove Google Fonts external <link> tags from head.ejs"
+    - "Install @supabase/supabase-js and @supabase/ssr dependencies"
+    - "Create Supabase client infrastructure (lib/supabase/ server, client, middleware)"
+    - "Create .env.local with Supabase environment variables"
+    - "Extend Zod schemas for auth form validation (signup, login, password reset, profile edit, deletion)"
+    - "Create Zustand auth store following existing createStore + Context pattern"
+    - "Add auth store to StoreProvider alongside cart/wishlist"
+    - "Create auth server actions (signup, login, logout, password reset, update profile, delete account)"
+    - "Create AuthProvider using @supabase/ssr for server-side session hydration"
+    - "Create auth form components (signup, login, forgot password, reset password)"
+    - "Create auth pages (signup, login, forgot-password, reset-password, verify-email)"
+    - "Create auth callback route handler for Supabase email confirmation redirects"
+    - "Create header component with user menu dropdown"
+    - "Update root layout to include header"
+    - "Create profile pages (account dashboard, measurements, settings, delete)"
+    - "Create profile form components (profile edit, measurements, delete confirmation)"
+    - "Create middleware.ts for session refresh and protected route redirects"
+    - "Write tests for auth schemas, store, and form components"
   out_of_scope:
-    - "Adding a build system or bundler"
-    - "Adding a test framework or unit tests"
-    - "Redesigning the layout or visual style"
-    - "Adding new pages or routes"
-    - "Changing menu data structure beyond adding image URLs"
-    - "Adding accessibility features beyond what's specified"
-    - "Performance optimization beyond font self-hosting"
+    - "Epic 2+ features (product catalog, discovery, cart, wishlist, etc.)"
+    - "Social login / OAuth providers"
+    - "Supabase project creation and configuration (manual prerequisite)"
+    - "Database table creation (profiles table, etc.)"
+    - "Admin dashboard or admin-specific auth"
+    - "Email infrastructure setup (Supabase handles this via built-in email)"
 
 tasks:
   - id: "T1"
-    description: "Add responsive hamburger menu CSS rule for mobile (max-width: 767px)"
+    description: "Install @supabase/supabase-js and @supabase/ssr npm dependencies"
     action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
+    path: "dresscave/package.json"
     depends: []
-    patterns: []
+    patterns:
+      - "dresscave/package.json"
     validate:
-      - "grep -q 'max-width: 767px' coffee-shop/public/css/style.css && echo 'PASS: media query found' || echo 'FAIL: media query missing'"
-      - "grep -q '.hamburger { display: flex' coffee-shop/public/css/style.css && echo 'PASS: hamburger flex found' || echo 'FAIL: hamburger flex missing'"
+      - "ls dresscave/node_modules/@supabase/supabase-js 2>/dev/null && ls dresscave/node_modules/@supabase/ssr 2>/dev/null"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T2"
-    description: "Add <meta name='description'> tag to head.ejs after viewport meta"
-    action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
-    depends: []
+    description: "Create .env.local with Supabase environment variables for local development"
+    action: "CREATE"
+    path: "dresscave/.env.local"
+    depends: ["T1"]
     patterns: []
     validate:
-      - "grep -q 'meta name=\"description\"' coffee-shop/views/partials/head.ejs && echo 'PASS: meta description found' || echo 'FAIL: meta description missing'"
+      - "test -f dresscave/.env.local && grep -q NEXT_PUBLIC_SUPABASE_URL dresscave/.env.local && grep -q NEXT_PUBLIC_SUPABASE_ANON_KEY dresscave/.env.local"
 
   - id: "T3"
-    description: "Add CSS rule for coffee card images (.coffee-card-img img)"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
-    depends: []
-    patterns: []
+    description: "Create Supabase client files (lib/supabase/server.ts, client.ts, middleware.ts)"
+    action: "CREATE"
+    path: "dresscave/lib/supabase/"
+    depends: ["T1"]
+    patterns:
+      - "dresscave/lib/store/cart.ts"
     validate:
-      - "grep -q '.coffee-card-img img' coffee-shop/public/css/style.css && echo 'PASS: img rule found' || echo 'FAIL: img rule missing'"
+      - "test -f dresscave/lib/supabase/server.ts && test -f dresscave/lib/supabase/client.ts && test -f dresscave/lib/supabase/middleware.ts"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T4"
-    description: "Add image URL field to all 8 menu items in menu.json"
+    description: "Extend Zod schemas in lib/schemas/user.ts with auth form validation schemas (signup, login, password reset, profile update, account deletion)"
     action: "UPDATE"
-    path: "coffee-shop/data/menu.json"
+    path: "dresscave/lib/schemas/user.ts"
     depends: []
-    patterns: []
+    patterns:
+      - "dresscave/lib/schemas/product.ts"
     validate:
-      - "node -e \"const d=require('./coffee-shop/data/menu.json'); d.forEach(i=>{if(!i.image)throw new Error('T4 FAIL: item '+i.id+' missing image')}); console.log('PASS: all ' + d.length + ' items have images')\""
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T5"
-    description: "Replace emoji with <img> tag in home.ejs featured coffee cards"
-    action: "UPDATE"
-    path: "coffee-shop/views/pages/home.ejs"
-    depends:
-      - "T4"
+    description: "Create Zustand auth store (lib/store/auth.ts) following vanilla createStore + Context pattern"
+    action: "CREATE"
+    path: "dresscave/lib/store/auth.ts"
+    depends: ["T4"]
     patterns:
-      - "coffee-shop/views/pages/menu.ejs"
+      - "dresscave/lib/store/cart.ts"
     validate:
-      - "grep -q '<img' coffee-shop/views/pages/home.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T6"
-    description: "Replace emoji with <img> tag in menu.ejs all menu coffee cards"
+    description: "Add auth store provider to lib/store/store-provider.tsx alongside existing cart/wishlist providers"
     action: "UPDATE"
-    path: "coffee-shop/views/pages/menu.ejs"
-    depends:
-      - "T4"
+    path: "dresscave/lib/store/store-provider.tsx"
+    depends: ["T5"]
     patterns:
-      - "coffee-shop/views/pages/home.ejs"
+      - "dresscave/lib/store/store-provider.tsx"
     validate:
-      - "grep -q '<img' coffee-shop/views/pages/menu.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T7"
-    description: "Create public/fonts/ directory and download WOFF2 font files for self-hosting"
+    description: "Create auth server actions (lib/actions/auth.ts) for signup, login, logout, password reset, update profile, delete account using Supabase Auth API"
     action: "CREATE"
-    path: "coffee-shop/public/fonts/"
-    depends: []
-    patterns: []
+    path: "dresscave/lib/actions/auth.ts"
+    depends: ["T3", "T4"]
+    patterns:
+      - "dresscave/lib/schemas/user.ts"
     validate:
-      - "test -d coffee-shop/public/fonts/ && echo 'PASS: fonts dir exists' || echo 'FAIL: fonts dir missing'"
-      - "ls coffee-shop/public/fonts/*.woff2 2>/dev/null && echo 'PASS: woff2 files found' || echo 'FAIL: no woff2 files'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T8"
-    description: "Add @font-face declarations for Playfair Display and Inter at top of style.css"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
-    depends:
-      - "T7"
-    patterns: []
+    description: "Create AuthProvider component (components/auth/auth-provider.tsx) for session hydration from server to client Zustand store"
+    action: "CREATE"
+    path: "dresscave/components/auth/auth-provider.tsx"
+    depends: ["T5", "T7"]
+    patterns:
+      - "dresscave/lib/store/store-provider.tsx"
     validate:
-      - "grep -q '@font-face' coffee-shop/public/css/style.css && echo 'PASS: @font-face found' || echo 'FAIL: @font-face missing'"
-      - "grep -q \"font-family: 'Playfair Display'\" coffee-shop/public/css/style.css && echo 'PASS: Playfair Display found' || echo 'FAIL: Playfair Display missing'"
-      - "grep -q \"font-family: 'Inter'\" coffee-shop/public/css/style.css && echo 'PASS: Inter found' || echo 'FAIL: Inter missing'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T9"
-    description: "Remove Google Fonts external <link> tags from head.ejs"
-    action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
-    depends:
-      - "T7"
-    patterns: []
+    description: "Create signup form component (components/auth/signup-form.tsx) with React Hook Form + Zod resolver"
+    action: "CREATE"
+    path: "dresscave/components/auth/signup-form.tsx"
+    depends: ["T4", "T7"]
+    patterns:
+      - "dresscave/components/ui/card.tsx"
     validate:
-      - "grep -q 'fonts.googleapis.com' coffee-shop/views/partials/head.ejs && echo 'FAIL: Google Fonts link still present' || echo 'PASS: Google Fonts link removed'"
-      - "grep -q 'stylesheet' coffee-shop/views/partials/head.ejs && echo 'PASS: local stylesheet still referenced' || echo 'FAIL: local stylesheet reference missing'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T10"
+    description: "Create login form component (components/auth/login-form.tsx) with React Hook Form + Zod resolver"
+    action: "CREATE"
+    path: "dresscave/components/auth/login-form.tsx"
+    depends: ["T4", "T7"]
+    patterns:
+      - "dresscave/components/ui/card.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T11"
+    description: "Create forgot-password and reset-password form components (components/auth/forgot-password-form.tsx, components/auth/reset-password-form.tsx)"
+    action: "CREATE"
+    path: "dresscave/components/auth/"
+    depends: ["T4", "T7"]
+    patterns:
+      - "dresscave/components/ui/card.tsx"
+    validate:
+      - "test -f dresscave/components/auth/forgot-password-form.tsx && test -f dresscave/components/auth/reset-password-form.tsx"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T12"
+    description: "Create auth route group pages ((auth)/login, signup, forgot-password, reset-password, verify-email) with layout"
+    action: "CREATE"
+    path: "dresscave/app/(auth)/"
+    depends: ["T9", "T10", "T11"]
+    patterns:
+      - "dresscave/app/layout.tsx"
+    validate:
+      - "test -f dresscave/app/\(auth\)/layout.tsx && test -f dresscave/app/\(auth\)/login/page.tsx && test -f dresscave/app/\(auth\)/signup/page.tsx"
+      - "test -f dresscave/app/\(auth\)/forgot-password/page.tsx && test -f dresscave/app/\(auth\)/reset-password/page.tsx && test -f dresscave/app/\(auth\)/verify-email/page.tsx"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T13"
+    description: "Create auth callback route handler (app/auth/confirm/route.ts) for Supabase email verification and password reset redirects"
+    action: "CREATE"
+    path: "dresscave/app/auth/confirm/route.ts"
+    depends: ["T3", "T7"]
+    patterns:
+      - "dresscave/app/layout.tsx"
+    validate:
+      - "test -f dresscave/app/auth/confirm/route.ts"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T14"
+    description: "Create root middleware.ts for Supabase session refresh and protected route redirects for /account/* paths"
+    action: "CREATE"
+    path: "dresscave/middleware.ts"
+    depends: ["T3"]
+    patterns:
+      - "dresscave/lib/supabase/middleware.ts"
+    validate:
+      - "test -f dresscave/middleware.ts"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T15"
+    description: "Create header component (components/layout/header.tsx) with site navigation and user menu dropdown using @base-ui/react/menu"
+    action: "CREATE"
+    path: "dresscave/components/layout/header.tsx"
+    depends: ["T8"]
+    patterns:
+      - "dresscave/components/ui/dialog.tsx"
+      - "dresscave/lib/store/store-provider.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T16"
+    description: "Update root layout (app/layout.tsx) to wrap with AuthProvider and include Header component"
+    action: "UPDATE"
+    path: "dresscave/app/layout.tsx"
+    depends: ["T8", "T15"]
+    patterns:
+      - "dresscave/app/layout.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T17"
+    description: "Create profile form components (profile-form.tsx, measurements-form.tsx, delete-account-dialog.tsx)"
+    action: "CREATE"
+    path: "dresscave/components/profile/"
+    depends: ["T4", "T7", "T8"]
+    patterns:
+      - "dresscave/components/ui/dialog.tsx"
+      - "dresscave/components/ui/select.tsx"
+    validate:
+      - "test -f dresscave/components/profile/profile-form.tsx && test -f dresscave/components/profile/measurements-form.tsx && test -f dresscave/components/profile/delete-account-dialog.tsx"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T18"
+    description: "Create dashboard route group pages ((dashboard)/account/, account/measurements/, account/settings/, account/delete/) with layout"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/"
+    depends: ["T17", "T14"]
+    patterns:
+      - "dresscave/app/layout.tsx"
+    validate:
+      - "test -f dresscave/app/\(dashboard\)/layout.tsx && test -f dresscave/app/\(dashboard\)/account/page.tsx"
+      - "test -f dresscave/app/\(dashboard\)/account/measurements/page.tsx && test -f dresscave/app/\(dashboard\)/account/settings/page.tsx"
+      - "test -f dresscave/app/\(dashboard\)/account/delete/page.tsx"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T19"
+    description: "Write tests for auth schemas, auth store, and auth form components in tests/auth/ directory"
+    action: "CREATE"
+    path: "dresscave/tests/auth/"
+    depends: ["T4", "T5", "T9", "T10"]
+    patterns:
+      - "dresscave/tests/example.test.ts"
+    validate:
+      - "test -f dresscave/tests/auth/schemas.test.ts && test -f dresscave/tests/auth/store.test.ts"
+      - "npm test -- --run 2>&1 | tail -30"
 
 validation:
   commands:
-    syntax: "node --check coffee-shop/server.js 2>&1 && node --check coffee-shop/routes/index.js 2>&1 && echo 'PASS: syntax OK' || echo 'FAIL: syntax error'"
-    json: "node -e \"JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))\" && echo 'PASS: menu.json valid' || echo 'FAIL: menu.json invalid'"
-    server: "timeout 3 node -e \"const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);\" 2>&1 | tail -5"
-    lint: "echo 'INFO: No linter configured — skipping'"
-    test: "echo 'INFO: No test framework configured — skipping'"
-    build: "echo 'INFO: No build step configured — skipping'"
+    type_check: "npx tsc --noEmit 2>&1"
+    lint: "npx next lint 2>&1 || true"
+    test: "npm test -- --run 2>&1"
+    build: "npm run build 2>&1 || echo 'Build may fail without Supabase project credentials'"

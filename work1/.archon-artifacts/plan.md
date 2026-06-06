@@ -1,211 +1,243 @@
-# DCW PLAN — Fix E2E Test Issues (Brew & Bean Coffee Shop)
+# DCW PLAN — Epic 1: User Authentication & Account Management (FR16-FR20)
 
 ## Meta
-- **Feature:** Fix E2E Test Issues
+- **Feature:** Epic 1 — User Authentication & Account Management
 - **Phase:** PLAN
 - **Date:** 2026-06-06
 
 ## Summary
-Fix 5 issues identified by automated Chromium/Playwright E2E testing across mobile/tablet/desktop viewports: mobile hamburger menu never visible (CRITICAL), missing meta description (MEDIUM), emoji image placeholders (LOW/LOW), and Google Fonts 404 when offline (LOW).
+Enable users to create accounts, log in securely, save custom measurements for made-to-order clothing, and manage their profiles. This epic delivers core user identity and personalization features that enable saved cart/wishlist persistence (FR21-FR25) and AI customer service (FR29-FR32).
 
 ### UX Flow
 ```
-Before: Mobile nav is broken (hamburger always hidden), no SEO meta tags, coffee cards use emoji placeholders, fonts 404 offline
-After:  Mobile nav works with hamburger toggle, pages have meta descriptions, coffee cards show real product images, fonts load from local files
+Before: Bare Next.js app with no auth, no user menu, no header navigation
+After:  Users can sign up, log in, reset passwords, manage measurements, edit profiles, delete accounts — all with a consistent user menu dropdown in the header
 ```
 
 ## Scope
 
 ### In Scope
-- Add `@media (max-width: 767px)` CSS rule to make hamburger visible and toggle nav-links on mobile
-- Add `<meta name="description">` tag to `head.ejs` for SEO
-- Add `.coffee-card-img img` CSS rule for proper image display in coffee cards
-- Add `image` URL field to all 8 menu items in `menu.json`
-- Replace ☕ emoji with `<img>` tags in `home.ejs` (featured coffees — up to 4 cards)
-- Replace ☕ emoji with `<img>` tags in `menu.ejs` (all 8 menu items across categories)
-- Create `public/fonts/` directory and download WOFF2 font files for Playfair Display (400, 700) and Inter (400, 500, 600)
-- Add `@font-face` declarations at top of `style.css` for self-hosted fonts with `font-display: swap`
-- Remove Google Fonts external `<link>` tags from `head.ejs`
+- Install Supabase dependencies and create client infrastructure (`lib/supabase/`)
+- Implement auth forms and pages (signup, login, forgot/reset password, verify email)
+- Create Zustand auth store following existing `createStore` + Context pattern
+- Build AuthProvider for server-to-client session hydration
+- Protect `/account/*` routes via middleware with session refresh
+- Create header with user menu dropdown using `@base-ui/react/menu`
+- Build profile pages (dashboard, measurements, settings, account deletion)
+- Write validation schemas for all auth forms
+- Write tests for auth schemas, store, and form components
 
 ### Out of Scope
-- Adding a build system or bundler
-- Adding a test framework or unit tests
-- Redesigning layout or visual style
-- Adding new pages, routes, or functionality
-- Changing menu data structure beyond adding `image` URLs
-- Accessibility features beyond what's specified
-- Performance optimization beyond font self-hosting
+- OAuth/social login providers (future enhancement)
+- Supabase project creation and configuration (manual prerequisite)
+- Database `profiles` table creation (handled as part of Supabase project setup or future migration)
+- Admin dashboard or role-based access control
+- Cart/wishlist persistence (Epic 4 scope)
+- AI customer service features (Epic 6 scope)
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 ─┐
-T2 ─┤
-T3 ─┤
-T4 ─┤
-T7 ─┤
-    ├──> T5 (depends T4)
-    ├──> T6 (depends T4)
-    ├──> T8 (depends T7)
-    └──> T9 (depends T7)
+T1 ─► T2
+ │
+ └► T3 ─► T7 ─► T8 ─► T15 ─► T16
+ │       │      │
+ │       └► T13 │
+ │              │
+T4 ─► T5 ─► T6  │
+ │              │
+ ├► T7 (above)  │
+ ├► T9 ─► T12   │
+ ├► T10─► T12   │
+ ├► T11─► T12   │
+ └► T17─► T18   │
+                │
+T14─────────────────► T18
 ```
-
-Root tasks (T1, T2, T3, T4, T7) can be done in parallel. T5/T6 depend on T4 (image URLs). T8/T9 depend on T7 (font files).
 
 ### Task Table
 | ID | Action | File | Depends | Validate |
 |----|--------|------|---------|----------|
-| T1 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for media query + `.hamburger { display: flex` |
-| T2 | UPDATE | `coffee-shop/views/partials/head.ejs` | — | `grep` for meta description tag |
-| T3 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for `.coffee-card-img img` |
-| T4 | UPDATE | `coffee-shop/data/menu.json` | — | `node` JSON check — all 8 items have `image` field |
-| T5 | UPDATE | `coffee-shop/views/pages/home.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T6 | UPDATE | `coffee-shop/views/pages/menu.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T7 | CREATE | `coffee-shop/public/fonts/` | — | Dir exists + `.woff2` files present |
-| T8 | UPDATE | `coffee-shop/public/css/style.css` | T7 | `grep` for `@font-face` + Playfair + Inter |
-| T9 | UPDATE | `coffee-shop/views/partials/head.ejs` | T7 | Google Fonts link removed, local stylesheet kept |
+| T1 | UPDATE | `dresscave/package.json` | — | `ls node_modules/@supabase/*` |
+| T2 | CREATE | `dresscave/.env.local` | T1 | `grep SUPABASE_URL .env.local` |
+| T3 | CREATE | `dresscave/lib/supabase/` | T1 | `tsc --noEmit` |
+| T4 | UPDATE | `dresscave/lib/schemas/user.ts` | — | `tsc --noEmit` |
+| T5 | CREATE | `dresscave/lib/store/auth.ts` | T4 | `tsc --noEmit` |
+| T6 | UPDATE | `dresscave/lib/store/store-provider.tsx` | T5 | `tsc --noEmit` |
+| T7 | CREATE | `dresscave/lib/actions/auth.ts` | T3, T4 | `tsc --noEmit` |
+| T8 | CREATE | `dresscave/components/auth/auth-provider.tsx` | T5, T7 | `tsc --noEmit` |
+| T9 | CREATE | `dresscave/components/auth/signup-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T10 | CREATE | `dresscave/components/auth/login-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T11 | CREATE | `dresscave/components/auth/forgot-password-form.tsx, reset-password-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T12 | CREATE | `dresscave/app/(auth)/` | T9, T10, T11 | `tsc --noEmit` |
+| T13 | CREATE | `dresscave/app/auth/confirm/route.ts` | T3, T7 | `tsc --noEmit` |
+| T14 | CREATE | `dresscave/middleware.ts` | T3 | `tsc --noEmit` |
+| T15 | CREATE | `dresscave/components/layout/header.tsx` | T8 | `tsc --noEmit` |
+| T16 | UPDATE | `dresscave/app/layout.tsx` | T8, T15 | `tsc --noEmit` |
+| T17 | CREATE | `dresscave/components/profile/` | T4, T7, T8 | `tsc --noEmit` |
+| T18 | CREATE | `dresscave/app/(dashboard)/` | T17, T14 | `tsc --noEmit` |
+| T19 | CREATE | `dresscave/tests/auth/` | T4, T5, T9, T10 | `npm test -- --run` |
 
 ### Task Details
 
-#### T1: Add responsive hamburger menu CSS rule for mobile
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Add `@media (max-width: 767px)` block at the end of the file (after the desktop section at line 687) with:
-  - `.hamburger { display: flex; }` — show hamburger button on mobile
-  - `.nav-links { display: none; flex-direction: column; position: absolute; top: var(--header-height); left: 0; right: 0; background: var(--color-primary); padding: 1rem; gap: 0.5rem; }` — hide nav by default on mobile, style as dropdown
-  - `.nav-links.nav-open { display: flex; }` — show nav when toggled
-- **Validate:** `grep -q 'max-width: 767px'` and `grep -q '.hamburger { display: flex'`
+#### T1: Install Supabase dependencies
+- **Action:** UPDATE `dresscave/package.json`
+- **Details:** Add `@supabase/supabase-js` and `@supabase/ssr` to dependencies, then run `npm install`
+- **Validate:** `ls dresscave/node_modules/@supabase/supabase-js` and `npx tsc --noEmit`
 
-#### T2: Add meta description tag to head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** After line 5 (`<meta name="viewport">`), add:
-  `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">`
-- **Validate:** `grep -q 'meta name="description"'`
+#### T2: Create .env.local
+- **Action:** CREATE `dresscave/.env.local`
+- **Details:** Add `NEXT_PUBLIC_SUPABASE_URL=`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=` with placeholder values. Include `.env.local` in `.gitignore` (verify it already is).
+- **Validate:** File exists with both variables
+- **Note:** Actual Supabase credentials require manual Supabase project creation
 
-#### T3: Add CSS rule for coffee card images
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** After the `.coffee-card-img` rule block (line 317), add:
-  ```css
-  .coffee-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  ```
-- **Validate:** `grep -q '.coffee-card-img img'`
-
-#### T4: Add image URLs to all 8 menu items in menu.json
-- **Action:** UPDATE `coffee-shop/data/menu.json`
-- **Details:** Add an `image` field with Unsplash photo URL to each menu item:
-  | id | Name | Image URL |
-  |----|------|-----------|
-  | 1 | Classic Espresso | `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` |
-  | 2 | Vanilla Latte | `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` |
-  | 3 | Cappuccino | `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop` |
-  | 4 | Caramel Macchiato | `https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=300&fit=crop` |
-  | 5 | Cold Brew | `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` |
-  | 6 | Iced Mocha | `https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop` |
-  | 7 | Matcha Latte | `https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=300&fit=crop` |
-  | 8 | Americano | `https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop` |
-- **Validate:** Node script that loads JSON and asserts each item has `image`
-
-#### T5: Replace emoji with <img> in home.ejs featured coffees
-- **Action:** UPDATE `coffee-shop/views/pages/home.ejs`
-- **Details:** Replace line 22:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the `<img>` pattern (also used in T6 for menu.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in home.ejs + server syntax check
-
-#### T6: Replace emoji with <img> in menu.ejs all coffee cards
-- **Action:** UPDATE `coffee-shop/views/pages/menu.ejs`
-- **Details:** Replace line 18:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the same pattern from T5 (home.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in menu.ejs + server syntax check
-
-#### T7: Create fonts directory and download WOFF2 files
-- **Action:** CREATE `coffee-shop/public/fonts/`
+#### T3: Create Supabase client files
+- **Action:** CREATE `dresscave/lib/supabase/server.ts`, `client.ts`, `middleware.ts`
+- **Patterns:** Zustand store pattern (vanilla createStore) — mirror file structure style
 - **Details:**
-  1. Create directory: `mkdir -p coffee-shop/public/fonts/`
-  2. Download Playfair Display (400, 700) and Inter (400, 500, 600) WOFF2 files using google-webfonts-helper or Fontsource API. Expected files:
-     - `playfair-display-regular.woff2`
-     - `playfair-display-700.woff2`
-     - `inter-regular.woff2`
-     - `inter-500.woff2`
-     - `inter-600.woff2`
-- **Validate:** Directory exists + at least one `.woff2` file present
+  - `server.ts`: `createServerClient()` with `cookies()` from `next/headers`
+  - `client.ts`: `createBrowserClient()` for client components
+  - `middleware.ts`: `createServerClient()` with `NextRequest`/`NextResponse` cookies
+- **Validate:** All 3 files exist, TypeScript compiles
 
-#### T8: Add @font-face declarations to style.css
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Insert at line 1 (before CSS variables), 5 `@font-face` blocks:
-  - Playfair Display (400) — `url('/fonts/playfair-display-regular.woff2') format('woff2')`
-  - Playfair Display (700) — `url('/fonts/playfair-display-700.woff2') format('woff2')`
-  - Inter (400) — `url('/fonts/inter-regular.woff2') format('woff2')`
-  - Inter (500) — `url('/fonts/inter-500.woff2') format('woff2')`
-  - Inter (600) — `url('/fonts/inter-600.woff2') format('woff2')`
-  - All with `font-display: swap`
-- **Depends:** T7 (font files must exist — referenced in `url()`)
-- **Validate:** `grep` for `@font-face`, `Playfair Display`, `Inter`
+#### T4: Extend Zod schemas
+- **Action:** UPDATE `dresscave/lib/schemas/user.ts`
+- **Patterns:** Mirror `product.ts` pattern (exported schemas + inferred types)
+- **Details:** Add:
+  - `SignupSchema`: email, password (8+ chars, mixed case), full_name
+  - `LoginSchema`: email, password
+  - `ForgotPasswordSchema`: email
+  - `ResetPasswordSchema`: new_password, confirm_password
+  - `ProfileUpdateSchema`: full_name, phone, avatar_url, communication_preferences
+  - `AccountDeletionSchema`: password confirmation
+- **Validate:** TypeScript compiles
 
-#### T9: Remove Google Fonts external <link> tags from head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** Remove lines 7-9 (3 link tags):
-  ```html
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display...&family=Inter...&display=swap" rel="stylesheet">
-  ```
-  Keep the local stylesheet link (line 10).
-- **Depends:** T7 (font files must be available since external links are removed)
-- **Validate:** Confirm `fonts.googleapis.com` NOT present, but `<link rel="stylesheet" href="/css/style.css">` still present
+#### T5: Create auth Zustand store
+- **Action:** CREATE `dresscave/lib/store/auth.ts`
+- **Patterns:** Mirror `cart.ts` (vanilla `createStore`, `AuthStore` type, `AuthStoreApi` type, `createAuthStore` factory)
+- **Details:** Store shape: `{ user, session, isLoading, setUser, setSession, clearAuth }`
+- **Validate:** TypeScript compiles
+
+#### T6: Add auth store to StoreProvider
+- **Action:** UPDATE `dresscave/lib/store/store-provider.tsx`
+- **Patterns:** Mirror existing cart/wishlist provider pattern
+- **Details:** Add `AuthStoreContext`, `AuthStoreApi`, `useAuthStore<T>()` hook. Wrap in provider alongside cart and wishlist.
+- **Validate:** TypeScript compiles
+
+#### T7: Create auth server actions
+- **Action:** CREATE `dresscave/lib/actions/auth.ts`
+- **Details:** Implement using `"use server"` directives:
+  - `signup(email, password, full_name)` — calls `supabase.auth.signUp()`, creates profile
+  - `login(email, password)` — calls `supabase.auth.signInWithPassword()`
+  - `logout()` — calls `supabase.auth.signOut()`
+  - `resetPasswordRequest(email)` — calls `supabase.auth.resetPasswordForEmail()`
+  - `updatePassword(password)` — calls `supabase.auth.updateUser()`
+  - `updateProfile(data)` — updates `profiles` table
+  - `deleteAccount(password)` — deletes user and marks for GDPR removal
+- **Validate:** TypeScript compiles
+
+#### T8: Create AuthProvider component
+- **Action:** CREATE `dresscave/components/auth/auth-provider.tsx`
+- **Patterns:** Mirror `StoreProvider` pattern
+- **Details:** Client component that fetches session on mount via `supabase.auth.getUser()`, populates auth store, and renders children.
+- **Validate:** TypeScript compiles
+
+#### T9: Create signup form
+- **Action:** CREATE `dresscave/components/auth/signup-form.tsx`
+- **Patterns:** Mirror Card layout pattern, use Button + Input components
+- **Details:** `"use client"`, RHF + ZodResolver, fields: full_name, email, password, confirm_password. Show/hide password toggle. Submit calls signup server action. Displays validation errors inline. Shows loading state. Redirects to verify-email page on success.
+- **Validate:** TypeScript compiles
+
+#### T10: Create login form
+- **Action:** CREATE `dresscave/components/auth/login-form.tsx`
+- **Patterns:** Mirror Card layout pattern
+- **Details:** `"use client"`, RHF + ZodResolver, fields: email, password. "Remember me" checkbox. "Forgot Password?" link. Submit calls login server action. Shows errors for invalid credentials / unverified email. Redirects to account dashboard on success.
+- **Validate:** TypeScript compiles
+
+#### T11: Create password reset forms
+- **Action:** CREATE `dresscave/components/auth/forgot-password-form.tsx` and `dresscave/components/auth/reset-password-form.tsx`
+- **Details:** Forgot: email field only, calls `resetPasswordRequest`. Reset: new_password + confirm_password, calls `updatePassword`. Both use RHF + Zod.
+- **Validate:** Both files exist, TypeScript compiles
+
+#### T12: Create auth route group pages
+- **Action:** CREATE `dresscave/app/(auth)/` with layout and pages
+- **Details:**
+  - `(auth)/layout.tsx` — centered card layout for all auth pages
+  - `(auth)/login/page.tsx` — renders login form
+  - `(auth)/signup/page.tsx` — renders signup form
+  - `(auth)/forgot-password/page.tsx` — renders forgot password form
+  - `(auth)/reset-password/page.tsx` — renders reset password form
+  - `(auth)/verify-email/page.tsx` — static "check your email" confirmation page
+- **Validate:** All pages exist, TypeScript compiles
+
+#### T13: Create auth callback route handler
+- **Action:** CREATE `dresscave/app/auth/confirm/route.ts`
+- **Details:** `GET` handler that exchanges auth code for session using `createServerClient()`, redirects to dashboard on success, login page on failure
+- **Validate:** TypeScript compiles
+
+#### T14: Create root middleware
+- **Action:** CREATE `dresscave/middleware.ts` (root of dresscave/)
+- **Patterns:** Mirror `lib/supabase/middleware.ts` pattern
+- **Details:** Uses `updateSession()` from Supabase middleware. Protects `/account/*` routes by redirecting unauthenticated users to `/login`. Refreshes session on every request.
+- **Validate:** TypeScript compiles
+
+#### T15: Create header with user menu
+- **Action:** CREATE `dresscave/components/layout/header.tsx`
+- **Patterns:** Mirror shadcn component patterns (data-slot, cn()), use `@base-ui/react/menu` for dropdown
+- **Details:** `"use client"`. Logo/brand link. Navigation links (Women, Kids, Men). If logged in: user avatar + dropdown menu (My Account, Measurements, Wishlist, Cart, Settings, Logout). If logged out: Login / Sign Up buttons. Mobile hamburger menu for small screens.
+- **Validate:** TypeScript compiles
+
+#### T16: Update root layout
+- **Action:** UPDATE `dresscave/app/layout.tsx`
+- **Details:** Import and render `<Header />` inside `<body>` before `<main>`. Wrap with `<AuthProvider>` inside `<StoreProvider>`. Update page structure to use semantic HTML.
+- **Validate:** TypeScript compiles
+
+#### T17: Create profile components
+- **Action:** CREATE `dresscave/components/profile/profile-form.tsx`, `measurements-form.tsx`, `delete-account-dialog.tsx`
+- **Patterns:** Mirror Dialog, Card, Select component patterns
+- **Details:**
+  - `profile-form.tsx`: edit full_name, phone, communication preferences; email change triggers verification
+  - `measurements-form.tsx`: chest, waist, hips, inseam, height, weight with unit toggle (cm/inches); multiple measurement profiles
+  - `delete-account-dialog.tsx`: Dialog with password confirmation, warning text, "I understand" checkbox
+- **Validate:** All 3 files exist, TypeScript compiles
+
+#### T18: Create dashboard route group pages
+- **Action:** CREATE `dresscave/app/(dashboard)/` with layout and pages
+- **Details:**
+  - `(dashboard)/layout.tsx` — sidebar layout with account navigation
+  - `(dashboard)/account/page.tsx` — overview with personalized greeting, order history summary
+  - `(dashboard)/account/measurements/page.tsx` — list/save measurements, unit toggle
+  - `(dashboard)/account/settings/page.tsx` — profile form, communication preferences
+  - `(dashboard)/account/delete/page.tsx` — account deletion with confirmation dialog
+- **Validate:** All 5+ files exist, TypeScript compiles
+
+#### T19: Write tests
+- **Action:** CREATE `dresscave/tests/auth/schemas.test.ts`, `store.test.ts`
+- **Patterns:** Mirror `tests/example.test.ts`
+- **Details:**
+  - `schemas.test.ts`: test each auth schema (valid input passes, invalid fails)
+  - `store.test.ts`: test auth store setters/getters (setUser, setSession, clearAuth)
+- **Validate:** `npm test -- --run` passes
 
 ## Testing Strategy
-Since no test framework is configured:
-- **Syntax validation:** `node --check server.js` and `node --check routes/index.js` after EJS template changes (EJS templates are validated at render time)
-- **JSON validation:** Parse `menu.json` with Node.js to confirm valid JSON with all required fields
-- **Server smoke test:** Start the Express server briefly to confirm it loads without errors
-- **File content checks:** Use `grep` to confirm expected patterns exist in modified files
-- **Negative checks:** Confirm Google Fonts external URLs are removed
-
-### Edge Cases Handled
-- **Missing image fallback:** If `item.image` is missing in EJS templates, emoji fallback still renders
-- **Font file missing:** If font files fail to download, browser falls back to Georgia/Arial via existing CSS `font-family` stacks
-- **Mobile nav close:** JS already handles click-outside and link-click close behaviors
+- **Unit tests**: Zod schema validation (valid/invalid inputs), Zustand store operations
+- **Component tests**: Form rendering, validation error display, loading states
+- **Integration tests**: Server action mocking with form submissions
+- **Edge cases**: Duplicate email, weak password, expired reset link, unverified login attempt, GDPR data retention period
 
 ## Validation Plan
-- **Syntax check:** `node --check coffee-shop/server.js && node --check coffee-shop/routes/index.js`
-- **JSON validity:** `node -e "JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))"`
-- **Server start:** `timeout 3 node -e "const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);"`
-- **Lint:** No linter configured — skipped
-- **Tests:** No test framework configured — skipped
-- **Build:** No build step configured — skipped
+- **Type-check:** `npx tsc --noEmit` — must pass after each task
+- **Lint:** `npx next lint` — verify code quality
+- **Tests:** `npm test -- --run` — all tests pass
+- **Build:** `npm run build` — production build succeeds (may require Supabase project)
+
+## Manual Prerequisites
+Before starting T1, the following must be completed manually:
+1. Create a Supabase project at https://supabase.com
+2. Enable Email/Password auth in Supabase Auth settings
+3. Create a `profiles` table with RLS policies (or use Supabase's built-in user management)
+4. Note the `SUPABASE_URL` and `SUPABASE_ANON_KEY` for `.env.local`
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*
