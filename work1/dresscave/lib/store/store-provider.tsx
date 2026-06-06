@@ -12,6 +12,11 @@ import {
   type WishlistStoreApi,
   createWishlistStore,
 } from "@/lib/store/wishlist";
+import {
+  type AuthStore,
+  type AuthStoreApi,
+  createAuthStore,
+} from "@/lib/store/auth";
 
 /* ─── Cart Context ─── */
 const CartStoreContext = createContext<CartStoreApi | undefined>(undefined);
@@ -20,6 +25,9 @@ const CartStoreContext = createContext<CartStoreApi | undefined>(undefined);
 const WishlistStoreContext = createContext<WishlistStoreApi | undefined>(
   undefined,
 );
+
+/* ─── Auth Context ─── */
+const AuthStoreContext = createContext<AuthStoreApi | undefined>(undefined);
 
 /* ─── Combined Provider ─── */
 export function StoreProvider({ children }: { children: ReactNode }) {
@@ -33,10 +41,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     wishlistStoreRef.current = createWishlistStore();
   }
 
+  const authStoreRef = useRef<AuthStoreApi>();
+  if (!authStoreRef.current) {
+    authStoreRef.current = createAuthStore();
+  }
+
   return (
     <CartStoreContext.Provider value={cartStoreRef.current}>
       <WishlistStoreContext.Provider value={wishlistStoreRef.current}>
-        {children}
+        <AuthStoreContext.Provider value={authStoreRef.current}>
+          {children}
+        </AuthStoreContext.Provider>
       </WishlistStoreContext.Provider>
     </CartStoreContext.Provider>
   );
@@ -56,6 +71,14 @@ export function useWishlistStore<T>(selector: (store: WishlistStore) => T): T {
   const store = useContext(WishlistStoreContext);
   if (!store) {
     throw new Error("useWishlistStore must be used within StoreProvider");
+  }
+  return useStore(store, selector);
+}
+
+export function useAuthStore<T>(selector: (store: AuthStore) => T): T {
+  const store = useContext(AuthStoreContext);
+  if (!store) {
+    throw new Error("useAuthStore must be used within StoreProvider");
   }
   return useStore(store, selector);
 }

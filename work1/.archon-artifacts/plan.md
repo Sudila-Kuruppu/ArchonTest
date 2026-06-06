@@ -1,196 +1,243 @@
-# DCW PLAN — DressCave Phase 0: Prerequisite Setup
+# DCW PLAN — Epic 1: User Authentication & Account Management (FR16-FR20)
 
 ## Meta
-- **Feature:** DressCave Phase 0 — Prerequisite Setup (No Supabase)
+- **Feature:** Epic 1 — User Authentication & Account Management
 - **Phase:** PLAN
 - **Date:** 2026-06-06
-- **Project:** Next.js e-commerce platform for women and children's clothing
-- **Working directory:** `/home/user/archontesting/work1/dresscave/`
 
 ## Summary
-
-Set up the complete development foundation for the DressCave e-commerce platform. Phase 0 installs and configures all required tooling — Next.js 14.x with TypeScript/Tailwind/ESLint/App Router, shadcn/ui components, Zustand + nuqs state management, Vitest + React Testing Library for tests, Zod + react-hook-form for validation, Next.js Image optimization, and Tailwind CSS design tokens — without any Supabase dependencies. After Phase 0, the project will be ready for Epic 1 (Authentication) implementation.
+Enable users to create accounts, log in securely, save custom measurements for made-to-order clothing, and manage their profiles. This epic delivers core user identity and personalization features that enable saved cart/wishlist persistence (FR21-FR25) and AI customer service (FR29-FR32).
 
 ### UX Flow
 ```
-Before: No project exists — only documentation files in dresscave/
-After:  Fully scaffolded Next.js 14.x project with build, test, and type-check passing
+Before: Bare Next.js app with no auth, no user menu, no header navigation
+After:  Users can sign up, log in, reset passwords, manage measurements, edit profiles, delete accounts — all with a consistent user menu dropdown in the header
 ```
 
 ## Scope
 
 ### In Scope
-1. Initialize Next.js 14.x project via `create-next-app@14.2` with TypeScript, Tailwind CSS, ESLint, App Router, `@/*` import alias
-2. Initialize shadcn/ui with default style and add core components: button, card, input, select, dialog
-3. Install Zustand + nuqs; create SSR-safe Zustand stores (cart, wishlist) using Context provider pattern; add NuqsAdapter to root layout
-4. Install Vitest, React Testing Library, jsdom; configure vitest.config.ts with path aliases; create tests/setup.ts
-5. Install Zod, react-hook-form, @hookform/resolvers; create validation schemas (product, order, user) in lib/schemas/
-6. Configure Next.js Image component for local/placeholder image domains (no Supabase CDN)
-7. Configure Tailwind CSS with custom design tokens, mobile-first breakpoints, 44px touch targets, 60fps animations
+- Install Supabase dependencies and create client infrastructure (`lib/supabase/`)
+- Implement auth forms and pages (signup, login, forgot/reset password, verify email)
+- Create Zustand auth store following existing `createStore` + Context pattern
+- Build AuthProvider for server-to-client session hydration
+- Protect `/account/*` routes via middleware with session refresh
+- Create header with user menu dropdown using `@base-ui/react/menu`
+- Build profile pages (dashboard, measurements, settings, account deletion)
+- Write validation schemas for all auth forms
+- Write tests for auth schemas, store, and form components
 
 ### Out of Scope
-- Supabase setup, libraries, configurations, or client files (lib/supabase/ is skipped entirely)
-- Playwright installation or configuration (CLI is pre-installed in environment)
-- Any e-commerce feature code (product pages, cart UI, API routes, auth, admin dashboard)
-- Payment, checkout, or WhatsApp integration
-- TanStack Query (deferred to later phases if needed)
-- Additional route groups, route handlers, or pages beyond default scaffold
-- Any custom application components beyond shadcn/ui base components
+- OAuth/social login providers (future enhancement)
+- Supabase project creation and configuration (manual prerequisite)
+- Database `profiles` table creation (handled as part of Supabase project setup or future migration)
+- Admin dashboard or role-based access control
+- Cart/wishlist persistence (Epic 4 scope)
+- AI customer service features (Epic 6 scope)
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 (scaffold) → T2 (shadcn) 
-              → T3 (state mgmt)
-              → T4 (testing)     (all depend on T1 only; implement sequentially)
-              → T5 (validation)
-              → T6 (next.config)
-              → T7 (tailwind)
+T1 ─► T2
+ │
+ └► T3 ─► T7 ─► T8 ─► T15 ─► T16
+ │       │      │
+ │       └► T13 │
+ │              │
+T4 ─► T5 ─► T6  │
+ │              │
+ ├► T7 (above)  │
+ ├► T9 ─► T12   │
+ ├► T10─► T12   │
+ ├► T11─► T12   │
+ └► T17─► T18   │
+                │
+T14─────────────────► T18
 ```
 
 ### Task Table
 | ID | Action | File | Depends | Validate |
 |----|--------|------|---------|----------|
-| T1 | CREATE | `dresscave/` (project dir) | — | `ls package.json`, `ls app/layout.tsx`, node version check |
-| T2 | CREATE | `dresscave/` (shadcn init) | T1 | `ls components/ui/button.tsx`, `ls lib/utils.ts` |
-| T3 | CREATE | `dresscave/lib/store/` + `app/layout.tsx` | T1 | `ls lib/store/cart.ts`, `ls lib/store/wishlist.ts`, `ls lib/store/store-provider.tsx` |
-| T4 | CREATE | `dresscave/vitest.config.ts`, `tests/setup.ts` | T1 | `ls vitest.config.ts`, `ls tests/setup.ts` |
-| T5 | CREATE | `dresscave/lib/schemas/` | T1 | `ls lib/schemas/product.ts`, `order.ts`, `user.ts` |
-| T6 | UPDATE | `dresscave/next.config.*` | T1 | `npx tsc --noEmit` |
-| T7 | UPDATE | `dresscave/tailwind.config.*` + `app/globals.css` | T1 | `npx tsc --noEmit` |
+| T1 | UPDATE | `dresscave/package.json` | — | `ls node_modules/@supabase/*` |
+| T2 | CREATE | `dresscave/.env.local` | T1 | `grep SUPABASE_URL .env.local` |
+| T3 | CREATE | `dresscave/lib/supabase/` | T1 | `tsc --noEmit` |
+| T4 | UPDATE | `dresscave/lib/schemas/user.ts` | — | `tsc --noEmit` |
+| T5 | CREATE | `dresscave/lib/store/auth.ts` | T4 | `tsc --noEmit` |
+| T6 | UPDATE | `dresscave/lib/store/store-provider.tsx` | T5 | `tsc --noEmit` |
+| T7 | CREATE | `dresscave/lib/actions/auth.ts` | T3, T4 | `tsc --noEmit` |
+| T8 | CREATE | `dresscave/components/auth/auth-provider.tsx` | T5, T7 | `tsc --noEmit` |
+| T9 | CREATE | `dresscave/components/auth/signup-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T10 | CREATE | `dresscave/components/auth/login-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T11 | CREATE | `dresscave/components/auth/forgot-password-form.tsx, reset-password-form.tsx` | T4, T7 | `tsc --noEmit` |
+| T12 | CREATE | `dresscave/app/(auth)/` | T9, T10, T11 | `tsc --noEmit` |
+| T13 | CREATE | `dresscave/app/auth/confirm/route.ts` | T3, T7 | `tsc --noEmit` |
+| T14 | CREATE | `dresscave/middleware.ts` | T3 | `tsc --noEmit` |
+| T15 | CREATE | `dresscave/components/layout/header.tsx` | T8 | `tsc --noEmit` |
+| T16 | UPDATE | `dresscave/app/layout.tsx` | T8, T15 | `tsc --noEmit` |
+| T17 | CREATE | `dresscave/components/profile/` | T4, T7, T8 | `tsc --noEmit` |
+| T18 | CREATE | `dresscave/app/(dashboard)/` | T17, T14 | `tsc --noEmit` |
+| T19 | CREATE | `dresscave/tests/auth/` | T4, T5, T9, T10 | `npm test -- --run` |
 
 ### Task Details
 
-#### T1: Initialize Next.js 14.x project
-- **Action:** CREATE `dresscave/` (project scaffold via CLI)
-- **Command:** `npx create-next-app@14.2.0 dresscave --ts --tailwind --eslint --app --import-alias "@/*" --use-npm`
-- **Patterns:** N/A (greenfield create-next-app scaffold)
-- **Validate:**
-  - `ls dresscave/package.json` — project manifest exists
-  - `ls dresscave/app/layout.tsx` — root layout created
-  - `ls dresscave/tsconfig.json` — TypeScript configured
-  - `ls dresscave/tailwind.config.*` — Tailwind CSS configured
-  - `ls dresscave/next.config.*` — Next.js config exists
-  - `node -e "require('./dresscave/package.json').dependencies.next"` — Next.js 14.x pinned
-- **Key dependencies created:** `package.json`, `tsconfig.json`, `next.config.js`, `tailwind.config.js`, `postcss.config.js`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`
+#### T1: Install Supabase dependencies
+- **Action:** UPDATE `dresscave/package.json`
+- **Details:** Add `@supabase/supabase-js` and `@supabase/ssr` to dependencies, then run `npm install`
+- **Validate:** `ls dresscave/node_modules/@supabase/supabase-js` and `npx tsc --noEmit`
 
-#### T2: Install and initialize shadcn/ui with core components
-- **Action:** CREATE `dresscave/` (via shadcn CLI)
-- **Command:** `cd dresscave && npx shadcn@latest init --defaults && npx shadcn@latest add button card input select dialog`
-- **Patterns:** N/A (standard shadcn/ui init)
-- **Validate:**
-  - `ls dresscave/components/ui/button.tsx` — Button component exists
-  - `ls dresscave/components/ui/card.tsx` — Card component exists
-  - `ls dresscave/components/ui/input.tsx` — Input component exists
-  - `ls dresscave/components/ui/select.tsx` — Select component exists
-  - `ls dresscave/components/ui/dialog.tsx` — Dialog component exists
-  - `ls dresscave/lib/utils.ts` — cn() utility created by shadcn init
-  - `ls dresscave/components.json` — shadcn configuration created
+#### T2: Create .env.local
+- **Action:** CREATE `dresscave/.env.local`
+- **Details:** Add `NEXT_PUBLIC_SUPABASE_URL=`, `NEXT_PUBLIC_SUPABASE_ANON_KEY=` with placeholder values. Include `.env.local` in `.gitignore` (verify it already is).
+- **Validate:** File exists with both variables
+- **Note:** Actual Supabase credentials require manual Supabase project creation
 
-#### T3: Install state management (Zustand + nuqs) and create stores
-- **Action:** CREATE (stores) + UPDATE (layout.tsx)
-- **Command:** `cd dresscave && npm install zustand nuqs`
-- **Files to CREATE:**
-  - `lib/store/cart.ts` — Zustand cart store (items, addItem, removeItem, updateQuantity, clearCart, computed totals)
-  - `lib/store/wishlist.ts` — Zustand wishlist store (productIds, toggleItem, isInWishlist)
-  - `lib/store/store-provider.tsx` — React Context provider wrapping Zustand stores for SSR safety (createStore + useRef pattern)
-- **Files to UPDATE:**
-  - `app/layout.tsx` — Wrap children with `NuqsAdapter` for URL state management
-- **Patterns:** Architecture.md State Management section — use `createStore` from `zustand/vanilla` with Context provider pattern for SSR compatibility
-- **Validate:**
-  - `node -e "require('./node_modules/zustand/package.json')"` — Zustand installed
-  - `node -e "require('./node_modules/nuqs/package.json')"` — nuqs installed
-  - `ls dresscave/lib/store/cart.ts` — Cart store created
-  - `ls dresscave/lib/store/wishlist.ts` — Wishlist store created
-  - `ls dresscave/lib/store/store-provider.tsx` — Provider created
+#### T3: Create Supabase client files
+- **Action:** CREATE `dresscave/lib/supabase/server.ts`, `client.ts`, `middleware.ts`
+- **Patterns:** Zustand store pattern (vanilla createStore) — mirror file structure style
+- **Details:**
+  - `server.ts`: `createServerClient()` with `cookies()` from `next/headers`
+  - `client.ts`: `createBrowserClient()` for client components
+  - `middleware.ts`: `createServerClient()` with `NextRequest`/`NextResponse` cookies
+- **Validate:** All 3 files exist, TypeScript compiles
 
-#### T4: Install and configure testing frameworks
-- **Action:** CREATE (vitest.config.ts, tests/setup.ts, test examples)
-- **Command:** `cd dresscave && npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event @vitejs/plugin-react jsdom`
-- **Files to CREATE:**
-  - `vitest.config.ts` — Vitest config with jsdom environment, React plugin, `@/` path alias, globals: true, setup file
-  - `tests/setup.ts` — Import `@testing-library/jest-dom` for extended matchers
-  - `tests/example.test.ts` — Basic placeholder test verifying setup works
-- **Patterns:** Architecture.md Testing Framework section — vitest config structure with `@vitejs/plugin-react`, `environment: 'jsdom'`, path alias resolution
-- **Validate:**
-  - `node -e "require('./node_modules/vitest/package.json')"` — Vitest installed
-  - `node -e "require('./node_modules/@testing-library/react/package.json')"` — RTL installed
-  - `ls dresscave/vitest.config.ts` — Config file exists
-  - `ls dresscave/tests/setup.ts` — Setup file exists
-  - `npx vitest run --reporter=verbose` — Tests execute and pass
+#### T4: Extend Zod schemas
+- **Action:** UPDATE `dresscave/lib/schemas/user.ts`
+- **Patterns:** Mirror `product.ts` pattern (exported schemas + inferred types)
+- **Details:** Add:
+  - `SignupSchema`: email, password (8+ chars, mixed case), full_name
+  - `LoginSchema`: email, password
+  - `ForgotPasswordSchema`: email
+  - `ResetPasswordSchema`: new_password, confirm_password
+  - `ProfileUpdateSchema`: full_name, phone, avatar_url, communication_preferences
+  - `AccountDeletionSchema`: password confirmation
+- **Validate:** TypeScript compiles
 
-#### T5: Install data validation and create schemas
-- **Action:** CREATE (validation schemas)
-- **Command:** `cd dresscave && npm install zod react-hook-form @hookform/resolvers`
-- **Files to CREATE:**
-  - `lib/schemas/product.ts` — Product schema: name, description, price, category (enum), sizes, colors, images, featured/sale flags, age_range for kids
-  - `lib/schemas/order.ts` — Order schema: items (array), total, status enum, notes, timestamps
-  - `lib/schemas/user.ts` — User schema: email, profile, custom measurements
-- **Patterns:** Architecture.md Data Validation section — Zod schemas with z.infer<T> for type inference, enums for constrained fields, optional/nullable for flexible fields
-- **Validate:**
-  - `node -e "require('./node_modules/zod/package.json')"` — Zod installed
-  - `node -e "require('./node_modules/react-hook-form/package.json')"` — RHF installed
-  - `node -e "require('./node_modules/@hookform/resolvers/package.json')"` — Resolvers installed
-  - `ls dresscave/lib/schemas/product.ts` — Product schema
-  - `ls dresscave/lib/schemas/order.ts` — Order schema
-  - `ls dresscave/lib/schemas/user.ts` — User schema
+#### T5: Create auth Zustand store
+- **Action:** CREATE `dresscave/lib/store/auth.ts`
+- **Patterns:** Mirror `cart.ts` (vanilla `createStore`, `AuthStore` type, `AuthStoreApi` type, `createAuthStore` factory)
+- **Details:** Store shape: `{ user, session, isLoading, setUser, setSession, clearAuth }`
+- **Validate:** TypeScript compiles
 
-#### T6: Configure Next.js Image optimization
-- **Action:** UPDATE `dresscave/next.config.*`
-- **Description:** Add `images` configuration to next.config.js with:
-  - `remotePatterns` for localhost development + placeholder services (no Supabase CDN)
-  - `formats: ['image/avif', 'image/webp']` for modern format conversion
-  - `deviceSizes: [640, 750, 828, 1080, 1200]` for responsive images
-  - `imageSizes: [16, 32, 48, 64, 96, 128, 256, 384]` for thumbnails
-- **Patterns:** Adapted from architecture.md Image Optimization section — replace `*.supabase.co` with `localhost` and placeholders
-- **Validate:**
-  - `npx tsc --noEmit` — TypeScript compiles cleanly
-  - Config file contains `images` key with expected structure
+#### T6: Add auth store to StoreProvider
+- **Action:** UPDATE `dresscave/lib/store/store-provider.tsx`
+- **Patterns:** Mirror existing cart/wishlist provider pattern
+- **Details:** Add `AuthStoreContext`, `AuthStoreApi`, `useAuthStore<T>()` hook. Wrap in provider alongside cart and wishlist.
+- **Validate:** TypeScript compiles
 
-#### T7: Configure Tailwind CSS with custom design tokens
-- **Action:** UPDATE `dresscave/tailwind.config.*` + `app/globals.css`
-- **Description:** Extend Tailwind config with:
-  - Custom color palette matching DressCave brand (from UX spec)
-  - Spacing scale optimized for e-commerce (card gaps, section padding)
-  - Typography scale for headings, body, captions
-  - 44px minimum touch target utilities for mobile accessibility
-  - Animation utilities: `transform` + `opacity` based for 60fps performance
-  - Keyframes for skeleton loading, fade-in, slide-up patterns
-  - All breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px), 2xl (1536px)
-- **Patterns:** Adapted from architecture.md Performance Optimization section and UX design specification
-- **Validate:**
-  - `npx tsc --noEmit` — TypeScript compiles cleanly
-  - Custom tokens referenceable in components
+#### T7: Create auth server actions
+- **Action:** CREATE `dresscave/lib/actions/auth.ts`
+- **Details:** Implement using `"use server"` directives:
+  - `signup(email, password, full_name)` — calls `supabase.auth.signUp()`, creates profile
+  - `login(email, password)` — calls `supabase.auth.signInWithPassword()`
+  - `logout()` — calls `supabase.auth.signOut()`
+  - `resetPasswordRequest(email)` — calls `supabase.auth.resetPasswordForEmail()`
+  - `updatePassword(password)` — calls `supabase.auth.updateUser()`
+  - `updateProfile(data)` — updates `profiles` table
+  - `deleteAccount(password)` — deletes user and marks for GDPR removal
+- **Validate:** TypeScript compiles
+
+#### T8: Create AuthProvider component
+- **Action:** CREATE `dresscave/components/auth/auth-provider.tsx`
+- **Patterns:** Mirror `StoreProvider` pattern
+- **Details:** Client component that fetches session on mount via `supabase.auth.getUser()`, populates auth store, and renders children.
+- **Validate:** TypeScript compiles
+
+#### T9: Create signup form
+- **Action:** CREATE `dresscave/components/auth/signup-form.tsx`
+- **Patterns:** Mirror Card layout pattern, use Button + Input components
+- **Details:** `"use client"`, RHF + ZodResolver, fields: full_name, email, password, confirm_password. Show/hide password toggle. Submit calls signup server action. Displays validation errors inline. Shows loading state. Redirects to verify-email page on success.
+- **Validate:** TypeScript compiles
+
+#### T10: Create login form
+- **Action:** CREATE `dresscave/components/auth/login-form.tsx`
+- **Patterns:** Mirror Card layout pattern
+- **Details:** `"use client"`, RHF + ZodResolver, fields: email, password. "Remember me" checkbox. "Forgot Password?" link. Submit calls login server action. Shows errors for invalid credentials / unverified email. Redirects to account dashboard on success.
+- **Validate:** TypeScript compiles
+
+#### T11: Create password reset forms
+- **Action:** CREATE `dresscave/components/auth/forgot-password-form.tsx` and `dresscave/components/auth/reset-password-form.tsx`
+- **Details:** Forgot: email field only, calls `resetPasswordRequest`. Reset: new_password + confirm_password, calls `updatePassword`. Both use RHF + Zod.
+- **Validate:** Both files exist, TypeScript compiles
+
+#### T12: Create auth route group pages
+- **Action:** CREATE `dresscave/app/(auth)/` with layout and pages
+- **Details:**
+  - `(auth)/layout.tsx` — centered card layout for all auth pages
+  - `(auth)/login/page.tsx` — renders login form
+  - `(auth)/signup/page.tsx` — renders signup form
+  - `(auth)/forgot-password/page.tsx` — renders forgot password form
+  - `(auth)/reset-password/page.tsx` — renders reset password form
+  - `(auth)/verify-email/page.tsx` — static "check your email" confirmation page
+- **Validate:** All pages exist, TypeScript compiles
+
+#### T13: Create auth callback route handler
+- **Action:** CREATE `dresscave/app/auth/confirm/route.ts`
+- **Details:** `GET` handler that exchanges auth code for session using `createServerClient()`, redirects to dashboard on success, login page on failure
+- **Validate:** TypeScript compiles
+
+#### T14: Create root middleware
+- **Action:** CREATE `dresscave/middleware.ts` (root of dresscave/)
+- **Patterns:** Mirror `lib/supabase/middleware.ts` pattern
+- **Details:** Uses `updateSession()` from Supabase middleware. Protects `/account/*` routes by redirecting unauthenticated users to `/login`. Refreshes session on every request.
+- **Validate:** TypeScript compiles
+
+#### T15: Create header with user menu
+- **Action:** CREATE `dresscave/components/layout/header.tsx`
+- **Patterns:** Mirror shadcn component patterns (data-slot, cn()), use `@base-ui/react/menu` for dropdown
+- **Details:** `"use client"`. Logo/brand link. Navigation links (Women, Kids, Men). If logged in: user avatar + dropdown menu (My Account, Measurements, Wishlist, Cart, Settings, Logout). If logged out: Login / Sign Up buttons. Mobile hamburger menu for small screens.
+- **Validate:** TypeScript compiles
+
+#### T16: Update root layout
+- **Action:** UPDATE `dresscave/app/layout.tsx`
+- **Details:** Import and render `<Header />` inside `<body>` before `<main>`. Wrap with `<AuthProvider>` inside `<StoreProvider>`. Update page structure to use semantic HTML.
+- **Validate:** TypeScript compiles
+
+#### T17: Create profile components
+- **Action:** CREATE `dresscave/components/profile/profile-form.tsx`, `measurements-form.tsx`, `delete-account-dialog.tsx`
+- **Patterns:** Mirror Dialog, Card, Select component patterns
+- **Details:**
+  - `profile-form.tsx`: edit full_name, phone, communication preferences; email change triggers verification
+  - `measurements-form.tsx`: chest, waist, hips, inseam, height, weight with unit toggle (cm/inches); multiple measurement profiles
+  - `delete-account-dialog.tsx`: Dialog with password confirmation, warning text, "I understand" checkbox
+- **Validate:** All 3 files exist, TypeScript compiles
+
+#### T18: Create dashboard route group pages
+- **Action:** CREATE `dresscave/app/(dashboard)/` with layout and pages
+- **Details:**
+  - `(dashboard)/layout.tsx` — sidebar layout with account navigation
+  - `(dashboard)/account/page.tsx` — overview with personalized greeting, order history summary
+  - `(dashboard)/account/measurements/page.tsx` — list/save measurements, unit toggle
+  - `(dashboard)/account/settings/page.tsx` — profile form, communication preferences
+  - `(dashboard)/account/delete/page.tsx` — account deletion with confirmation dialog
+- **Validate:** All 5+ files exist, TypeScript compiles
+
+#### T19: Write tests
+- **Action:** CREATE `dresscave/tests/auth/schemas.test.ts`, `store.test.ts`
+- **Patterns:** Mirror `tests/example.test.ts`
+- **Details:**
+  - `schemas.test.ts`: test each auth schema (valid input passes, invalid fails)
+  - `store.test.ts`: test auth store setters/getters (setUser, setSession, clearAuth)
+- **Validate:** `npm test -- --run` passes
 
 ## Testing Strategy
-
-**Phase 0** focuses on infrastructure setup, not application logic. Testing validation:
-1. **Type checking** (`npx tsc --noEmit`) ensures all TypeScript compiles correctly
-2. **Vitest initialization** — a minimal smoke test (`tests/example.test.ts`) verifies Vitest + jsdom + React Testing Library are wired correctly
-3. **Build** (`npm run build`) confirms the entire project builds without errors
-4. **Manual verifications:**
-   - shadcn/ui components render with correct default styling
-   - Zustand stores can be instantiated via the SSR-safe provider
-   - nuqs URL state hook works in client components
-   - Zod schemas produce correct type inference
-   - Tailwind custom tokens are available in className
-   - Next.js Image component accepts configured domains
-
-**Edge cases considered:**
-- `create-next-app` may fail if dresscave/ directory has existing files (it's currently documentation only — should be clean)
-- shadcn init may prompt for style/color selection — use `--defaults` or non-interactive flags
-- npm install conflicts from running multiple installs sequentially (each just adds to package.json)
-- Next.js 14.x compatible versions must be resolved by npm for all packages
+- **Unit tests**: Zod schema validation (valid/invalid inputs), Zustand store operations
+- **Component tests**: Form rendering, validation error display, loading states
+- **Integration tests**: Server action mocking with form submissions
+- **Edge cases**: Duplicate email, weak password, expired reset link, unverified login attempt, GDPR data retention period
 
 ## Validation Plan
+- **Type-check:** `npx tsc --noEmit` — must pass after each task
+- **Lint:** `npx next lint` — verify code quality
+- **Tests:** `npm test -- --run` — all tests pass
+- **Build:** `npm run build` — production build succeeds (may require Supabase project)
 
-| Check | Command | When |
-|-------|---------|------|
-| Type-check | `cd dresscave && npx tsc --noEmit` | After each task |
-| Build | `cd dresscave && npm run build` | After all tasks |
-| Unit tests | `cd dresscave && npx vitest run --reporter=verbose` | After T4 |
-| Dev server | `cd dresscave && npm run dev` (manual smoke test) | After all tasks |
+## Manual Prerequisites
+Before starting T1, the following must be completed manually:
+1. Create a Supabase project at https://supabase.com
+2. Enable Email/Password auth in Supabase Auth settings
+3. Create a `profiles` table with RLS policies (or use Supabase's built-in user management)
+4. Note the `SUPABASE_URL` and `SUPABASE_ANON_KEY` for `.env.local`
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

@@ -1,120 +1,158 @@
 # DCW IMPLEMENT — Task Execution Report
 
 ## Meta
-- **Feature:** DressCave Phase 0 — Prerequisite Setup (No Supabase)
+- **Feature:** Epic 1 — User Authentication & Account Management (FR16-FR20)
 - **Phase:** IMPLEMENT
 - **Date:** 2026-06-06
 - **Plan file:** plan.yaml
-- **Total tasks:** 7
-- **Completed:** 7
+- **Total tasks:** 19
+- **Completed:** 19
 - **Failed:** 0
 - **Skipped:** 0
 
 ## Tasks Completed
 
-### T1: Initialize Next.js 14.x project with create-next-app@14.2
-- **Action:** CREATE `dresscave/` (project scaffolded via CLI)
+### T1: Install @supabase/supabase-js and @supabase/ssr npm dependencies
+- **Action:** UPDATE `dresscave/package.json`
 - **Status:** COMPLETE
 - **Attempts:** 1
-- **Validate:** PASS
-- **Notes:** Ran `npx create-next-app@14.2.0` with TypeScript, Tailwind CSS, ESLint, App Router, `@/*` import alias. Documentation files were temporarily moved out and restored after scaffold. Next.js 14.2.0 verified.
+- **Validate:** PASS (deps installed, tsc passes)
+- **Notes:** Added `@supabase/ssr@^0.6.1` and `@supabase/supabase-js@^2.49.4`; npm install added 10 packages
 
-### T2: Install and initialize shadcn/ui with core components
-- **Action:** CREATE `dresscave/components/ui/` (button, card, input, select, dialog)
+### T2: Create .env.local with Supabase environment variables
+- **Action:** CREATE `dresscave/.env.local`
 - **Status:** COMPLETE
 - **Attempts:** 1
-- **Validate:** PASS
-- **Notes:** Ran `npx shadcn@latest init --defaults` then `npx shadcn@latest add button card input select dialog`. Creates `components.json`, `lib/utils.ts`, and all 5 component files. Note: latest shadcn generates Tailwind v4 code — adapted globals.css and tailwind.config.ts for Tailwind v3 compatibility.
+- **Validate:** PASS (file exists with both vars)
+- **Notes:** Placeholder values; actual credentials require manual Supabase project setup
 
-### T3: Install Zustand and nuqs, create SSR-safe stores, add NuqsAdapter to layout
-- **Action:** CREATE `lib/store/cart.ts`, `lib/store/wishlist.ts`, `lib/store/store-provider.tsx` + UPDATE `app/layout.tsx`
+### T3: Create Supabase client files
+- **Action:** CREATE `dresscave/lib/supabase/server.ts`, `client.ts`, `middleware.ts`
 - **Status:** COMPLETE
-- **Attempts:** 1 (with 1 fix for Geist font removal)
-- **Validate:** PASS
-- **Notes:**
-  - Installed `zustand@5.0.14`, `nuqs@2.8.9`
-  - Stores use `createStore` from `zustand/vanilla` with SSR-safe Context provider pattern
-  - `store-provider.tsx` provides `StoreProvider` and hooks (`useCartStore`, `useWishlistStore`)
-  - Layout updated with `NuqsAdapter` and `StoreProvider` wrappers
-  - Fixed: Removed `Geist` font import (not available in Next.js 14.x)
+- **Attempts:** 2
+- **Validate:** PASS (all 3 files exist, tsc passes)
+- **Notes:** Fixed type annotations for `setAll` cookies callback using `CookieOptions` from `@supabase/ssr`
 
-### T4: Install Vitest, React Testing Library; configure vitest.config.ts and test setup
-- **Action:** CREATE `vitest.config.ts`, `tests/setup.ts`, `tests/example.test.ts`
+### T4: Extend Zod schemas in lib/schemas/user.ts
+- **Action:** UPDATE `dresscave/lib/schemas/user.ts`
 - **Status:** COMPLETE
 - **Attempts:** 1
-- **Validate:** PASS
-- **Notes:**
-  - Installed `vitest@4.1.8`, `@testing-library/react@16.3.2`, `@testing-library/jest-dom`, `jsdom`, `@vitejs/plugin-react`
-  - Added `test` and `test:watch` scripts to package.json
-  - Vitest configured with jsdom environment, `@/` path alias, React plugin
-  - Smoke test passes (1/1)
+- **Validate:** PASS (tsc passes)
+- **Notes:** Added `SignupSchema`, `LoginSchema`, `ForgotPasswordSchema`, `ResetPasswordSchema`, `ProfileUpdateSchema`, `AccountDeletionSchema`, `MeasurementProfileSchema`. Password enforces 8+ chars, mixed case. Refinements for password match validation.
 
-### T5: Install Zod, react-hook-form, @hookform/resolvers; create validation schemas
-- **Action:** CREATE `lib/schemas/product.ts`, `lib/schemas/order.ts`, `lib/schemas/user.ts`
+### T5: Create Zustand auth store
+- **Action:** CREATE `dresscave/lib/store/auth.ts`
 - **Status:** COMPLETE
 - **Attempts:** 1
-- **Validate:** PASS
-- **Notes:**
-  - Installed `zod@4.4.3`, `react-hook-form@7.77.0`, `@hookform/resolvers@5.4.0`
-  - Product schema: name, description, price, category enum, sizes, colors, images, featured/sale flags, age_range
-  - Order schema: items (array with OrderItem), total, status enum, notes, timestamps
-  - User schema: email, full name, phone, avatar, custom measurements
-  - All schemas export inferred TypeScript types via `z.infer`
+- **Validate:** PASS (tsc passes)
+- **Notes:** Follows existing `createStore` + Context pattern (vanilla zustand). Store: `user`, `isLoading`, `setUser`, `setLoading`, `clearAuth`.
 
-### T6: Configure Next.js Image optimization with local/placeholder domains
-- **Action:** UPDATE `next.config.mjs`
+### T6: Add auth store to StoreProvider
+- **Action:** UPDATE `dresscave/lib/store/store-provider.tsx`
 - **Status:** COMPLETE
 - **Attempts:** 1
-- **Validate:** PASS
-- **Notes:**
-  - Added `images.remotePatterns` for placeholder services: `via.placeholder.com`, `placehold.co`, `picsum.photos` (no Supabase CDN)
-  - Configured `formats: ['image/avif', 'image/webp']`
-  - Configured `deviceSizes` (640-1200) and `imageSizes` (16-384)
+- **Validate:** PASS (tsc passes)
+- **Notes:** Added `AuthStoreContext`, `AuthStoreApi`, `useAuthStore<T>()` hook alongside existing cart/wishlist stores
 
-### T7: Configure Tailwind CSS with mobile-first tokens, 44px touch targets, 60fps animations
-- **Action:** UPDATE `tailwind.config.ts` + `app/globals.css`
+### T7: Create auth server actions
+- **Action:** CREATE `dresscave/lib/actions/auth.ts`
 - **Status:** COMPLETE
-- **Attempts:** 1 (with build fix for Tailwind v3/shacdn v4 compat)
-- **Validate:** PASS
-- **Notes:**
-  - **Fix applied:** Latest shadcn generates components for Tailwind v4, but our project uses Tailwind v3. Fixed by:
-    - Rewriting `globals.css` with HSL-based CSS variables (standard shadcn v3 format)
-    - Removing Tailwind v4-specific `@import "shadcn/tailwind.css"` and `@import "tw-animate-css"`
-    - Adding complete shadcn CSS variable color mappings in `tailwind.config.ts`
-    - Installing `tailwindcss-animate` plugin for animation utilities
-    - Adding `ring-3` ring width extension for shadcn v4 compat
-  - DressCave brand colors added from UX design spec
-  - Typography scale for headings, body, captions
-  - 44px touch target utilities (`min-h-touch`, `min-w-touch`)
-  - 60fps animation keyframes (fade-in, fade-in-up, slide-up, slide-down, skeleton-pulse, scale-in)
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** Implemented `signup`, `login`, `logout`, `resetPasswordRequest`, `updatePassword`, `updateProfile`, `deleteAccount` using `"use server"` directives. Uses `createClient()` from `lib/supabase/server`.
+
+### T8: Create AuthProvider component
+- **Action:** CREATE `dresscave/components/auth/auth-provider.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** Client component that fetches session via `supabase.auth.getUser()` on mount and subscribes to `onAuthStateChange` for real-time updates
+
+### T9: Create signup form component
+- **Action:** CREATE `dresscave/components/auth/signup-form.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** RHF + Zod resolver, fields: full_name, email, password, confirm_password. Show/hide password toggle. Inline validation errors. Server error display. Redirects to `/verify-email` on success.
+
+### T10: Create login form component
+- **Action:** CREATE `dresscave/components/auth/login-form.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** RHF + Zod resolver, fields: email, password. "Remember me" checkbox. "Forgot password?" link. Server error display. Redirects to `/account` on success.
+
+### T11: Create forgot-password and reset-password form components
+- **Action:** CREATE `dresscave/components/auth/forgot-password-form.tsx`, `dresscave/components/auth/reset-password-form.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (both files exist, tsc passes)
+- **Notes:** Forgot sends email with reset link. Reset uses `updatePassword` server action. Both use RHF + Zod.
+
+### T12: Create auth route group pages
+- **Action:** CREATE `dresscave/app/(auth)/` with layout and 6 pages
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (all pages exist, tsc passes)
+- **Notes:** Centered card layout. Pages: login, signup, forgot-password, reset-password, verify-email.
+
+### T13: Create auth callback route handler
+- **Action:** CREATE `dresscave/app/auth/confirm/route.ts`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (file exists, tsc passes)
+- **Notes:** GET handler exchanges `token_hash` for session using `supabase.auth.verifyOtp()`, redirects to `/account` on success, `/login` on failure.
+
+### T14: Create root middleware.ts
+- **Action:** CREATE `dresscave/middleware.ts`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (file exists, tsc passes)
+- **Notes:** Uses `updateSession()` from Supabase middleware. Protects `/account/*` routes. Session refresh on every request.
+
+### T15: Create header component with user menu
+- **Action:** CREATE `dresscave/components/layout/header.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** Desktop/mobile responsive. Uses `@base-ui/react/menu` for user dropdown. Navigation: Women, Kids, Men. User menu: Account, Measurements, Wishlist, Cart, Settings, Logout. Mobile hamburger.
+
+### T16: Update root layout
+- **Action:** UPDATE `dresscave/app/layout.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (tsc passes)
+- **Notes:** Added `AuthProvider` wrapping children inside `StoreProvider`. Added `<Header />` before `<main>`.
+
+### T17: Create profile components
+- **Action:** CREATE `dresscave/components/profile/profile-form.tsx`, `measurements-form.tsx`, `delete-account-dialog.tsx`
+- **Status:** COMPLETE
+- **Attempts:** 2
+- **Validate:** PASS (all 3 files exist, tsc passes)
+- **Notes:** Profile edit with validation and comms preferences. Measurements with multiple profiles, unit select, RHF field arrays. Delete account with dialog, password confirmation, and "I understand" text confirmation.
+
+### T18: Create dashboard route group pages
+- **Action:** CREATE `dresscave/app/(dashboard)/` with layout and 4 pages
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (all pages exist, tsc passes)
+- **Notes:** Sidebar layout with navigation. Pages: Account (overview, order history), Measurements (form), Settings (profile edit), Delete Account (danger zone with confirmation dialog).
+
+### T19: Write tests for auth schemas and store
+- **Action:** CREATE `dresscave/tests/auth/schemas.test.ts`, `store.test.ts`
+- **Status:** COMPLETE
+- **Attempts:** 1
+- **Validate:** PASS (30 tests passed across 3 test files)
+- **Notes:** Schemas tested for valid/invalid inputs across all auth schemas. Store tested for setUser, setLoading, clearAuth, subscribe patterns.
 
 ## Issues Encountered
-
-1. **Geist font not available in Next.js 14.x** — The skeleton layout used `Geist` from `next/font/google` which isn't exported in Next.js 14.x. Removed Geist, kept only Inter font.
-
-2. **shadcn v4 / Tailwind v4 incompatibility** — The latest shadcn (`npx shadcn@latest`) generated components for Tailwind v4 (uses Base UI instead of Radix, `@base-ui/react` package, `@import "shadcn/tailwind.css"`, `tw-animate-css`, and `oklch()` CSS variables). Our project uses **Next.js 14.2.0 with Tailwind v3**. Fixed by:
-   - Replacing `globals.css` oklch variables with HSL values (standard shadcn v3 format)
-   - Removing `@import "tw-animate-css"` and `@import "shadcn/tailwind.css"` from globals.css
-   - Adding full shadcn CSS variable → Tailwind color mappings in `tailwind.config.ts`
-   - Installing `tailwindcss-animate` plugin
-   - Adding `ringWidth: { 3: "3px" }` for shadcn v4 component compat
-
-3. **`border-border` class not found** — The `@apply border-border` in globals.css requires the `border` color to be defined in the theme. Fixed by mapping CSS variables to Tailwind colors.
+1. **Type annotations for Supabase SSR cookies callbacks (T3):** The `setAll` callback parameters needed explicit types. Fixed by importing `CookieOptions` from `@supabase/ssr` and adding inline type annotations.
+2. **Zod v4 type inference with `zodResolver` (T17):** Zod v4's `.refine()` and `z.coerce.number().optional()` caused type mismatches with React Hook Form generics. Resolved by removing `.optional()` from nested schema fields and using non-generic `useForm()` with `as any` resolver cast where needed.
 
 ## Deviations from Plan
-
-- **shadcn v4 components use `@base-ui/react` instead of Radix** (the plan assumed Radix-based components from earlier shadcn versions). The latest shadcn uses Base UI (by MUI) - this is what was installed. Functionally equivalent for Phase 0 purposes.
-- **No separate `tw-animate-css` import** — replaced with `tailwindcss-animate` plugin for Tailwind v3 compatibility
-- **Tailwind config uses HSL-based colors** instead of the raw oklch values that shadcn v4 generated, to ensure opacity modifiers work correctly in Tailwind v3
-- **No supabase directory or files created** — as specified in input.txt
-
-## Validation Results
-
-| Check | Command | Result |
-|-------|---------|--------|
-| Type-check | `npx tsc --noEmit` | ✅ PASS (no errors) |
-| Build | `npm run build` | ✅ PASS (Next.js 14.2.0) |
-| Unit tests | `npx vitest run` | ✅ PASS (1/1 tests) |
+- **AccountDeletionSchema:** Removed `.refine()` for "I understand" validation since the type constraint caused RHF type issues. Validation is handled in the form component instead.
+- **ProfileUpdateSchema:** Changed `communication_preferences` fields from `z.boolean().default(true)` to `z.boolean()` (required) since parent is already optional and `.default()` caused inference issues.
+- **Measurements form:** Uses simplified `z.coerce.number()` with custom validation instead of complex typing.
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

@@ -1,40 +1,33 @@
-# DressCave Phase 0 — Prerequisite Setup (No Supabase)
+# Epic 1: User Authentication & Account Management
 
-**Project:** DressCave — Next.js e-commerce platform for women and children's clothing
-**Location:** /home/user/archontesting/work1/dresscave
-**Supabase:** NOT needed — skip all Supabase-related setup. Use local/mock data instead.
+## Epic Goal
+Enable users to create accounts, log in securely, save custom measurements for made-to-order clothing, and manage their profiles. This epic delivers core user identity and personalization features that enable saved cart/wishlist persistence (FR21-FR25) and AI customer service (FR29-FR32).
 
-## Tasks
+## Functional Requirements Covered
+- FR16: Users can create an account with email and password
+- FR17: Users can log in to their account
+- FR18: Users can reset their password
+- FR19: Users can save custom measurements in their profile
+- FR20: Users can edit their profile information
 
-1. **Initialize Next.js Project** — create-next-app with TypeScript, Tailwind CSS, ESLint, App Router (work in dresscave/ directory)
-2. **Install shadcn/ui** — init and add core components: button, card, input, select, dialog
-3. **State Management** — install Zustand (cart, wishlist stores) and nuqs (URL state)
-4. **Testing** — install Vitest, React Testing Library (Playwright CLI already available in environment — skip installing Playwright)
-5. **Data Validation** — install Zod, react-hook-form, @hookform/resolvers
-6. **Image Optimization** — configure Next.js Image component (no Supabase CDN — use local/public domain or placeholder)
-7. **Tailwind Config** — mobile-first breakpoints, custom design tokens, 44px touch targets, 60fps animations
+## Stories
+1.1: User Registration Flow — signup with email/password, email verification via Supabase Auth
+1.2: User Login Flow — login with email/password, session via HttpOnly cookies, personalized greeting
+1.3: Password Reset Flow — forgot password via email, secure reset link, password update
+1.4: Save Custom Measurements in Profile — chest, waist, hips, inseam, height, weight; unit conversion (cm/inches); multiple profiles
+1.5: Edit Profile Information — name, email, communication preferences; email change requires verification
+1.6: Account Deletion (GDPR Compliance) — self-deletion with password confirmation, 30-day data retention, GDPR compliance (NFR7)
+1.7: User Menu and Navigation — dropdown menu with My Account, Measurements, Wishlist, Cart, Settings, Logout; mobile accessible
 
-## Project Structure (from architecture.md)
-```
-dresscave/
-├── app/                    # App Router routes
-│   ├── layout.tsx
-│   ├── page.tsx            # Home page
-│   └── globals.css
-├── public/
-├── lib/
-│   ├── supabase/           # SKIP — no supabase
-│   └── store/              # Zustand stores
-├── components/
-│   └── ui/                 # shadcn/ui components
-├── package.json
-├── next.config.js
-├── tsconfig.json
-└── tailwind.config.js
-```
+## Tech Stack
+- Next.js 14.x App Router, React 18.x, TypeScript 5.x
+- Supabase Auth (email/password, HttpOnly cookies via @supabase/ssr)
+- Zod validation, React Hook Form
+- Zustand for client state, shadcn/ui components
+- Tailwind CSS 3.4+
 
-## Key Constraints
-- Next.js 14.x, React 18.x, Tailwind CSS 3.4+, TypeScript, Node.js 18+ or 20+
-- Mobile-first responsive design
-- No payments/checkout in Phase 0
-- All work in dresscave/ directory
+## Project Structure
+- Codebase at: work1/dresscave/
+- Phase 0 (Next.js, Supabase, shadcn/ui, Zod, Zustand, testing) already complete
+- Existing stores: lib/store/cart.ts, lib/store/wishlist.ts
+- Existing schemas: lib/schemas/product.ts, user.ts, order.ts
