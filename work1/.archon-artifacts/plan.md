@@ -1,211 +1,301 @@
-# DCW PLAN — Fix E2E Test Issues (Brew & Bean Coffee Shop)
+# DCW PLAN — Epic 2: Product Catalog Management
 
 ## Meta
-- **Feature:** Fix E2E Test Issues
+- **Feature:** Product Catalog Management (Epic 2)
 - **Phase:** PLAN
 - **Date:** 2026-06-06
+- **Codebase:** Next.js 14.x App Router + Supabase + Tailwind CSS + Zod + react-hook-form
 
 ## Summary
-Fix 5 issues identified by automated Chromium/Playwright E2E testing across mobile/tablet/desktop viewports: mobile hamburger menu never visible (CRITICAL), missing meta description (MEDIUM), emoji image placeholders (LOW/LOW), and Google Fonts 404 when offline (LOW).
+Enable store administrators to manage the entire product catalog: create products with variants (sizes, colors), upload/optimize images, organize into categories and subcategories, soft-delete products, and toggle featured/new arrival status.
 
 ### UX Flow
 ```
-Before: Mobile nav is broken (hamburger always hidden), no SEO meta tags, coffee cards use emoji placeholders, fonts 404 offline
-After:  Mobile nav works with hamburger toggle, pages have meta descriptions, coffee cards show real product images, fonts load from local files
+Before: Admin has no product management UI — only auth/profile features exist.
+After:  Admin navigates to /admin dashboard, manages products via list/create/edit/delete
+        forms, organizes categories, toggles featured/new badges, and uploads images.
 ```
 
 ## Scope
 
 ### In Scope
-- Add `@media (max-width: 767px)` CSS rule to make hamburger visible and toggle nav-links on mobile
-- Add `<meta name="description">` tag to `head.ejs` for SEO
-- Add `.coffee-card-img img` CSS rule for proper image display in coffee cards
-- Add `image` URL field to all 8 menu items in `menu.json`
-- Replace ☕ emoji with `<img>` tags in `home.ejs` (featured coffees — up to 4 cards)
-- Replace ☕ emoji with `<img>` tags in `menu.ejs` (all 8 menu items across categories)
-- Create `public/fonts/` directory and download WOFF2 font files for Playfair Display (400, 700) and Inter (400, 500, 600)
-- Add `@font-face` declarations at top of `style.css` for self-hosted fonts with `font-display: swap`
-- Remove Google Fonts external `<link>` tags from `head.ejs`
+- Supabase SQL migration: `products` table, `categories` table (hierarchical), RLS (public read / admin write), Storage bucket for product images
+- Zod schemas: expanded `ProductSchema` with `is_new_arrival`, `deleted_at`, `category_id`; new `CreateProductSchema`, `UpdateProductSchema`; new `CategorySchema` with hierarchy
+- Server Actions: full CRUD for products (create, read, update, soft delete) + image upload/delete + featured/new arrival toggle
+- Server Actions: full CRUD for categories (create, read, update, delete)
+- Middleware: `/admin/*` routes protected + admin role check against `profiles.is_admin`
+- Admin layout with sidebar navigation (Dashboard, Products, Categories)
+- Admin dashboard homepage with quick stats
+- Admin products list page with search/filter and inline featured/new arrival toggles
+- Reusable product form component (shared for create + edit modes)
+- Product creation page + edit page (with dynamic `[id]` route)
+- Delete product confirmation dialog (soft delete)
+- Image uploader component with drag-and-drop, preview, reorder, delete
+- Category management page with CRUD UI (tree hierarchy)
+- `next.config.mjs` update for Supabase Storage remote image patterns
+- Schema validation tests for product and category schemas
 
 ### Out of Scope
-- Adding a build system or bundler
-- Adding a test framework or unit tests
-- Redesigning layout or visual style
-- Adding new pages, routes, or functionality
-- Changing menu data structure beyond adding `image` URLs
-- Accessibility features beyond what's specified
-- Performance optimization beyond font self-hosting
+- Storefront product display (homepage featured section, category browsing, product detail pages)
+- Shopping cart integration with products
+- Review/rating system
+- Order management from admin panel
+- Bulk product import/export
+- Product analytics or sales reports
+- Inventory tracking or stock management
+- Product sorting/filtering on storefront
+- Wishlist integration
 
 ## Task Overview
 
 ### Dependency Order
 ```
-T1 ─┐
-T2 ─┤
-T3 ─┤
-T4 ─┤
-T7 ─┤
-    ├──> T5 (depends T4)
-    ├──> T6 (depends T4)
-    ├──> T8 (depends T7)
-    └──> T9 (depends T7)
+T1  T2  T3  T6  T7
+ │   │           │
+ │   ├── T4 ─────┤
+ │   ├── T5 ─────┤
+ │   │           │
+ │   │      T8 ←─┤
+ │   │           │
+ │   ├── T4 ── T9 ←─┤
+ │   ├── T5 ── T15←─┤
+ │   │              │
+ │   ├── T4 ── T14  │
+ │   │              │
+ │   ├── T2 ── T16  │
+ │   │              │
+ │   └── T4 ── T10 ─┤── T11 ── T12
+ │                   │
+ │              T9 ──┤── T13
+ │                   │
+ └── T1 (migration)  │
+                     │
+T3 (next.config)     │
+T6 (middleware)      │
+T7 (admin layout) ───┤
 ```
 
-Root tasks (T1, T2, T3, T4, T7) can be done in parallel. T5/T6 depend on T4 (image URLs). T8/T9 depend on T7 (font files).
-
 ### Task Table
-| ID | Action | File | Depends | Validate |
-|----|--------|------|---------|----------|
-| T1 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for media query + `.hamburger { display: flex` |
-| T2 | UPDATE | `coffee-shop/views/partials/head.ejs` | — | `grep` for meta description tag |
-| T3 | UPDATE | `coffee-shop/public/css/style.css` | — | `grep` for `.coffee-card-img img` |
-| T4 | UPDATE | `coffee-shop/data/menu.json` | — | `node` JSON check — all 8 items have `image` field |
-| T5 | UPDATE | `coffee-shop/views/pages/home.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T6 | UPDATE | `coffee-shop/views/pages/menu.ejs` | T4 | `grep` for `<img` + server syntax check |
-| T7 | CREATE | `coffee-shop/public/fonts/` | — | Dir exists + `.woff2` files present |
-| T8 | UPDATE | `coffee-shop/public/css/style.css` | T7 | `grep` for `@font-face` + Playfair + Inter |
-| T9 | UPDATE | `coffee-shop/views/partials/head.ejs` | T7 | Google Fonts link removed, local stylesheet kept |
+| ID | Action | Primary File | Depends | Validate |
+|----|--------|-------------|---------|----------|
+| T1 | CREATE | `supabase/migrations/002_create_products.sql` | — | File check |
+| T2 | UPDATE | `lib/schemas/product.ts` | — | `vitest run` |
+| T3 | UPDATE | `next.config.mjs` | — | `tsc --noEmit` |
+| T4 | CREATE | `lib/actions/products.ts` | T2 | `tsc --noEmit` |
+| T5 | CREATE | `lib/actions/categories.ts` | T2 | `tsc --noEmit` |
+| T6 | UPDATE | `middleware.ts` | — | `tsc --noEmit` |
+| T7 | CREATE | `app/(dashboard)/admin/layout.tsx` | — | `tsc --noEmit` |
+| T8 | CREATE | `app/(dashboard)/admin/page.tsx` | T7 | `tsc --noEmit` |
+| T9 | CREATE | `app/(dashboard)/admin/products/page.tsx` | T4, T7 | `tsc --noEmit` |
+| T10 | CREATE | `components/products/product-form.tsx` | T2, T4, T5 | `tsc --noEmit` |
+| T11 | CREATE | `app/(dashboard)/admin/products/new/page.tsx` | T10 | `tsc --noEmit` |
+| T12 | CREATE | `app/(dashboard)/admin/products/[id]/edit/page.tsx` | T10, T11 | `tsc --noEmit` |
+| T13 | CREATE | `components/products/delete-product-dialog.tsx` | T4, T9 | `tsc --noEmit` |
+| T14 | CREATE | `components/products/image-uploader.tsx` | T4 | `tsc --noEmit` |
+| T15 | CREATE | `app/(dashboard)/admin/categories/page.tsx` | T5, T7 | `tsc --noEmit` |
+| T16 | CREATE | `tests/products/schemas.test.ts` | T2 | `vitest run` |
 
 ### Task Details
 
-#### T1: Add responsive hamburger menu CSS rule for mobile
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Add `@media (max-width: 767px)` block at the end of the file (after the desktop section at line 687) with:
-  - `.hamburger { display: flex; }` — show hamburger button on mobile
-  - `.nav-links { display: none; flex-direction: column; position: absolute; top: var(--header-height); left: 0; right: 0; background: var(--color-primary); padding: 1rem; gap: 0.5rem; }` — hide nav by default on mobile, style as dropdown
-  - `.nav-links.nav-open { display: flex; }` — show nav when toggled
-- **Validate:** `grep -q 'max-width: 767px'` and `grep -q '.hamburger { display: flex'`
+#### T1: Create SQL Migration File
+- **Action:** CREATE `dresscave/supabase/migrations/002_create_products.sql`
+- **Contents:**
+  - `categories` table: id (uuid PK), name (text), slug (text unique), parent_id (uuid self-ref FK nullable), created_at
+  - `products` table: id (uuid PK), name (text), description (text), category_id (uuid FK → categories), price (numeric), sizes (text[]), colors (text[]), images (jsonb[]), is_featured (boolean), is_new_arrival (boolean), age_range (jsonb), deleted_at (timestamptz nullable), created_at, updated_at
+  - Indexes on: category_id, is_featured, is_new_arrival, deleted_at, created_at, name search
+  - RLS: Enable on both tables — public SELECT, admin INSERT/UPDATE/DELETE (checks profiles.is_admin)
+  - Storage: `product-images` bucket with RLS — public SELECT, admin INSERT/UPDATE/DELETE
+- **Validate:** `test -f dresscave/supabase/migrations/002_create_products.sql && echo 'Migration file created'`
 
-#### T2: Add meta description tag to head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** After line 5 (`<meta name="viewport">`), add:
-  `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">`
-- **Validate:** `grep -q 'meta name="description"'`
+#### T2: Update Product Zod Schemas + Create Category Schema
+- **Action:** UPDATE `dresscave/lib/schemas/product.ts` + CREATE `dresscave/lib/schemas/category.ts`
+- **Patterns:** `dresscave/lib/schemas/user.ts` (barrel exports, inline types)
+- **Changes to product.ts:**
+  - Add `is_new_arrival: z.boolean().default(false)` to ProductSchema
+  - Add `deleted_at: z.string().datetime().nullable().optional()` to ProductSchema
+  - Refactor `category` from `z.enum(CATEGORIES)` to `category_id: z.string().uuid()`
+  - Create `CreateProductSchema` (omit `id` from ProductSchema, make `images` optional with default [])
+  - Create `UpdateProductSchema` (all fields optional, partial of CreateProductSchema)
+  - Keep backward compatibility with OrderItemSchema imports (SIZES, CATEGORIES exports)
+- **Category schema** (`lib/schemas/category.ts`):
+  - `CategorySchema`: id (uuid), name (string), slug (string), parent_id (uuid nullable), created_at
+  - `CreateCategorySchema`: name (required), parent_id (optional uuid)
+- **Validate:** `npx vitest run --reporter=verbose 2>&1 | tail -30`
 
-#### T3: Add CSS rule for coffee card images
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** After the `.coffee-card-img` rule block (line 317), add:
-  ```css
-  .coffee-card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+#### T3: Update next.config.mjs
+- **Action:** UPDATE `dresscave/next.config.mjs`
+- **Changes:** Add Supabase Storage remote pattern:
+  ```js
+  {
+    protocol: "https",
+    hostname: "*.supabase.co",
+    pathname: "/storage/v1/object/public/product-images/**",
   }
   ```
-- **Validate:** `grep -q '.coffee-card-img img'`
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T4: Add image URLs to all 8 menu items in menu.json
-- **Action:** UPDATE `coffee-shop/data/menu.json`
-- **Details:** Add an `image` field with Unsplash photo URL to each menu item:
-  | id | Name | Image URL |
-  |----|------|-----------|
-  | 1 | Classic Espresso | `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` |
-  | 2 | Vanilla Latte | `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` |
-  | 3 | Cappuccino | `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop` |
-  | 4 | Caramel Macchiato | `https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=400&h=300&fit=crop` |
-  | 5 | Cold Brew | `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` |
-  | 6 | Iced Mocha | `https://images.unsplash.com/photo-1558857563-b371033873b8?w=400&h=300&fit=crop` |
-  | 7 | Matcha Latte | `https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=400&h=300&fit=crop` |
-  | 8 | Americano | `https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=300&fit=crop` |
-- **Validate:** Node script that loads JSON and asserts each item has `image`
+#### T4: Create Product Server Actions
+- **Action:** CREATE `dresscave/lib/actions/products.ts`
+- **Patterns:** `dresscave/lib/actions/auth.ts` (Server Action pattern with `"use server"`, `createClient()`, `revalidatePath`, `redirect`)
+- **Functions:**
+  - `getProducts(filter?)`: Fetch all non-deleted products with category info, optional search/filter
+  - `getProduct(id)`: Fetch single product by ID
+  - `createProduct(data: CreateProductInput)`: Insert new product, return success
+  - `updateProduct(id, data: UpdateProductInput)`: Update product fields, revalidate
+  - `deleteProduct(id)`: Soft delete (set `deleted_at`), revalidate
+  - `setFeatured(id, isFeatured)`: Toggle is_featured, revalidate
+  - `setNewArrival(id, isNewArrival)`: Toggle is_new_arrival, revalidate
+  - `uploadImage(productId, formData)`: Upload to Supabase Storage, return URL
+  - `deleteImage(productId, imageUrl)`: Remove from Storage + update product.images array
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T5: Replace emoji with <img> in home.ejs featured coffees
-- **Action:** UPDATE `coffee-shop/views/pages/home.ejs`
-- **Details:** Replace line 22:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the `<img>` pattern (also used in T6 for menu.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in home.ejs + server syntax check
+#### T5: Create Category Server Actions
+- **Action:** CREATE `dresscave/lib/actions/categories.ts`
+- **Patterns:** `dresscave/lib/actions/auth.ts`
+- **Functions:**
+  - `getCategories()`: Fetch all categories with parent info for tree display
+  - `createCategory(data: CreateCategoryInput)`: Insert category, revalidate
+  - `updateCategory(id, data)`: Update category name/slug/parent, revalidate
+  - `deleteCategory(id)`: Delete category (only if no products reference it), revalidate
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T6: Replace emoji with <img> in menu.ejs all coffee cards
-- **Action:** UPDATE `coffee-shop/views/pages/menu.ejs`
-- **Details:** Replace line 18:
-  ```ejs
-  <div class="coffee-card-img">☕</div>
-  ```
-  with:
-  ```ejs
-  <div class="coffee-card-img">
-    <% if (item.image) { %>
-      <img src="<%= item.image %>" alt="<%= item.name %>" loading="lazy">
-    <% } else { %>
-      ☕
-    <% } %>
-  </div>
-  ```
-- **Patterns:** Mirror the same pattern from T5 (home.ejs)
-- **Depends:** T4 (menu.json with image URLs)
-- **Validate:** `grep -q '<img'` in menu.ejs + server syntax check
+#### T6: Update Middleware for Admin Route Protection
+- **Action:** UPDATE `dresscave/middleware.ts`
+- **Changes:**
+  - Add `/admin` to `protectedRoutes` array
+  - Add admin role check: query `profiles.is_admin` for authenticated users on `/admin/*` paths
+  - Redirect non-admin users to `/account` with error
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T7: Create fonts directory and download WOFF2 files
-- **Action:** CREATE `coffee-shop/public/fonts/`
-- **Details:**
-  1. Create directory: `mkdir -p coffee-shop/public/fonts/`
-  2. Download Playfair Display (400, 700) and Inter (400, 500, 600) WOFF2 files using google-webfonts-helper or Fontsource API. Expected files:
-     - `playfair-display-regular.woff2`
-     - `playfair-display-700.woff2`
-     - `inter-regular.woff2`
-     - `inter-500.woff2`
-     - `inter-600.woff2`
-- **Validate:** Directory exists + at least one `.woff2` file present
+#### T7: Create Admin Layout with Sidebar
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/layout.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/layout.tsx`
+- **Features:**
+  - Sidebar with nav links: Dashboard (LayoutDashboardIcon), Products (PackageIcon), Categories (FolderTreeIcon)
+  - Active link highlighting using `usePathname()`
+  - Client component with `"use client"` for pathname tracking
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T8: Add @font-face declarations to style.css
-- **Action:** UPDATE `coffee-shop/public/css/style.css`
-- **Details:** Insert at line 1 (before CSS variables), 5 `@font-face` blocks:
-  - Playfair Display (400) — `url('/fonts/playfair-display-regular.woff2') format('woff2')`
-  - Playfair Display (700) — `url('/fonts/playfair-display-700.woff2') format('woff2')`
-  - Inter (400) — `url('/fonts/inter-regular.woff2') format('woff2')`
-  - Inter (500) — `url('/fonts/inter-500.woff2') format('woff2')`
-  - Inter (600) — `url('/fonts/inter-600.woff2') format('woff2')`
-  - All with `font-display: swap`
-- **Depends:** T7 (font files must exist — referenced in `url()`)
-- **Validate:** `grep` for `@font-face`, `Playfair Display`, `Inter`
+#### T8: Create Admin Dashboard Homepage
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/page.tsx`
+- **Features:**
+  - Server component fetching stats: total products count, featured count, new arrivals count, categories count
+  - Stat cards using Card component
+  - Quick action buttons: "Add Product", "Manage Categories"
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
 
-#### T9: Remove Google Fonts external <link> tags from head.ejs
-- **Action:** UPDATE `coffee-shop/views/partials/head.ejs`
-- **Details:** Remove lines 7-9 (3 link tags):
-  ```html
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display...&family=Inter...&display=swap" rel="stylesheet">
-  ```
-  Keep the local stylesheet link (line 10).
-- **Depends:** T7 (font files must be available since external links are removed)
-- **Validate:** Confirm `fonts.googleapis.com` NOT present, but `<link rel="stylesheet" href="/css/style.css">` still present
+#### T9: Create Admin Products List Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/page.tsx`
+- **Features:**
+  - Server component fetching all non-deleted products with category name join
+  - Table with columns: Name, Category, Price, Featured (toggle), New Arrival (toggle), Actions
+  - Search input filtering by name (URL state via nuqs)
+  - Client component for the interactive parts (toggles, search)
+  - "Add Product" button linking to `/admin/products/new`
+  - Inline toggle buttons for is_featured and is_new_arrival calling server actions
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T10: Create Reusable Product Form Component
+- **Action:** CREATE `dresscave/components/products/product-form.tsx`
+- **Patterns:**
+  - `dresscave/components/auth/signup-form.tsx` (form structure, error display)
+  - `dresscave/components/profile/measurements-form.tsx` (complex form with selects)
+- **Features:**
+  - Props: `mode: 'create' | 'edit'`, `defaultValues?: Product`, `onSuccess: () => void`
+  - Fields: name (Input), description (textarea), category (Select from categories list), subcategory (Input), price (number Input), sizes (checkbox group from SIZES), colors (color picker + add/remove), age_range (min/max number inputs, shown only for children categories)
+  - Zod validation via zodResolver
+  - Server-side submit calling createProduct or updateProduct
+  - Loading state, error display, success redirect
+  - Includes ImageUploader component for product images
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T11: Create Product Creation Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/new/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/measurements/page.tsx`
+- **Features:**
+  - Server component (shell) that wraps ProductForm in `mode="create"`
+  - Title: "New Product"
+  - On success redirects to `/admin/products`
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T12: Create Product Edit Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/products/[id]/edit/page.tsx`
+- **Patterns:** `dresscave/app/(dashboard)/account/measurements/page.tsx`
+- **Features:**
+  - Dynamic route `[id]` parameter
+  - Server component that fetches product by ID
+  - Passes product data as defaultValues to ProductForm in `mode="edit"`
+  - Title: "Edit Product"
+  - 404 handling if product not found
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T13: Create Delete Product Dialog
+- **Action:** CREATE `dresscave/components/products/delete-product-dialog.tsx`
+- **Patterns:** `dresscave/components/profile/delete-account-dialog.tsx`
+- **Features:**
+  - Dialog with confirmation text and product name
+  - Calls `deleteProduct` server action
+  - Loading state, error display
+  - On success refreshes product list and closes dialog
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T14: Create Image Uploader Component
+- **Action:** CREATE `dresscave/components/products/image-uploader.tsx`
+- **Patterns:** `dresscave/components/profile/measurements-form.tsx`
+- **Features:**
+  - Drag-and-drop zone with click-to-upload fallback
+  - Multiple file selection
+  - Preview thumbnails for uploaded images
+  - Set primary image (star/check indicator)
+  - Drag-to-reorder (using HTML5 drag events)
+  - Delete individual images with confirmation
+  - Calls `uploadImage` / `deleteImage` server actions
+  - Client component with `"use client"`
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T15: Create Category Management Page
+- **Action:** CREATE `dresscave/app/(dashboard)/admin/categories/page.tsx`
+- **Patterns:**
+  - `dresscave/app/(dashboard)/account/page.tsx`
+  - `dresscave/app/(dashboard)/admin/products/page.tsx`
+- **Features:**
+  - Server component fetching all categories
+  - Display categories in hierarchical tree/list
+  - Inline "Add Subcategory" button for each parent
+  - Edit inline (name change) or via dialog
+  - Delete with protection (won't delete if products reference it)
+  - Client component for interactive parts
+- **Validate:** `npx tsc --noEmit 2>&1 | tail -20`
+
+#### T16: Add Product Schema Tests
+- **Action:** CREATE `dresscave/tests/products/schemas.test.ts`
+- **Patterns:** `dresscave/tests/auth/schemas.test.ts`
+- **Test cases:**
+  - `CreateProductSchema` accepts valid data, rejects missing name, rejects negative price, rejects empty sizes/colors
+  - `UpdateProductSchema` accepts partial update, rejects invalid field types
+  - `ProductSchema` accepts full product data, handles optional deleted_at
+  - `CATEGORIES` and `SIZES` constants exported correctly
+  - `CategorySchema` accepts valid category, rejects missing name
+  - `CreateCategorySchema` accepts with/without parent_id
+- **Validate:** `npx vitest run --reporter=verbose 2>&1 | tail -30`
 
 ## Testing Strategy
-Since no test framework is configured:
-- **Syntax validation:** `node --check server.js` and `node --check routes/index.js` after EJS template changes (EJS templates are validated at render time)
-- **JSON validation:** Parse `menu.json` with Node.js to confirm valid JSON with all required fields
-- **Server smoke test:** Start the Express server briefly to confirm it loads without errors
-- **File content checks:** Use `grep` to confirm expected patterns exist in modified files
-- **Negative checks:** Confirm Google Fonts external URLs are removed
 
-### Edge Cases Handled
-- **Missing image fallback:** If `item.image` is missing in EJS templates, emoji fallback still renders
-- **Font file missing:** If font files fail to download, browser falls back to Georgia/Arial via existing CSS `font-family` stacks
-- **Mobile nav close:** JS already handles click-outside and link-click close behaviors
+- **Unit tests (Vitest):** Zod schema validation tests for CreateProductSchema, UpdateProductSchema, ProductSchema, CategorySchema — following the pattern in `tests/auth/schemas.test.ts`
+- **Type checking:** `npx tsc --noEmit` after each task to catch type errors early
+- **Manual testing:** Admin can navigate to `/admin/products/new`, create a product, see it in the list, edit it, toggle featured/new, upload images, delete it
+- **Future (not in scope):** E2E tests with Playwright for admin flows, integration tests for server actions
 
 ## Validation Plan
-- **Syntax check:** `node --check coffee-shop/server.js && node --check coffee-shop/routes/index.js`
-- **JSON validity:** `node -e "JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))"`
-- **Server start:** `timeout 3 node -e "const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);"`
-- **Lint:** No linter configured — skipped
-- **Tests:** No test framework configured — skipped
-- **Build:** No build step configured — skipped
+
+| Step | Command | When |
+|------|---------|------|
+| Type-check | `npx tsc --noEmit` | After each task |
+| Lint | `npx next lint` | After all tasks |
+| Test | `npx vitest run` | After T16 + at end |
+| Build | `npm run build` | At end |
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*
