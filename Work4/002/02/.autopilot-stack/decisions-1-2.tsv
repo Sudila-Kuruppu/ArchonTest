@@ -1,0 +1,36 @@
+step	detail
+start	Read plan section PR 1-2 and existing theme.js, theme-bootstrap.js, theme-test.html
+start	Read story 1.2 spec doc for original contract (3-state toggle, setTheme(light/dark/system), localStorage key)
+start	Inspect lane-harness.mjs to understand assertion primitives (--assert-css/attr/js, --local-storage, --emulate-media-color-scheme, --js false)
+build	Edit public/assets/js/theme.js: setTheme('system') now writes 'system' to localStorage (not remove) per PR 1-2 §Build contract
+build	Edit public/assets/js/theme.js: getStoredPreference() returns 'system' as the absent-key default so the toggle and the live listener share one source of truth
+build	Edit public/assets/js/theme.js: added attachSystemListenerIfNeeded() / detachSystemListener() that subscribe to matchMedia('(prefers-color-scheme: dark)') addEventListener('change') ONLY when stored=system (PR 1-2 §Build contract)
+build	Edit public/assets/js/theme.js: theme-toggle Web Component now syncs the system listener on connectedCallback and emits a tickettrade:theme-set CustomEvent so the page can bridge to the toast (PR 1-2 §Lane 7)
+build	Edit public/assets/js/theme.js: public API now exposes attachSystemListener/detachSystemListener for the live-lane harness to drive
+build	Edit public/assets/js/theme-bootstrap.js: data-role contract — admin maps to light, student maps to dark; data-role takes precedence over the legacy data-default-theme
+build	Edit public/assets/js/theme-bootstrap.js: role default fires ONLY when prefers-color-scheme returns no-preference (per PR 1-2 §Build); matches for light or dark win as before
+build	Edit public/assets/js/theme-bootstrap.js: bootstrap writes 'system' to localStorage on first load when no explicit user choice exists, so the toggle's aria-pressed and the live matchMedia listener stay coherent across reloads (PR 1-2 §Lane 1)
+build	Edit public/theme-test.html: added data-theme='light' to <html> for the no-JS lanes (9/10) so the server-rendered default is light without a flash
+build	Edit public/theme-test.html: inlined the updated theme-bootstrap.js verbatim (FOUC-free synchronous bootstrap)
+build	Edit public/theme-test.html: added settings card fixture (PR 1-2 §Build) with <theme-toggle>, [data-theme-last-action] aria-live slot, and <noscript> notice carrying the literal text 'Theme toggle requires JavaScript. Default theme is light.'
+build	Edit public/theme-test.html: added a test-only inline script in <head> that reads ?role=admin|student from the URL and applies it to <html data-role> before the bootstrap runs (used by lanes 3/4)
+build	Edit public/theme-test.html: bridged the theme-toggle click to the 'tickettrade:theme-set' CustomEvent so the [data-theme-last-action] slot surfaces 'Theme set to system.' per EXPERIENCE.md §State Patterns Settings row
+build	Edit .autopilot-stack/lane-harness.mjs: added --matchmedia-overrides option to evaluateOnNewDocument-stub window.matchMedia with a JSON spec, so lanes 3/4 can drive no-preference deterministically (emulateMediaFeatures does not support no-preference via the harness CLI)
+build	Create .autopilot-stack/lane-6-system-flip.cjs: live-lane harness extension that flips window.matchMedia at runtime and asserts data-theme follows within one animation frame (PR 1-2 §Lane 6)
+build	Create .autopilot-stack/perf-probe-1-2.cjs: 50-trial probe measuring the gap between DOMContentLoaded and the moment data-theme is set on <html>
+build	Edit scripts/verify/1-2-implement-light-dark-theme-with-localstorage-persistence.sh: updated BOOTSTRAP_LIGHT_DEFAULT stub to return matches=false for both light and dark queries (true no-preference) per PR 1-2 §Build role-default rule
+build	Edit scripts/verify/1-2-implement-light-dark-theme-with-localstorage-persistence.sh: updated TOGGLE_LIGHT initial assertion to expect stored='system' (bootstrap seeds it on first load)
+build	Edit scripts/verify/1-2-implement-light-dark-theme-with-localstorage-persistence.sh: updated TOGGLE_SYSTEM after-click assertion to expect stored='system' (setTheme('system') writes 'system' per PR 1-2 §Build)
+verify	Slice verify PASS: 9/9 matrix rows + theme-test.html page loaded (evidence: verification_evidence/1-2-implement-light-dark-theme-with-localstorage-persistence/20260830T120426Z)
+verify	Live-lane 1 PASS: prefers-color-scheme=dark, cleared localStorage -> data-theme=dark, tickettrade.theme=system
+verify	Live-lane 2 PASS: prefers-color-scheme=light, cleared localStorage -> data-theme=light, tickettrade.theme=system
+verify	Live-lane 3 PASS: prefers-color-scheme=no-preference, data-role=admin -> data-theme=light, tickettrade.theme=system
+verify	Live-lane 4 PASS: prefers-color-scheme=no-preference, data-role=student -> data-theme=dark, tickettrade.theme=system
+verify	Live-lane 5 PASS: localStorage=dark, prefers-color-scheme=light -> data-theme=dark (storage wins)
+verify	Live-lane 6 PASS: stored=system, OS flips dark->light within one animation frame -> data-theme follows (custom .cjs driver)
+verify	Live-lane 7 PASS: click System button -> tickettrade.theme=system, [data-theme-last-action]='Theme set to system.'
+verify	Live-lane 8 PASS: click Dark button -> data-theme=dark, aria-pressed=true on Dark, aria-pressed=false on Light
+verify	Live-lane 9 PASS: JS disabled -> data-theme=light from server-rendered <html> attribute (no flash)
+verify	Live-lane 10 PASS: JS disabled -> settings card shows literal 'Theme toggle requires JavaScript. Default theme is light.', no localStorage write attempted
+verify	Perf probe: 50 trials, median 0ms, mean 0.046ms (within +1 frame rule of 16.7ms)
+commit	feat(epic-1): PR 1-2 light-dark-theme

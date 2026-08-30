@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-default-theme="dark">
+<html lang="en" data-theme="light" data-default-theme="dark" data-role="student">
 <head>
   <meta charset="utf-8">
   <title>TicketTrade — theme test</title>
@@ -11,7 +11,24 @@
   <!-- Theme tokens (story 1.1). -->
   <link rel="stylesheet" href="assets/css/tickettrade.css">
 
+  <!-- Test-only role override. Reads ?role=admin|student from the URL and -->
+  <!-- applies it to <html data-role> BEFORE the bootstrap runs. Used by the -->
+  <!-- live-lane harness to exercise the role-default branch without        -->
+  <!-- building a separate admin test page. -->
+  <script>
+  (function () {
+    try {
+      var p = new URLSearchParams(globalThis.location ? globalThis.location.search : '');
+      var r = p.get('role');
+      if (r === 'admin' || r === 'student') {
+        document.documentElement.setAttribute('data-role', r);
+      }
+    } catch (_e) {}
+  })();
+  </script>
+
   <!-- Inline theme bootstrap (verbatim copy of theme-bootstrap.js). -->
+  <!-- PR 1-2 §Build: data-role support + no-preference role default.       -->
   <script>
 /*
  * public/assets/js/theme-bootstrap.js -- INLINED (theme-test.html)
@@ -23,6 +40,7 @@
   var STORAGE_KEY = 'tickettrade.theme';
   var ALLOWED = { light: 1, dark: 1, system: 1 };
   var DEFAULT_THEME = 'dark';
+  var ROLE_DEFAULTS = { admin: 'light', student: 'dark' };
 
   function tickettradeThemeBootstrap() {
     try {
@@ -32,35 +50,60 @@
       try {
         stored = globalThis.localStorage.getItem(STORAGE_KEY);
       } catch (_e) { stored = null; }
-      // Note: do NOT normalise absent role default to DEFAULT_THEME here.
-      // Per spec the fallback chain is localStorage -> role default -> system
-      // pref -> 'dark'. If the page omitted data-default-theme entirely, the
-      // bootstrap must fall through to prefers-color-scheme rather than
-      // silently coercing to 'dark' and skipping that branch.
-      var roleDefault = html.getAttribute('data-default-theme');
+      // PR 1-2 §Build contract: data-role is canonical. data-default-theme
+      // is the legacy back-compat signal. data-role wins when present.
+      var roleDefault = null;
+      var role = html.getAttribute('data-role');
+      if (role && ROLE_DEFAULTS[role]) {
+        roleDefault = ROLE_DEFAULTS[role];
+      }
+      if (roleDefault !== 'light' && roleDefault !== 'dark') {
+        var legacy = html.getAttribute('data-default-theme');
+        if (legacy === 'light' || legacy === 'dark') {
+          roleDefault = legacy;
+        }
+      }
+
+      var mql = globalThis.matchMedia;
+      var lightMql = mql && mql('(prefers-color-scheme: light)');
+      var lightMatches = !!(lightMql && lightMql.matches);
+      var darkMql = mql && mql('(prefers-color-scheme: dark)');
+      var darkMatches = !!(darkMql && darkMql.matches);
+      var noPreference = mql ? (!lightMatches && !darkMatches) : true;
 
       var resolved = DEFAULT_THEME;
       if (stored === 'light' || stored === 'dark') {
         resolved = stored;
       } else if (stored === 'system') {
-        var mql = globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: light)');
-        resolved = (mql && mql.matches) ? 'light' : 'dark';
-      } else if (roleDefault === 'light' || roleDefault === 'dark') {
+        resolved = lightMatches ? 'light' : 'dark';
+      } else if (noPreference && (roleDefault === 'light' || roleDefault === 'dark')) {
         resolved = roleDefault;
-      } else if (globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: light)').matches) {
+      } else if (lightMatches) {
         resolved = 'light';
+      } else if (darkMatches) {
+        resolved = 'dark';
       } else {
         resolved = DEFAULT_THEME;
       }
-      if (ALLOWED[resolved] !== 1) resolved = DEFAULT_THEME;
+
+      if (resolved !== 'light' && resolved !== 'dark') {
+        resolved = DEFAULT_THEME;
+      }
+
       html.setAttribute('data-theme', resolved);
+
+      // PR 1-2 §Build: seed localStorage with 'system' on first load when
+      // no explicit user choice exists.
+      if (stored !== 'light' && stored !== 'dark' && stored !== 'system') {
+        try { globalThis.localStorage.setItem(STORAGE_KEY, 'system'); } catch (__) {}
+      }
+
       return resolved;
     } catch (_err) {
       try { document.documentElement.setAttribute('data-theme', DEFAULT_THEME); } catch (__) {}
       return DEFAULT_THEME;
     }
   }
-
   globalThis.tickettradeThemeBootstrap = tickettradeThemeBootstrap;
   tickettradeThemeBootstrap();
 })();
@@ -81,6 +124,19 @@
 
     <h2>Toggle widget</h2>
     <theme-toggle></theme-toggle>
+
+    <h2>Settings card (PR 1-2 fixture)</h2>
+    <section class="card" data-settings-card aria-labelledby="settings-title">
+      <h3 id="settings-title">Theme settings</h3>
+      <p>Choose how TicketTrade looks. Light and Dark pin the choice; System follows your operating system.</p>
+      <div data-theme-toggle-host>
+        <theme-toggle></theme-toggle>
+      </div>
+      <p data-theme-last-action aria-live="polite">No change yet.</p>
+      <noscript>
+        <p data-noscript-notice>Theme toggle requires JavaScript. Default theme is light.</p>
+      </noscript>
+    </section>
 
     <h2>Self-test fixtures (hidden, consumed by the verify script)</h2>
     <div hidden data-theme-self-test
@@ -138,6 +194,30 @@
         fill();
       }
       globalThis.addEventListener('load', fill);
+
+      // PR 1-2 §Lane 7: when the user clicks a toggle button, announce the
+      // new mode via the toast channel. The host page wires this through to
+      // window.toast.* (owned by PR 1-6). theme.js dispatches
+      // tickettrade:theme-set; we translate that into the per-mode
+      // announcement string the lane asserts.
+      var labels = {
+        light: 'Theme set to light.',
+        dark: 'Theme set to dark.',
+        system: 'Theme set to system.'
+      };
+      globalThis.addEventListener('tickettrade:theme-set', function (ev) {
+        var theme = ev && ev.detail && ev.detail.theme;
+        var label = labels[theme] || ('Theme set to ' + theme + '.');
+        var slot = document.querySelector('[data-theme-last-action]');
+        if (slot) slot.textContent = label;
+        // Best-effort bridge to window.toast; in the live lane the page may
+        // or may not have toast.js loaded, so we swallow any missing-fn error.
+        try {
+          if (globalThis.toast && typeof globalThis.toast[theme === 'system' ? 'info' : 'success'] === 'function') {
+            globalThis.toast[theme === 'system' ? 'info' : 'success'](label);
+          }
+        } catch (_e) {}
+      });
     })();
   </script>
 </body>
