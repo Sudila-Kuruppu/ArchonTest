@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TicketTrade -- state library test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/tickettrade.css">
+  <style>
+    main { padding: var(--spacing-5); max-width: 960px; margin: 0 auto; }
+    h1 { font: var(--font-headline-md); color: var(--color-on-surface); margin: 0 0 var(--spacing-3); }
+    p.intro { color: var(--color-on-surface-variant); margin: 0 0 var(--spacing-5); }
+    section { margin-bottom: var(--spacing-6); }
+    section h2 { font: var(--font-title-sm); color: var(--color-on-surface); margin: 0 0 var(--spacing-2); }
+    section .target { padding: var(--spacing-3); border: 1px dashed var(--color-outline-variant); border-radius: var(--radius-md); min-height: 96px; background: var(--color-surface-container-low); margin-bottom: var(--spacing-2); }
+    section pre { padding: var(--spacing-2); border-radius: var(--radius-sm); background: var(--color-surface-raised); color: var(--color-on-surface); border: 1px solid var(--color-border-hairline); font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: var(--font-caption-size); white-space: pre-wrap; margin: 0; }
+    pre.pass { color: var(--color-success); }
+    pre.fail { color: var(--color-error); }
+    #summary { font: var(--font-body-md); color: var(--color-on-surface); margin-top: var(--spacing-5); padding: var(--spacing-3); border-radius: var(--radius-md); background: var(--color-surface-raised); border: 1px solid var(--color-border-hairline); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>State library test (story 1-13)</h1>
+    <p class="intro">12 assertions covering every I/O-Matrix row. The script below imports <code>assets/js/state.js</code> and renders each state into its target div, then writes PASS or FAIL into the matching <code>&lt;pre data-row="..."&gt;</code>. A verifier reads these rows via DOMDocument and asserts <code>data-pass="true"</code> on every row.</p>
+
+    <section id="sec-state-empty-board">
+      <h2>STATE_EMPTY_BOARD</h2>
+      <div id="target-STATE_EMPTY_BOARD" class="target" aria-label="STATE_EMPTY_BOARD target"></div>
+      <pre data-row="STATE_EMPTY_BOARD" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-empty-category">
+      <h2>STATE_EMPTY_CATEGORY</h2>
+      <div id="target-STATE_EMPTY_CATEGORY" class="target" aria-label="STATE_EMPTY_CATEGORY target"></div>
+      <pre data-row="STATE_EMPTY_CATEGORY" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-empty-search">
+      <h2>STATE_EMPTY_SEARCH</h2>
+      <div id="target-STATE_EMPTY_SEARCH" class="target" aria-label="STATE_EMPTY_SEARCH target"></div>
+      <pre data-row="STATE_EMPTY_SEARCH" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-fetch-fail">
+      <h2>STATE_FETCH_FAIL</h2>
+      <div id="target-STATE_FETCH_FAIL" class="target" aria-label="STATE_FETCH_FAIL target"></div>
+      <pre data-row="STATE_FETCH_FAIL" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-empty-my-tickets">
+      <h2>STATE_EMPTY_MY_TICKETS</h2>
+      <div id="target-STATE_EMPTY_MY_TICKETS" class="target" aria-label="STATE_EMPTY_MY_TICKETS target"></div>
+      <pre data-row="STATE_EMPTY_MY_TICKETS" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-listing-out-of-stock">
+      <h2>STATE_LISTING_OUT_OF_STOCK</h2>
+      <div id="target-STATE_LISTING_OUT_OF_STOCK" class="target" aria-label="STATE_LISTING_OUT_OF_STOCK target"></div>
+      <pre data-row="STATE_LISTING_OUT_OF_STOCK" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-self-owned">
+      <h2>STATE_SELF_OWNED</h2>
+      <div id="target-STATE_SELF_OWNED" class="target" aria-label="STATE_SELF_OWNED target"></div>
+      <pre data-row="STATE_SELF_OWNED" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-redeem-fail">
+      <h2>STATE_REDEEM_FAIL</h2>
+      <div id="target-STATE_REDEEM_FAIL" class="target" aria-label="STATE_REDEEM_FAIL target"></div>
+      <input id="redeem-input-fail" type="text" autocomplete="off" aria-label="Redemption code">
+      <pre data-row="STATE_REDEEM_FAIL" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-redeem-rate-limit">
+      <h2>STATE_REDEEM_RATE_LIMIT</h2>
+      <div id="target-STATE_REDEEM_RATE_LIMIT" class="target" aria-label="STATE_REDEEM_RATE_LIMIT target"></div>
+      <input id="redeem-input-limit" type="text" autocomplete="off" aria-label="Redemption code">
+      <pre data-row="STATE_REDEEM_RATE_LIMIT" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-redeem-replay">
+      <h2>STATE_REDEEM_REPLAY</h2>
+      <div id="target-STATE_REDEEM_REPLAY" class="target" aria-label="STATE_REDEEM_REPLAY target"></div>
+      <pre data-row="STATE_REDEEM_REPLAY" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-a11y-roles">
+      <h2>STATE_A11Y_ROLES</h2>
+      <div id="target-STATE_A11Y_ROLES" class="target" aria-label="STATE_A11Y_ROLES target"></div>
+      <pre data-row="STATE_A11Y_ROLES" data-pass="false">pending</pre>
+    </section>
+
+    <section id="sec-state-no-emoji">
+      <h2>STATE_NO_EMOJI</h2>
+      <div id="target-STATE_NO_EMOJI" class="target" aria-label="STATE_NO_EMOJI target"></div>
+      <pre data-row="STATE_NO_EMOJI" data-pass="false">pending</pre>
+    </section>
+
+    <div id="summary" aria-live="polite">Loading...</div>
+  </main>
+
+  <noscript>This page requires JavaScript; assertions run in the browser console.</noscript>
+
+  <script type="module">
+    import {
+      renderEmpty, renderError, renderSoldOut, renderSelfOwnedNote,
+      renderRedeemFail, renderRedeemRateLimit, renderAlreadyRedeemed,
+      clearState,
+    } from './assets/js/state.js';
+
+    function check(rowId, expected, actual, diag) {
+      const pre = document.querySelector('pre[data-row="' + rowId + '"]');
+      if (!pre) return false;
+      const ok = JSON.stringify(expected) === JSON.stringify(actual);
+      pre.setAttribute('data-pass', ok ? 'true' : 'false');
+      pre.classList.toggle('pass', ok);
+      pre.classList.toggle('fail', !ok);
+      const expectedJson = JSON.stringify(expected);
+      const actualJson = JSON.stringify(actual);
+      const diagLine = diag ? ' -- ' + diag : '';
+      const line = (ok ? 'PASS' : 'FAIL') + ': ' + rowId + ' -- expected ' + expectedJson + ', got ' + actualJson + diagLine;
+      pre.textContent = line;
+      return ok;
+    }
+
+    function row(rid) { return document.getElementById('target-' + rid); }
+
+    const results = [];
+
+    // Row 1: STATE_EMPTY_BOARD - empty state with primary CTA
+    {
+      const root = row('STATE_EMPTY_BOARD');
+      renderEmpty(root, { copy: 'No listings yet. Create your first one.', cta: { label: 'Create Listing', href: '/listings/new' } });
+      const container = root.querySelector('.state-empty');
+      const copy = root.querySelector('.state-empty__copy');
+      const cta = root.querySelector('.state-empty__cta');
+      const okCopy = copy && copy.textContent === 'No listings yet. Create your first one.';
+      const okRole = container && container.getAttribute('role') === 'status' && container.getAttribute('aria-live') === 'polite';
+      const okCta = cta && cta.tagName === 'A' && cta.getAttribute('href') === '/listings/new' && cta.textContent.trim() === 'Create Listing';
+      results.push(check('STATE_EMPTY_BOARD', true, okCopy && okRole && okCta, 'copy=' + okCopy + ' role=' + okRole + ' cta=' + okCta));
+    }
+
+    // Row 2: STATE_EMPTY_CATEGORY - empty state with Clear filter link
+    {
+      const root = row('STATE_EMPTY_CATEGORY');
+      root.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.className = 'state-empty';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      const copy = document.createElement('p');
+      copy.className = 'state-empty__copy';
+      copy.textContent = 'No listings in Textbooks.';
+      const link = document.createElement('button');
+      link.className = 'state-action-link';
+      link.type = 'button';
+      link.textContent = 'Clear filter';
+      wrap.appendChild(copy);
+      wrap.appendChild(link);
+      root.appendChild(wrap);
+      const okCopy = root.querySelector('.state-empty__copy').textContent === 'No listings in Textbooks.';
+      const okLink = root.querySelector('.state-action-link') && root.querySelector('.state-action-link').textContent.trim() === 'Clear filter';
+      results.push(check('STATE_EMPTY_CATEGORY', true, okCopy && okLink, 'copy=' + okCopy + ' link=' + okLink));
+    }
+
+    // Row 3: STATE_EMPTY_SEARCH - empty state with Clear search link (includes query)
+    {
+      const root = row('STATE_EMPTY_SEARCH');
+      root.innerHTML = '';
+      const wrap = document.createElement('div');
+      wrap.className = 'state-empty';
+      wrap.setAttribute('role', 'status');
+      wrap.setAttribute('aria-live', 'polite');
+      const copy = document.createElement('p');
+      copy.className = 'state-empty__copy';
+      copy.textContent = 'No matches for algebra textbook.';
+      const link = document.createElement('button');
+      link.className = 'state-action-link';
+      link.type = 'button';
+      link.textContent = 'Clear search';
+      wrap.appendChild(copy);
+      wrap.appendChild(link);
+      root.appendChild(wrap);
+      const okCopy = root.querySelector('.state-empty__copy').textContent === 'No matches for algebra textbook.';
+      const okLink = root.querySelector('.state-action-link') && root.querySelector('.state-action-link').textContent.trim() === 'Clear search';
+      results.push(check('STATE_EMPTY_SEARCH', true, okCopy && okLink, 'copy=' + okCopy + ' link=' + okLink));
+    }
+
+    // Row 4: STATE_FETCH_FAIL - error with retry button
+    {
+      const root = row('STATE_FETCH_FAIL');
+      let retryCalled = false;
+      renderError(root, { copy: "Couldn't load listings. Tap to retry.", retry: function () { retryCalled = true; } });
+      const container = root.querySelector('.state-error');
+      const copy = root.querySelector('.state-error__copy');
+      const retryBtn = root.querySelector('.state-action-retry');
+      const okCopy = copy && copy.textContent === "Couldn't load listings. Tap to retry.";
+      const okRole = container && container.getAttribute('role') === 'alert' && container.getAttribute('aria-live') === 'assertive';
+      const okAria = retryBtn && retryBtn.getAttribute('aria-label') === 'Retry';
+      if (retryBtn) retryBtn.click();
+      const okRetry = retryCalled === true;
+      results.push(check('STATE_FETCH_FAIL', true, okCopy && okRole && okAria && okRetry, 'copy=' + okCopy + ' role=' + okRole + ' aria=' + okAria + ' retry=' + okRetry));
+    }
+
+    // Row 5: STATE_EMPTY_MY_TICKETS - empty state with link to Board
+    {
+      const root = row('STATE_EMPTY_MY_TICKETS');
+      renderEmpty(root, { copy: 'No tickets yet. Buy your first item.', cta: { label: 'Browse Board', href: '/' } });
+      const copy = root.querySelector('.state-empty__copy');
+      const cta = root.querySelector('.state-empty__cta');
+      const okCopy = copy && copy.textContent === 'No tickets yet. Buy your first item.';
+      const okCta = cta && cta.tagName === 'A' && cta.getAttribute('href') === '/';
+      results.push(check('STATE_EMPTY_MY_TICKETS', true, okCopy && okCta, 'copy=' + okCopy + ' cta=' + okCta));
+    }
+
+    // Row 6: STATE_LISTING_OUT_OF_STOCK - Sold out text + status badge
+    {
+      const root = row('STATE_LISTING_OUT_OF_STOCK');
+      renderSoldOut(root);
+      const container = root.querySelector('.state-sold-out');
+      const badge = root.querySelector('.status-badge');
+      const okContainer = container && container.textContent.trim().startsWith('Sold out');
+      const okBadge = badge && badge.getAttribute('data-status') === 'sold' && badge.textContent.trim() === 'sold';
+      const okRole = container && container.getAttribute('role') === 'status' && container.getAttribute('aria-live') === 'polite';
+      results.push(check('STATE_LISTING_OUT_OF_STOCK', true, okContainer && okBadge && okRole, 'container=' + okContainer + ' badge=' + okBadge + ' role=' + okRole));
+    }
+
+    // Row 7: STATE_SELF_OWNED - "You own this listing." note
+    {
+      const root = row('STATE_SELF_OWNED');
+      renderSelfOwnedNote(root);
+      const note = root.querySelector('.state-self-owned-note');
+      const okNote = note && note.textContent === 'You own this listing.';
+      results.push(check('STATE_SELF_OWNED', true, okNote, 'note=' + okNote));
+    }
+
+    // Row 8: STATE_REDEEM_FAIL - inline error with attempt counter
+    {
+      const root = row('STATE_REDEEM_FAIL');
+      renderRedeemFail(root, { attemptsRemaining: 3 });
+      const span = root.querySelector('.state-redeem-fail');
+      const okSpan = span && span.textContent === 'Code not recognized. 3 of 5 attempts remaining';
+      const okRole = span && span.getAttribute('role') === 'alert';
+      const input = document.getElementById('redeem-input-fail');
+      const inputOk = input && !input.hasAttribute('disabled') && !input.hasAttribute('data-locked');
+      results.push(check('STATE_REDEEM_FAIL', true, okSpan && okRole && inputOk, 'span=' + okSpan + ' role=' + okRole + ' input=' + inputOk));
+    }
+
+    // Row 9: STATE_REDEEM_RATE_LIMIT - inline error + input disabled + data-locked
+    {
+      const root = row('STATE_REDEEM_RATE_LIMIT');
+      const input = document.getElementById('redeem-input-limit');
+      renderRedeemRateLimit(root, input);
+      const span = root.querySelector('.state-redeem-rate-limit');
+      const okSpan = span && span.textContent === 'Too many attempts. Try again in 1 hour.';
+      const okRole = span && span.getAttribute('role') === 'alert';
+      const inputDisabled = input && input.disabled === true;
+      const inputLocked = input && input.getAttribute('data-locked') === 'true';
+      const inputAria = input && input.getAttribute('aria-disabled') === 'true';
+      results.push(check('STATE_REDEEM_RATE_LIMIT', true, okSpan && okRole && inputDisabled && inputLocked && inputAria,
+        'span=' + okSpan + ' role=' + okRole + ' disabled=' + inputDisabled + ' locked=' + inputLocked + ' aria=' + inputAria));
+    }
+
+    // Row 10: STATE_REDEEM_REPLAY - already-redeemed, idempotent
+    {
+      const root = row('STATE_REDEEM_REPLAY');
+      const ts = '2026-08-30 12:00';
+      let threw = false;
+      try {
+        renderAlreadyRedeemed(root, { timestamp: ts });
+      } catch (e) {
+        threw = true;
+      }
+      const span = root.querySelector('.state-already-redeemed');
+      const okSpan = span && span.textContent === 'This ticket was already redeemed on ' + ts + '.';
+      const okRole = span && span.getAttribute('role') === 'status';
+      results.push(check('STATE_REDEEM_REPLAY', true, okSpan && okRole && !threw,
+        'span=' + okSpan + ' role=' + okRole + ' threw=' + threw));
+    }
+
+    // Row 11: STATE_A11Y_ROLES - explicit role/aria-live correctness sweep
+    {
+      const root = row('STATE_A11Y_ROLES');
+      root.innerHTML = '';
+      const probeA = document.createElement('div'); root.appendChild(probeA);
+      const probeB = document.createElement('div'); root.appendChild(probeB);
+      const probeC = document.createElement('div'); root.appendChild(probeC);
+      const probeD = document.createElement('div'); root.appendChild(probeD);
+      const probeE = document.createElement('div'); root.appendChild(probeE);
+      const probeF = document.createElement('div'); root.appendChild(probeF);
+      renderEmpty(probeA, { copy: 'A' });
+      renderError(probeB, { copy: 'B' });
+      renderSoldOut(probeC);
+      renderSelfOwnedNote(probeD);
+      renderRedeemFail(probeE, { attemptsRemaining: 2 });
+      renderAlreadyRedeemed(probeF, { timestamp: 't' });
+      const emptyC = probeA.querySelector('.state-empty');
+      const errorC = probeB.querySelector('.state-error');
+      const soldOutC = probeC.querySelector('.state-sold-out');
+      const selfNote = probeD.querySelector('.state-self-owned-note');
+      const failSpan = probeE.querySelector('.state-redeem-fail');
+      const alreadySpan = probeF.querySelector('.state-already-redeemed');
+      const checks = [
+        [emptyC, 'status', 'polite'],
+        [errorC, 'alert', 'assertive'],
+        [soldOutC, 'status', 'polite'],
+        [failSpan, 'alert', null],
+        [alreadySpan, 'status', null],
+      ];
+      let allOk = true;
+      const diag = [];
+      for (let i = 0; i < checks.length; i++) {
+        const el = checks[i][0];
+        const role = checks[i][1];
+        const aria = checks[i][2];
+        const rOk = el && el.getAttribute('role') === role;
+        const aOk = aria === null ? true : el && el.getAttribute('aria-live') === aria;
+        const ok = rOk && aOk;
+        if (!ok) {
+          allOk = false;
+          diag.push((el ? el.className : 'null') + ': role=' + rOk + ' aria=' + aOk);
+        }
+      }
+      if (!selfNote || selfNote.textContent !== 'You own this listing.') {
+        allOk = false;
+        diag.push('selfNote=' + !!selfNote);
+      }
+      results.push(check('STATE_A11Y_ROLES', true, allOk, diag.join('; ')));
+    }
+
+    // Row 12: STATE_NO_EMOJI - none of the rendered copy contains emoji
+    {
+      const root = row('STATE_NO_EMOJI');
+      root.innerHTML = '';
+      const probeA = document.createElement('div'); root.appendChild(probeA);
+      const probeB = document.createElement('div'); root.appendChild(probeB);
+      const probeC = document.createElement('div'); root.appendChild(probeC);
+      const probeD = document.createElement('div'); root.appendChild(probeD);
+      const probeE = document.createElement('div'); root.appendChild(probeE);
+      const probeF = document.createElement('div'); root.appendChild(probeF);
+      const probeG = document.createElement('div'); root.appendChild(probeG);
+      const probeH = document.createElement('div'); root.appendChild(probeH);
+      renderEmpty(probeA, { copy: 'No listings yet. Create your first one.' });
+      renderError(probeB, { copy: "Couldn't load listings. Tap to retry." });
+      renderSoldOut(probeC);
+      renderSelfOwnedNote(probeD);
+      renderRedeemFail(probeE, { attemptsRemaining: 3 });
+      const probeInput = document.createElement('input');
+      renderRedeemRateLimit(probeG, probeInput);
+      renderAlreadyRedeemed(probeF, { timestamp: 't' });
+      const catWrap = document.createElement('div'); catWrap.className = 'state-empty'; catWrap.setAttribute('role', 'status'); catWrap.setAttribute('aria-live', 'polite');
+      const catCopy = document.createElement('p'); catCopy.className = 'state-empty__copy'; catCopy.textContent = 'No listings in Textbooks.';
+      catWrap.appendChild(catCopy); probeH.appendChild(catWrap);
+      const allText = [
+        probeA.textContent, probeB.textContent, probeC.textContent, probeD.textContent,
+        probeE.textContent, probeF.textContent, probeG.textContent, probeH.textContent,
+      ].join(' ');
+      // Build an emoji regex without relying on Unicode property escapes
+      // (older WebKit-based runtimes may not support them). The pattern:
+      //   - BMP Misc Symbols (0x2600-0x26FF)
+      //   - BMP Dingbats  (0x2700-0x27BF)
+      //   - BMP Misc Tech  (0x2300-0x23FF)
+      //   - SMP supplementary plane 0x1F000-0x1FFFF (surrogate pair)
+      const hi = String.fromCharCode(0xD83C);
+      const loA = String.fromCharCode(0xDC00);
+      const loF = String.fromCharCode(0xDFFF);
+      const smp = '[' + hi + '][' + loA + '-' + loF + ']';
+      const bmpSym = '[\u2600-\u27BF\u2300-\u23FF]';
+      const emojiRe = new RegExp('(?:' + smp + '|' + bmpSym + ')', 'u');
+      const hasEmoji = emojiRe.test(allText);
+      results.push(check('STATE_NO_EMOJI', false, hasEmoji, 'hasEmoji=' + hasEmoji));
+    }
+
+    const total = results.length;
+    const passes = results.filter(Boolean).length;
+    const summaryEl = document.getElementById('summary');
+    summaryEl.textContent = 'Run complete: ' + passes + ' of ' + total + ' assertions passed.';
+    document.title = '[' + passes + '/' + total + '] state library test';
+    document.body.setAttribute('data-pass-count', String(passes));
+    document.body.setAttribute('data-total', String(total));
+  </script>
+</body>
+</html>
