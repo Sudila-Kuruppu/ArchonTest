@@ -1,0 +1,20 @@
+step	detail
+start	Read plan section PR 1-12
+start	Read spec at _bmad-output/specs/spec-epic-1-ux-foundation-design-system/banned-patterns-microcopy.md
+start	Inspect existing scripts/check_banned_patterns.sh and .banned-allowlist
+build	Wrote scripts/verify/test-banned.sh with 15-pattern catalog + per-pattern override loader + --list flag
+build	Wrote public/assets/banned-patterns.override.json with EXCLAMATION_MARK landing-hero, PUSH_NOTIFICATION toast aria-label, TIER_WITHOUT_CODE test fixtures
+build	Wrote scripts/verify/1-12-enforce-banned-interaction-patterns-and-voice-and-tone-microcopy.sh (unit verify)
+build	Story file status flipped to in-review; execution boxes checked
+fix	Fixed profile-test.html: tier names now include codes in test fixture h2 tags + JS comments
+fix	Fixed brand-test.html: rank-badge visible text + aria-label now include (A) / (C) / (S) codes
+fix	Split TIER_NAME_VARIANT into TIER_PERSONALITY (always banned) + TIER_WITHOUT_CODE (overridable in test fixtures)
+verify	Unit verify PASS: 6/6 steps, 15 patterns, 12/12 sweep fixtures caught, override honored
+
+wrapup	Branch switched from 1-1-fix-design-token-system; stashed 1-1 owner's decisions-1-1-fix.tsv to preserve their uncommitted work
+wrapup	Patched scripts/verify/test-banned.sh: trap declares MATCHES_TXT/OVERRIDE_PATHS_TXT before reference (fix set -u crash); rewrote (?i)/(?is) to (?i:)/(?is:) scoped groups so (?i) flag does not leak across alternation; classifier now collects ALL matching patterns per line (one violation per matched pattern, was first-match-only); 12/12 sweep caught
+wrapup	Unit verify PASS (20260830T110627Z): 15 patterns, sweep 12/12, override honored
+wrapup	Live-lane harness run: all 10 lanes (worker-1..10) gate caught their fixture as expected; lane 8 override honored (rc=0); lane 10 companion sweep rc=1 on each insert and rc=0 on clean tree; screenshots saved to /tmp/swarm-1-12/worker-{1..10}/<slug>.png
+commit	feat(epic-1): PR 1-12 banned-interaction patterns and microcopy linter
+commit-sha	26d37079ab42878c15fa079d82cd34e535076dc6
+pushed	origin/1-12-banned-interaction-patterns
