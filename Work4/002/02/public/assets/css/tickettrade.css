@@ -1,0 +1,2731 @@
+/*
+ * public/assets/css/tickettrade.css
+ *
+ * Design token mirror for TicketTrade. The single source of truth is
+ * DESIGN.md at the project root. Every color, typography role, radius,
+ * spacing, and component token declared in DESIGN.md is exposed below as
+ * a CSS custom property. No raw hex is allowed in any other CSS or HTML
+ * file; the guard is `scripts/check_no_raw_hex.sh` and the composer
+ * script is `composer test:tokens`.
+ *
+ * Theme defaults: :root = dark (student default). [data-theme="light"]
+ * overrides the neutral surface set + on-* text to the admin light tokens.
+ * [data-theme="dark"] is a defensive reassertion of the :root defaults.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Colors (92) -- kebab-case custom properties                         */
+/* ------------------------------------------------------------------ */
+:root {
+  --color-primary: #1B5E20;
+  --color-primary-dark: #2E7D32;
+  --color-primary-light: #4CAF50;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #C8E6C9;
+  --color-on-primary-container: #1B5E20;
+  --color-secondary: #F57F17;
+  --color-secondary-dark: #F9A825;
+  --color-secondary-light: #FFB300;
+  --color-on-secondary: #1A1A1A;
+  --color-secondary-container: #FFF8E1;
+  --color-on-secondary-container: #4E342E;
+  --color-tertiary: #0277BD;
+  --color-tertiary-dark: #0288D1;
+  --color-tertiary-light: #03A9F4;
+  --color-on-tertiary: #FFFFFF;
+  --color-tertiary-container: #E1F5FE;
+  --color-on-tertiary-container: #01579B;
+  --color-rank-e: #9E9E9E;
+  --color-rank-e-dark: #BDBDBD;
+  --color-rank-d: #2196F3;
+  --color-rank-d-dark: #64B5F6;
+  --color-rank-c: #2E7D32;
+  --color-rank-c-dark: #4CAF50;
+  --color-rank-b: #F9A825;
+  --color-rank-b-dark: #FFEA00;
+  --color-rank-a: #EF6C00;
+  --color-rank-a-dark: #FF9800;
+  --color-rank-s: #C62828;
+  --color-rank-s-dark: #E53935;
+  --color-rank-s-deep: #B71C1C;
+  --color-primary-on-dark: #81C784;
+  --color-tertiary-on-dark: #4FC3F7;
+  --color-whatsapp: #25D366;
+  --color-success: #2E7D32;
+  --color-success-light: #4CAF50;
+  --color-error: #C62828;
+  --color-error-light: #EF5350;
+  --color-error-dark: #B71C1C;
+  --color-warning: #B45309;
+  --color-info: #0277BD;
+  --color-status-pending-fill: #FFF8E1;
+  --color-status-pending-text: #4E342E;
+  --color-status-active-fill: #C8E6C9;
+  --color-status-active-text: #1B5E20;
+  --color-status-rejected-fill: #FFCDD2;
+  --color-status-rejected-text: #B71C1C;
+  --color-status-redeemed-fill: #E1F5FE;
+  --color-status-redeemed-text: #01579B;
+  --color-status-expired-fill: #EEEEEE;
+  --color-status-expired-text: #616161;
+  --color-status-sold-fill: #FFE0B2;
+  --color-status-sold-text: #BF360C;
+  --color-status-disputed-fill: #FFE0B2;
+  --color-status-disputed-text: #BF360C;
+  --color-status-removed-fill: #37474F;
+  --color-status-removed-text: #ECEFF1;
+  --color-surface-base: #FAFAFA;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-container: #F5F5F5;
+  --color-surface-container-low: #EEEEEE;
+  --color-surface-container-high: #E0E0E0;
+  --color-surface-container-highest: #D1D1D1;
+  --color-on-surface: #1C1C1C;
+  --color-on-surface-variant: #49454F;
+  --color-outline: #79747E;
+  --color-outline-variant: #CAC4D0;
+  --color-border-hairline: #E0E0E0;
+  --color-shadow-color: #000000;
+  --color-surface-base-dark: #121212;
+  --color-surface-raised-dark: #1E1E1E;
+  --color-surface-container-dark: #2C2C2C;
+  --color-surface-container-low-dark: #1A1A1A;
+  --color-surface-container-high-dark: #383838;
+  --color-surface-container-highest-dark: #444444;
+  --color-on-surface-dark: #ECECEC;
+  --color-on-surface-variant-dark: #CFCBC4;
+  --color-outline-dark: #938F99;
+  --color-outline-variant-dark: #49454F;
+  --color-border-hairline-dark: #2A2A2A;
+  --color-shadow-color-dark: #000000;
+  --color-cork-base: #C8A878;
+  --color-cork-grain: #A88456;
+  --color-pin-red: #C62828;
+  --color-pin-blue: #1565C0;
+  --color-code-bg: #1E1E1E;
+  --color-code-bg-dark: #0A0A0A;
+  --color-code-text: #FFD600;
+  --color-code-text-dark: #FFEA00;
+  --color-code-border: #F57F17;
+  --color-velocity-flag-fill: #FFCDD2;
+  --color-velocity-flag-text: #B71C1C;
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography (7 roles) -- --font-{role} plus size/weight/lh/ls        */
+/* ------------------------------------------------------------------ */
+:root {
+  --font-display-lg: Inter, system-ui, sans-serif;
+  --font-display-lg-size: 32px;
+  --font-display-lg-weight: 700;
+  --font-display-lg-line-height: 1.2;
+  --font-display-lg-letter-spacing: -0.01em;
+  --font-headline-md: Inter, system-ui, sans-serif;
+  --font-headline-md-size: 24px;
+  --font-headline-md-weight: 600;
+  --font-headline-md-line-height: 1.3;
+  --font-title-sm: Inter, system-ui, sans-serif;
+  --font-title-sm-size: 18px;
+  --font-title-sm-weight: 600;
+  --font-title-sm-line-height: 1.4;
+  --font-body-md: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body-md-size: 16px;
+  --font-body-md-weight: 400;
+  --font-body-md-line-height: 1.5;
+  --font-body-sm: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body-sm-size: 14px;
+  --font-body-sm-weight: 400;
+  --font-body-sm-line-height: 1.45;
+  --font-caption: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-caption-size: 12px;
+  --font-caption-weight: 500;
+  --font-caption-line-height: 1.35;
+  --font-caption-letter-spacing: 0.02em;
+  --font-mono-code: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono-code-size: 14px;
+  --font-mono-code-weight: 600;
+  --font-mono-code-line-height: 1.4;
+  --font-mono-code-letter-spacing: 0.04em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Radii (5)                                                              */
+/* ------------------------------------------------------------------ */
+:root {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Spacing (14 slots incl. legacy alias '7' and reserved '9')          */
+/* ------------------------------------------------------------------ */
+:root {
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 24px;
+  --spacing-6: 32px;
+  --spacing-7: 48px;
+  --spacing-8: 48px;
+  --spacing-9: 56px;
+  --spacing-10: 64px;
+  --spacing-gutter-mobile: 16px;
+  --spacing-gutter-desktop: 32px;
+  --spacing-section-gap: 24px;
+  --spacing-card-gap: 16px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Elevation (9) -- box-shadow tokens                                   */
+/* ------------------------------------------------------------------ */
+:root {
+  --elevation-level-0: none;
+  --elevation-level-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --elevation-level-2: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --elevation-level-3: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  --elevation-level-4: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.10);
+  --elevation-level-1-dark: 0 1px 3px rgba(0, 0, 0, 0.30), 0 1px 2px rgba(0, 0, 0, 0.20);
+  --elevation-level-2-dark: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25);
+  --elevation-level-3-dark: 0 8px 24px rgba(0, 0, 0, 0.40), 0 4px 8px rgba(0, 0, 0, 0.30);
+  --elevation-level-4-dark: 0 12px 40px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Animation (5) -- duration + easing + the legend-glow box-shadow      */
+/* ------------------------------------------------------------------ */
+:root {
+  --motion-fast: 150ms ease;
+  --motion-default: 200ms ease;
+  --motion-slow: 300ms ease;
+  --motion-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-legend-glow: 0 0 8px #C62828, 0 0 16px #E53935;
+  /* PR 1-1 §Build aliases + rank-A foreground pair. The four --rounded-* tokens
+     alias the existing --radius-* tokens (DESIGN.md rounded: sm=4px, md=8px,
+     lg=12px, full=9999px) so the planning spec name and the on-disk CSS name
+     agree. --color-rank-a-on-light resolves through the existing on-primary
+     foreground; --color-rank-a-on-dark is the dark foreground for caption-size
+     rank-A badges (see .rank-badge[data-tier="A"][data-size="caption"]). */
+  --rounded-sm: var(--radius-sm);
+  --rounded-md: var(--radius-md);
+  --rounded-lg: var(--radius-lg);
+  --rounded-full: var(--radius-full);
+  --color-rank-a-on-light: var(--color-on-primary);
+  --color-rank-a-on-dark: #1A1A1A;
+}
+
+/* ------------------------------------------------------------------ */
+/* [data-theme="dark"] -- defensive reassertion of :root dark defaults  */
+/* ------------------------------------------------------------------ */
+[data-theme="dark"] {
+  --color-surface-base: #121212;
+  --color-surface-base-dark: #121212;
+  --color-surface-raised: #1E1E1E;
+  --color-surface-raised-dark: #1E1E1E;
+  --color-surface-container: #2C2C2C;
+  --color-surface-container-dark: #2C2C2C;
+  --color-surface-container-low: #1A1A1A;
+  --color-surface-container-low-dark: #1A1A1A;
+  --color-surface-container-high: #383838;
+  --color-surface-container-high-dark: #383838;
+  --color-surface-container-highest: #444444;
+  --color-surface-container-highest-dark: #444444;
+  --color-on-surface: #ECECEC;
+  --color-on-surface-dark: #ECECEC;
+  --color-on-surface-variant: #CFCBC4;
+  --color-on-surface-variant-dark: #CFCBC4;
+  --color-outline: #938F99;
+  --color-outline-dark: #938F99;
+  --color-outline-variant: #49454F;
+  --color-outline-variant-dark: #49454F;
+  --color-border-hairline: #2A2A2A;
+  --color-border-hairline-dark: #2A2A2A;
+  --color-code-bg: #0A0A0A;
+  --color-code-text: #FFEA00;
+}
+
+/* ------------------------------------------------------------------ */
+/* [data-theme="light"] -- admin default. Overrides the neutral         */
+/* surface set + on-* text to the light-mode tokens.                    */
+/* ------------------------------------------------------------------ */
+[data-theme="light"] {
+  --color-surface-base: #FAFAFA;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-container: #F5F5F5;
+  --color-surface-container-low: #EEEEEE;
+  --color-surface-container-high: #E0E0E0;
+  --color-surface-container-highest: #D1D1D1;
+  --color-on-surface: #1C1C1C;
+  --color-on-surface-variant: #49454F;
+  --color-outline: #79747E;
+  --color-outline-variant: #CAC4D0;
+  --color-border-hairline: #E0E0E0;
+  --color-code-bg: #1E1E1E;
+  --color-code-text: #FFD600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion -- the single allowed motion (legend-glow) is disabled */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  [data-rank="s"] { animation: none !important; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Token self-test fixture -- hidden, never rendered, consumed by the   */
+/* per-slice verify script to assert every documented token resolves.   */
+/* ------------------------------------------------------------------ */
+[data-token-self-test] {
+  /* color tokens */
+  --self-test-primary: var(--color-primary);
+  --self-test-primary-dark: var(--color-primary-dark);
+  --self-test-primary-light: var(--color-primary-light);
+  --self-test-on-primary: var(--color-on-primary);
+  --self-test-primary-container: var(--color-primary-container);
+  --self-test-on-primary-container: var(--color-on-primary-container);
+  --self-test-secondary: var(--color-secondary);
+  --self-test-secondary-dark: var(--color-secondary-dark);
+  --self-test-secondary-light: var(--color-secondary-light);
+  --self-test-on-secondary: var(--color-on-secondary);
+  --self-test-secondary-container: var(--color-secondary-container);
+  --self-test-on-secondary-container: var(--color-on-secondary-container);
+  --self-test-tertiary: var(--color-tertiary);
+  --self-test-tertiary-dark: var(--color-tertiary-dark);
+  --self-test-tertiary-light: var(--color-tertiary-light);
+  --self-test-on-tertiary: var(--color-on-tertiary);
+  --self-test-tertiary-container: var(--color-tertiary-container);
+  --self-test-on-tertiary-container: var(--color-on-tertiary-container);
+  --self-test-rank-e: var(--color-rank-e);
+  --self-test-rank-e-dark: var(--color-rank-e-dark);
+  --self-test-rank-d: var(--color-rank-d);
+  --self-test-rank-d-dark: var(--color-rank-d-dark);
+  --self-test-rank-c: var(--color-rank-c);
+  --self-test-rank-c-dark: var(--color-rank-c-dark);
+  --self-test-rank-b: var(--color-rank-b);
+  --self-test-rank-b-dark: var(--color-rank-b-dark);
+  --self-test-rank-a: var(--color-rank-a);
+  --self-test-rank-a-dark: var(--color-rank-a-dark);
+  --self-test-rank-s: var(--color-rank-s);
+  --self-test-rank-s-dark: var(--color-rank-s-dark);
+  --self-test-rank-s-deep: var(--color-rank-s-deep);
+  --self-test-primary-on-dark: var(--color-primary-on-dark);
+  --self-test-tertiary-on-dark: var(--color-tertiary-on-dark);
+  --self-test-whatsapp: var(--color-whatsapp);
+  --self-test-success: var(--color-success);
+  --self-test-success-light: var(--color-success-light);
+  --self-test-error: var(--color-error);
+  --self-test-error-light: var(--color-error-light);
+  --self-test-error-dark: var(--color-error-dark);
+  --self-test-warning: var(--color-warning);
+  --self-test-info: var(--color-info);
+  --self-test-status-pending-fill: var(--color-status-pending-fill);
+  --self-test-status-pending-text: var(--color-status-pending-text);
+  --self-test-status-active-fill: var(--color-status-active-fill);
+  --self-test-status-active-text: var(--color-status-active-text);
+  --self-test-status-rejected-fill: var(--color-status-rejected-fill);
+  --self-test-status-rejected-text: var(--color-status-rejected-text);
+  --self-test-status-redeemed-fill: var(--color-status-redeemed-fill);
+  --self-test-status-redeemed-text: var(--color-status-redeemed-text);
+  --self-test-status-expired-fill: var(--color-status-expired-fill);
+  --self-test-status-expired-text: var(--color-status-expired-text);
+  --self-test-status-sold-fill: var(--color-status-sold-fill);
+  --self-test-status-sold-text: var(--color-status-sold-text);
+  --self-test-status-disputed-fill: var(--color-status-disputed-fill);
+  --self-test-status-disputed-text: var(--color-status-disputed-text);
+  --self-test-status-removed-fill: var(--color-status-removed-fill);
+  --self-test-status-removed-text: var(--color-status-removed-text);
+  --self-test-surface-base: var(--color-surface-base);
+  --self-test-surface-raised: var(--color-surface-raised);
+  --self-test-surface-container: var(--color-surface-container);
+  --self-test-surface-container-low: var(--color-surface-container-low);
+  --self-test-surface-container-high: var(--color-surface-container-high);
+  --self-test-surface-container-highest: var(--color-surface-container-highest);
+  --self-test-on-surface: var(--color-on-surface);
+  --self-test-on-surface-variant: var(--color-on-surface-variant);
+  --self-test-outline: var(--color-outline);
+  --self-test-outline-variant: var(--color-outline-variant);
+  --self-test-border-hairline: var(--color-border-hairline);
+  --self-test-shadow-color: var(--color-shadow-color);
+  --self-test-surface-base-dark: var(--color-surface-base-dark);
+  --self-test-surface-raised-dark: var(--color-surface-raised-dark);
+  --self-test-surface-container-dark: var(--color-surface-container-dark);
+  --self-test-surface-container-low-dark: var(--color-surface-container-low-dark);
+  --self-test-surface-container-high-dark: var(--color-surface-container-high-dark);
+  --self-test-surface-container-highest-dark: var(--color-surface-container-highest-dark);
+  --self-test-on-surface-dark: var(--color-on-surface-dark);
+  --self-test-on-surface-variant-dark: var(--color-on-surface-variant-dark);
+  --self-test-outline-dark: var(--color-outline-dark);
+  --self-test-outline-variant-dark: var(--color-outline-variant-dark);
+  --self-test-border-hairline-dark: var(--color-border-hairline-dark);
+  --self-test-shadow-color-dark: var(--color-shadow-color-dark);
+  --self-test-cork-base: var(--color-cork-base);
+  --self-test-cork-grain: var(--color-cork-grain);
+  --self-test-pin-red: var(--color-pin-red);
+  --self-test-pin-blue: var(--color-pin-blue);
+  --self-test-code-bg: var(--color-code-bg);
+  --self-test-code-bg-dark: var(--color-code-bg-dark);
+  --self-test-code-text: var(--color-code-text);
+  --self-test-code-text-dark: var(--color-code-text-dark);
+  --self-test-code-border: var(--color-code-border);
+  --self-test-velocity-flag-fill: var(--color-velocity-flag-fill);
+  --self-test-velocity-flag-text: var(--color-velocity-flag-text);
+  /* typography tokens (size only) */
+  --self-test-display-lg: var(--font-display-lg-size);
+  --self-test-headline-md: var(--font-headline-md-size);
+  --self-test-title-sm: var(--font-title-sm-size);
+  --self-test-body-md: var(--font-body-md-size);
+  --self-test-body-sm: var(--font-body-sm-size);
+  --self-test-caption: var(--font-caption-size);
+  --self-test-mono-code: var(--font-mono-code-size);
+  /* radius tokens */
+  --self-test-radius-sm: var(--radius-sm);
+  --self-test-radius-md: var(--radius-md);
+  --self-test-radius-lg: var(--radius-lg);
+  --self-test-radius-xl: var(--radius-xl);
+  --self-test-radius-full: var(--radius-full);
+  /* spacing tokens */
+  --self-test-spacing-1: var(--spacing-1);
+  --self-test-spacing-2: var(--spacing-2);
+  --self-test-spacing-3: var(--spacing-3);
+  --self-test-spacing-4: var(--spacing-4);
+  --self-test-spacing-5: var(--spacing-5);
+  --self-test-spacing-6: var(--spacing-6);
+  --self-test-spacing-7: var(--spacing-7);
+  --self-test-spacing-8: var(--spacing-8);
+  --self-test-spacing-9: var(--spacing-9);
+  --self-test-spacing-10: var(--spacing-10);
+  --self-test-spacing-gutter-mobile: var(--spacing-gutter-mobile);
+  --self-test-spacing-gutter-desktop: var(--spacing-gutter-desktop);
+  --self-test-spacing-section-gap: var(--spacing-section-gap);
+  --self-test-spacing-card-gap: var(--spacing-card-gap);
+}
+
+/* ------------------------------------------------------------------ */
+/* Data Surface (CAP-2) -- tabs, search, bulk-action, analytics,        */
+/* report-row, audit-log-row, data-table. Stateless CSS primitives that  */
+/* compose with the 1.3 modal/button/toast modules. No new JS module.    */
+/* ------------------------------------------------------------------ */
+
+/* --- Tabs ---------------------------------------------------------- */
+.tabs {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-1);
+  border-bottom: 1px solid var(--color-border-hairline);
+}
+
+.tab {
+  padding: var(--spacing-1) var(--spacing-3);
+  font: var(--font-body-sm);
+  color: var(--color-on-surface-variant);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+  text-decoration: none;
+}
+
+.tab:hover {
+  color: var(--color-on-surface);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tab[aria-selected="true"] {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.tabpanel {
+  padding-top: var(--spacing-4);
+}
+
+/* --- Search input -------------------------------------------------- */
+.search-input {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-full);
+  padding: 0 var(--spacing-2);
+  min-height: 44px;
+}
+
+.search-input input[type="search"] {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: var(--spacing-2);
+  outline: none;
+  appearance: none;
+}
+
+.search-input input[type="search"]::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-input input[type="search"]:focus-visible {
+  outline: none;
+}
+
+.search-input-clear {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  border: 0;
+  padding: var(--spacing-1) var(--spacing-2);
+  cursor: pointer;
+  appearance: none;
+}
+
+.search-input-clear:hover {
+  color: var(--color-on-surface);
+}
+
+.search-input-clear:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.search-input-clear[hidden] {
+  display: none;
+}
+
+/* --- Bulk-action bar ----------------------------------------------- */
+.bulk-action-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-2) var(--spacing-4);
+  box-shadow: var(--elevation-level-1);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.bulk-action-bar[hidden] {
+  display: none;
+}
+
+.bulk-action-bar-action {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-1) var(--spacing-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  cursor: pointer;
+  appearance: none;
+  font: var(--font-body-sm);
+}
+
+.bulk-action-bar-action:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* --- Analytics card ------------------------------------------------ */
+.analytics-card {
+  background: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border-hairline);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.analytics-card-value {
+  font-size: var(--font-display-lg-size);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.analytics-card-trend-up {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.analytics-card-trend-down {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.analytics-card-trend-flat {
+  color: var(--color-on-surface-variant);
+  font-weight: 600;
+}
+
+/* --- Report row ---------------------------------------------------- */
+.report-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-3);
+  align-items: center;
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border-bottom: 1px solid var(--color-border-hairline);
+  min-height: 44px;
+}
+
+.report-row-status {
+  flex-shrink: 0;
+  width: 110px;
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+}
+
+.report-row-actions {
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-1);
+  align-items: center;
+}
+
+.report-row-actions [aria-haspopup="menu"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* --- Audit-log row ------------------------------------------------- */
+.audit-log-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: var(--spacing-3);
+  padding: var(--spacing-2) var(--spacing-3);
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: var(--font-mono-code-size);
+  letter-spacing: 0.04em;
+}
+
+.audit-log-timestamp {
+  color: var(--color-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.audit-log-actor {
+  color: var(--color-on-surface);
+}
+
+.audit-log-action {
+  color: var(--color-on-surface-variant);
+}
+
+.audit-log-target {
+  color: var(--color-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Data table ---------------------------------------------------- */
+.data-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  min-width: 600px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--spacing-2) var(--spacing-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-hairline);
+  font: var(--font-body-sm);
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--color-surface-raised);
+  z-index: 1;
+}
+
+/* --- Reduced motion guard for the bulk-action bar ------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .bulk-action-bar { transition: none !important; }
+}
+
+/* --- Data surface self-test fixture ------------------------------- */
+[data-data-self-test] {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  /* Tokens consumed by the data-surface recipes that the existing
+     token-self-test block does not already expose. The vast majority
+     of tokens (colors, typography sizes, radii, spacing) are already
+     covered by --self-test-* references in [data-token-self-test]. */
+  --self-test-data-elevation-level-1: var(--elevation-level-1);
+  --self-test-data-font-body-sm: var(--font-body-sm);
+  --self-test-data-font-mono-code: var(--font-mono-code);
+  --self-test-data-font-caption: var(--font-caption);
+  --self-test-data-color-success: var(--color-success);
+  --self-test-data-color-error: var(--color-error);
+  --self-test-data-color-primary-container: var(--color-primary-container);
+  --self-test-data-color-on-primary-container: var(--color-on-primary-container);
+  --self-test-data-color-surface-container-high: var(--color-surface-container-high);
+  --self-test-data-color-outline-variant: var(--color-outline-variant);
+  --self-test-data-color-border-hairline: var(--color-border-hairline);
+  --self-test-data-color-surface-raised: var(--color-surface-raised);
+  --self-test-data-color-surface-container: var(--color-surface-container);
+  --self-test-data-color-on-surface-variant: var(--color-on-surface-variant);
+  --self-test-data-color-on-surface: var(--color-on-surface);
+  --self-test-data-color-primary: var(--color-primary);
+}
+
+/* ====================================================================== */
+/* Story 1.3: Shadow tokens (HALT — 1.3 still backlog, 1.4 forward-declares)  */
+/* 1.4 patch: --shadow-1 (baseline, 1dp) and --shadow-2 (hover, 4dp). The  */
+/* elevation tokens --elevation-level-* remain for the 1.3 modal/toast     */
+/* surface and continue to co-exist with --shadow-1/--shadow-2.            */
+/* ====================================================================== */
+:root {
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+/* Story 1.4: Brand-Specific Components                                */
+/* Five components: rank badge, ticket-code block, status badge,        */
+/* listing card, leaderboard row. Tier S carries the legend-glow         */
+/* animation (box-shadow only) — disabled under prefers-reduced-motion. */
+/* Reduced-motion guards exist for hover lift, corkboard rotation, and   */
+/* the legend-glow keyframes.                                            */
+/* ------------------------------------------------------------------ */
+
+/* ----- Rank badge ----- */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: 700;
+  line-height: var(--font-caption-line-height);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+  /* Badge never carries a numeric points total — tier name only. */
+}
+
+.rank-badge.rank-e {
+  background-color: var(--color-rank-e);
+  color: var(--color-on-primary);
+}
+.rank-badge.rank-d {
+  background-color: var(--color-rank-d);
+  color: var(--color-on-primary);
+}
+.rank-badge.rank-c {
+  background-color: var(--color-rank-c);
+  color: var(--color-on-primary);
+}
+.rank-badge.rank-b {
+  /* AA fix: dark text on gold. White-on-gold is 1.9:1, fails. */
+  background-color: var(--color-rank-b);
+  color: var(--color-on-secondary);
+}
+/* PR 1-1 §Build: rank-A badge exposes the foreground pair so a per-size
+   override can flip light -> dark when the consuming epic sets data-size="caption".
+   Cite DESIGN.md colors.rank-a-on-light/DARK (foreground pair) and §Components
+   rank-badge (size-aware caption fallback). */
+.rank-badge[data-tier="A"] {
+  background-color: var(--color-rank-a);
+  color: var(--color-rank-a-on-light);
+}
+.rank-badge[data-tier="A"][data-size="caption"] {
+  color: var(--color-rank-a-on-dark);
+}
+
+.rank-badge.rank-a {
+  background-color: var(--color-rank-a);
+  color: var(--color-on-primary);
+}
+.rank-badge.rank-s {
+  background-color: var(--color-rank-s);
+  color: var(--color-on-primary);
+  /* 2.4s ease-in-out infinite; box-shadow only. Use longhand so the
+     shorthand parser doesn't misread `legend-glow` as a timing function. */
+  animation-name: legend-glow;
+  animation-duration: 2.4s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes legend-glow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(198, 40, 40, 0.45), 0 0 12px rgba(229, 57, 53, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(198, 40, 40, 0.85), 0 0 28px rgba(229, 57, 53, 0.55);
+  }
+}
+
+/* Tier-S legend-glow is the single allowed motion on a rank badge. */
+@media (prefers-reduced-motion: reduce) {
+  .rank-badge.rank-s {
+    animation: none;
+  }
+}
+
+/* ----- Ticket-code block ----- */
+.ticket-code-block {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
+  border: 1px solid var(--color-code-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: var(--font-mono-code);
+  font-size: var(--font-mono-code-size);
+  font-weight: var(--font-mono-code-weight);
+  line-height: var(--font-mono-code-line-height);
+  letter-spacing: var(--font-mono-code-letter-spacing);
+  /* The code is always preceded by TK- and rendered in one unbroken line. */
+  white-space: nowrap;
+}
+
+.ticket-code-block-value {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  /* When masked, the value text is replaced visually by JS with bullet */
+  /* glyphs. Inner text remains in the DOM (tabindex=-1, aria-hidden) so  */
+  /* screen readers announce on demand only when revealed.                */
+  user-select: text;
+}
+
+.ticket-code-block-reveal {
+  /* Reveal/mask toggle — keyboard accessible, announces state. */
+  background-color: transparent;
+  color: var(--color-code-text);
+  border: 1px solid var(--color-code-border);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  letter-spacing: var(--font-caption-letter-spacing);
+  cursor: pointer;
+  min-height: 32px;
+  min-width: 64px;
+}
+
+.ticket-code-block-reveal:hover,
+.ticket-code-block-reveal:focus-visible {
+  background-color: var(--color-code-border);
+  color: var(--color-on-secondary);
+  outline: none;
+}
+
+.ticket-code-block-reveal[aria-pressed="true"] {
+  background-color: var(--color-code-border);
+  color: var(--color-on-secondary);
+}
+
+.ticket-code-block-copy {
+  /* Copy button — Copy → Copied (1.5s revert) */
+  background-color: var(--color-secondary);
+  color: var(--color-on-secondary);
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  letter-spacing: var(--font-caption-letter-spacing);
+  cursor: pointer;
+  min-height: 32px;
+  min-width: 72px;
+}
+
+.ticket-code-block-copy:hover,
+.ticket-code-block-copy:focus-visible {
+  background-color: var(--color-secondary-dark);
+  border-color: var(--color-secondary-dark);
+  color: var(--color-on-secondary);
+  outline: none;
+}
+
+.ticket-code-block-share {
+  /* WhatsApp share — pure <a target="_blank">, no JS. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-whatsapp);
+  color: var(--color-on-primary);
+  border: 1px solid var(--color-whatsapp);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-1) var(--spacing-3);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  letter-spacing: var(--font-caption-letter-spacing);
+  text-decoration: none;
+  min-height: 32px;
+  min-width: 72px;
+  cursor: pointer;
+}
+
+.ticket-code-block-share:hover,
+.ticket-code-block-share:focus-visible {
+  /* Slightly darker on hover; pure filter trick keeps token-only contract. */
+  filter: brightness(0.92);
+  outline: none;
+}
+
+@media (max-width: 575px) {
+  /* <576px: stack the three controls vertically beneath the code. */
+  .ticket-code-block {
+    flex-wrap: wrap;
+  }
+}
+
+/* ----- Status badge ----- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  white-space: nowrap;
+  /* Read-only — not interactive. No role, no cursor, no hover affordance. */
+  cursor: default;
+  user-select: none;
+}
+
+.status-badge-pending {
+  background-color: var(--color-status-pending-fill);
+  color: var(--color-status-pending-text);
+}
+.status-badge-active {
+  background-color: var(--color-status-active-fill);
+  color: var(--color-status-active-text);
+}
+.status-badge-rejected {
+  background-color: var(--color-status-rejected-fill);
+  color: var(--color-status-rejected-text);
+}
+.status-badge-redeemed {
+  background-color: var(--color-status-redeemed-fill);
+  color: var(--color-status-redeemed-text);
+}
+.status-badge-expired {
+  background-color: var(--color-status-expired-fill);
+  color: var(--color-status-expired-text);
+}
+.status-badge-sold {
+  background-color: var(--color-status-sold-fill);
+  color: var(--color-status-sold-text);
+}
+.status-badge-disputed {
+  background-color: var(--color-status-disputed-fill);
+  color: var(--color-status-disputed-text);
+}
+.status-badge-removed {
+  background-color: var(--color-status-removed-fill);
+  color: var(--color-status-removed-text);
+}
+
+/* ----- Listing card ----- */
+.listing-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  background-color: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-border-hairline);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  /* Baseline elevation (1dp). */
+  box-shadow: var(--shadow-1);
+  /* The card itself is the single tab stop — inner text is aria-hidden. */
+  text-decoration: none;
+}
+
+.listing-card-image {
+  /* 4:3 image aspect ratio. Corners follow container: top rounded, bottom square. */
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background-color: var(--color-surface-container);
+  object-fit: cover;
+  display: block;
+}
+
+.listing-card-title {
+  font-family: var(--font-title-sm);
+  font-size: var(--font-title-sm-size);
+  font-weight: var(--font-title-sm-weight);
+  line-height: var(--font-title-sm-line-height);
+  /* 3-line clamp. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listing-card-description {
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+  color: var(--color-on-surface-variant);
+  /* 2-line clamp. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listing-card-price {
+  font-family: var(--font-headline-md);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  /* Secondary accent on the price — amber. */
+  color: var(--color-secondary);
+}
+
+.listing-card-seller-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+}
+
+.listing-card:hover,
+.listing-card:focus-visible {
+  /* 4px translateY + 0 4px 12px shadow at 12% — hover elevation. */
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2);
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Reduced-motion: disable hover lift. The base shadow remains. */
+  .listing-card:hover,
+  .listing-card:focus-visible {
+    transform: none;
+    box-shadow: var(--shadow-1);
+  }
+}
+
+/* Corkboard rendering (≥768px). Deterministic ±2° rotation seeded by id,
+   pushpin graphic on ::before. Decorative — aria-hidden on the wrapper. */
+.listing-card[data-corkboard="true"] {
+  background-color: var(--color-surface-raised);
+  /* The data-cork-rotation attribute is set by the board render. Default 0
+     so the corkboard self-test fixture can read it directly. */
+  transform: rotate(0deg);
+}
+
+.listing-card[data-corkboard="true"][data-cork-rotation="-2"] {
+  transform: rotate(-2deg);
+}
+
+.listing-card[data-corkboard="true"][data-cork-rotation="2"] {
+  transform: rotate(2deg);
+}
+
+.listing-card[data-corkboard="true"]::before {
+  /* Pushpin graphic — purely decorative. The SVG is a small red/blue dot.
+     Decorative parent carries aria-hidden, so the pseudo-element is also
+     outside the accessible tree by CSS rule. */
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-pin-red);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.listing-card[data-corkboard="true"][data-cork-pin="blue"]::before {
+  background-color: var(--color-pin-blue);
+}
+
+@media (min-width: 768px) {
+  /* ≥768px: corkboard context is active (1.5 — board view). */
+  .listing-card[data-corkboard="true"] {
+    transform: rotate(var(--cork-rotation, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Reduced-motion: rotation 0; pushpin hidden. */
+  .listing-card[data-corkboard="true"] {
+    transform: none;
+  }
+  .listing-card[data-corkboard="true"]::before {
+    display: none;
+  }
+}
+
+/* ----- Leaderboard row ----- */
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  background-color: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border-bottom: 1px solid var(--color-border-hairline-dark);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-3);
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+  /* No hover elevation. */
+}
+
+.leaderboard-row-name {
+  flex: 1 1 auto;
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  line-height: var(--font-body-md-line-height);
+  color: var(--color-on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-row-points {
+  flex: 0 0 auto;
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: 600;
+  /* Rank number in secondary — amber. */
+  color: var(--color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Brand self-test fixture ----- */
+/* Hidden fixture consumed by the per-slice verify script to assert that   */
+/* the new --shadow-1 / --shadow-2 tokens resolve. One element with the
+  selector is enough; the script reads its computed custom-property values
+  via the served HTML. */
+[data-brand-self-test] {
+  --self-test-shadow-1: var(--shadow-1);
+  --self-test-shadow-2: var(--shadow-2);
+  --self-test-elevation-level-1: var(--elevation-level-1);
+  --self-test-elevation-level-2: var(--elevation-level-2);
+  display: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* State (CAP-7) -- empty / error / sold-out / sold / already-redeemed  */
+/* recipes for every surface Epic 1 owns or its tokens reach. Uses      */
+/* only existing tokens; no raw hex. Reduced-motion-safe by design:    */
+/* no transforms, no opacity transitions, no animation. ARIA roles     */
+/* (status / alert) and aria-live live on the same element as the      */
+/* class so screen readers announce the copy.                          */
+/* ------------------------------------------------------------------ */
+.state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-section-gap);
+  color: var(--color-on-surface);
+  min-height: 240px;
+  text-align: center;
+  gap: var(--spacing-3);
+}
+.state-empty__copy {
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  text-align: center;
+  max-width: 480px;
+  margin: 0;
+  color: var(--color-on-surface);
+}
+.state-empty__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  text-decoration: none;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 0;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-section-gap);
+  color: var(--color-error);
+  min-height: 240px;
+  text-align: center;
+  gap: var(--spacing-3);
+  border-left: 3px solid var(--color-error);
+}
+.state-error__copy {
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  text-align: center;
+  max-width: 480px;
+  margin: 0;
+  color: var(--color-error);
+}
+.state-error__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 0;
+  font-family: inherit;
+}
+
+.state-action {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Inline error states (redemption code field). The copy is body-sm so it
+   reads naturally under the input; the color carries the error. */
+.state-redeem-fail {
+  display: inline-block;
+  color: var(--color-error);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  padding: var(--spacing-2) 0;
+}
+.state-redeem-rate-limit {
+  display: inline-block;
+  color: var(--color-error);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  padding: var(--spacing-2) 0;
+}
+
+/* Input wrapper contract: the JS sets data-locked="true" on the input
+   when rate-limited; the CSS swap makes the affordance visible. */
+.state-redeem-rate-limit-input,
+input[data-locked="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Neutral info style for the idempotent already-redeemed message. */
+.state-already-redeemed {
+  display: inline-block;
+  color: var(--color-on-surface-variant);
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  padding: var(--spacing-2) 0;
+}
+
+/* Self-owned note: small hint above the seller row. */
+.state-self-owned-note {
+  font-size: var(--font-body-sm-size);
+  line-height: var(--font-body-sm-line-height);
+  color: var(--color-on-surface-variant);
+  padding-bottom: var(--spacing-2);
+  margin: 0;
+}
+
+/* Sold-out: replaces the Buy Now area on the listing modal. */
+.state-sold-out {
+  font-weight: var(--font-headline-md-weight);
+  color: var(--color-on-surface-variant);
+  text-align: center;
+  padding: var(--spacing-3);
+  margin: 0;
+}
+
+/* Inline action link: Clear filter / Clear search. */
+.state-action-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: var(--spacing-1) var(--spacing-2);
+  font-family: inherit;
+  font-size: var(--font-body-md-size);
+  line-height: var(--font-body-md-line-height);
+}
+.state-action-link:hover,
+.state-action-link:focus-visible {
+  color: var(--color-primary-dark);
+}
+
+/* Refresh icon button: square 44x44 min for tap target. */
+.state-action-retry {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+}
+.state-action-retry:hover,
+.state-action-retry:focus-visible {
+  background: var(--color-surface-container);
+}
+.state-action-retry svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Status-badge inline fallback (the documented data-status contract lives
+   in token-reference.md and is owned by the brand-specific components
+   story; if a host page has not yet loaded that class we ship a minimal
+   pill so the sold-out pill still renders legibly). */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  background: var(--color-status-sold-fill);
+  color: var(--color-status-sold-text);
+}
+.status-badge[data-status="sold"] {
+  background: var(--color-status-sold-fill);
+  color: var(--color-status-sold-text);
+}
+
+/* Reduced-motion is a non-issue (no transforms / animations declared
+   above); the existing legend-glow rule still applies. */
+
+
+/* ------------------------------------------------------------------ */
+/* Toast (Story 1.6) -- bottom-right on desktop, top on mobile.       */
+/* Recipe sources:                                                   */
+/*   - DESIGN.md `toast-success|error|warning|info` component tokens */
+/*   - Epic-1 context UX Patterns section                             */
+/*   - Spec 1.6 `Always` constraints: role/aria, max 3, 4s, pause.    */
+/* Tokens used:                                                       */
+/*   - --color-success / --color-error / --color-warning / --color-info */
+/*   - --color-on-primary (AA-safe foreground on each toast fill)    */
+/*   - --radius-md (toast corner)                                     */
+/*   - --spacing-3 / --spacing-4 (padding)                            */
+/*   - --elevation-level-2 (container elevation, shadow-1 analog)    */
+/*   - --motion-fast / --motion-default (transition timings)          */
+/* No raw hex; the only literal color in this block is `transparent`  */
+/* which is a CSS keyword and not a hex literal.                     */
+/* ------------------------------------------------------------------ */
+[data-toast-container],
+.toast-container {
+  position: fixed;
+  z-index: 1080;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  /* Bottom-right on desktop (>=768px). Mobile override below. */
+  right: var(--spacing-4);
+  bottom: var(--spacing-4);
+  left: auto;
+  top: auto;
+  max-width: min(420px, calc(100vw - var(--spacing-4) * 2));
+  pointer-events: none;
+}
+
+[data-toast-container] > .toast,
+.toast-container > .toast {
+  pointer-events: auto;
+}
+
+/* The live region itself: aria-live + aria-atomic="false" per spec. */
+.toast-container[aria-live="polite"],
+.toast-container[aria-live="assertive"] {
+  /* No visual styling needed; the visible toasts are the children. */
+}
+
+/* Mobile (<768px) -- top of viewport, full width. */
+@media (max-width: 767px) {
+  [data-toast-container],
+  .toast-container {
+    right: var(--spacing-3);
+    left: var(--spacing-3);
+    bottom: auto;
+    top: var(--spacing-3);
+    max-width: none;
+  }
+}
+
+/* Toast card itself. */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  box-shadow: var(--elevation-level-2);
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  line-height: var(--font-body-md-line-height);
+  border: 1px solid var(--color-border-hairline);
+  min-height: 44px;
+  /* Reduced motion: no transform. Slide-in is the only transform. */
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity var(--motion-default), transform var(--motion-default);
+}
+
+.toast[data-entering="true"] {
+  transform: translateY(8px);
+  opacity: 0;
+}
+
+.toast[data-leaving="true"] {
+  transform: translateY(0);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-entering="true"],
+  .toast[data-leaving="true"] {
+    transform: none;
+    transition: opacity var(--motion-fast);
+  }
+}
+
+/* Semantic variants -- per-component tokens from DESIGN.md. */
+.toast-success { background-color: var(--color-success); color: var(--color-on-primary); border-color: transparent; }
+.toast-error   { background-color: var(--color-error);   color: var(--color-on-primary); border-color: transparent; }
+.toast-warning { background-color: var(--color-warning); color: var(--color-on-primary); border-color: transparent; }
+.toast-info    { background-color: var(--color-info);    color: var(--color-on-primary); border-color: transparent; }
+
+/* Title (optional) -- caption typography over the body. */
+.toast-title {
+  display: block;
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: 600;
+  letter-spacing: var(--font-caption-letter-spacing, 0.02em);
+  margin-bottom: var(--spacing-1);
+}
+
+/* Message body. */
+.toast-message {
+  display: block;
+  flex: 1 1 auto;
+  word-break: break-word;
+}
+
+/* Action buttons (optional). */
+.toast-actions {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-2);
+}
+.toast-action {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  min-height: 32px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.toast-action:hover,
+.toast-action:focus-visible {
+  background-color: rgba(0, 0, 0, 0.08); /* tonal hover; not a hex. */
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Manual dismiss button (required for error/warning). */
+.toast-dismiss {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-caption-size);
+  line-height: 1;
+  padding: var(--spacing-1);
+  border-radius: var(--radius-sm);
+  min-width: 32px;
+  min-height: 32px;
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+.toast-dismiss:hover,
+.toast-dismiss:focus-visible {
+  background-color: rgba(0, 0, 0, 0.08);
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.toast-dismiss::after {
+  content: "\00D7"; /* multiplication sign; visually a close X, not emoji */
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Identity Badges (Story 1.6) -- verified / velocity / on-break /   */
+/* avatar picker. Read-only pills at caption typography.              */
+/* Tokens used:                                                       */
+/*   - verified: --color-primary-container fill, --color-on-primary-container text */
+/*   - velocity-flag: --color-velocity-flag-fill, --color-velocity-flag-text */
+/*   - on-break-pill: --color-surface-container-high fill, --color-on-surface-variant text */
+/*   - avatar picker: --color-surface-raised fill, --color-primary ring */
+/*   - --radius-full for pills, --radius-md for velocity-flag, --radius-sm for action */
+/* ------------------------------------------------------------------ */
+.verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing, 0.02em);
+  border: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.verified-badge[role="button"],
+.verified-badge[data-interactive="true"] {
+  cursor: default; /* never clickable per spec */
+}
+.verified-badge .verified-badge-icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+
+.velocity-flag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-velocity-flag-fill);
+  color: var(--color-velocity-flag-text);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing, 0.02em);
+  border: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.velocity-flag-badge:hover,
+.velocity-flag-badge:focus-visible {
+  outline: 2px solid var(--color-velocity-flag-text);
+  outline-offset: 2px;
+}
+.velocity-flag-badge .velocity-flag-icon {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+}
+
+.on-break-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-3);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing, 0.02em);
+  border: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Avatar picker (Story 1.6) -- Web Component <avatar-picker>.       */
+/* Recipe:                                                           */
+/*   - 2x2 grid of preset thumbs + 1 file input + 1 preview slot.   */
+/*   - Selected avatar carries a 2px primary ring.                    */
+/*   - 4 built-in presets per spec (greenery, sunset, ocean, mono).  */
+/* Tokens used:                                                       */
+/*   - --color-surface-raised fill, --color-primary ring              */
+/*   - --radius-full circular thumbs                                  */
+/*   - --spacing-2 / --spacing-3 spacing                              */
+/*   - --font-caption typography for label                           */
+/* ------------------------------------------------------------------ */
+.avatar-picker {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-sm-size);
+  color: var(--color-on-surface);
+}
+.avatar-picker-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-raised);
+  border: 2px solid var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.avatar-picker-preview img,
+.avatar-picker-preview svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.avatar-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 56px);
+  gap: var(--spacing-2);
+}
+@media (max-width: 575px) {
+  .avatar-picker-grid {
+    grid-template-columns: repeat(4, 48px);
+  }
+}
+.avatar-picker-preset,
+.avatar-picker-file-label {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-hairline);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+}
+.avatar-picker-preset:hover,
+.avatar-picker-preset:focus-visible,
+.avatar-picker-file-label:hover,
+.avatar-picker-file-label:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.avatar-picker-preset[data-selected="true"] {
+  border: 2px solid var(--color-primary);
+}
+.avatar-picker-preset svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.avatar-picker-file-label input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.avatar-picker-file-label::after {
+  content: "+";
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--color-on-surface-variant);
+  pointer-events: none;
+}
+.avatar-picker-status {
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  color: var(--color-on-surface-variant);
+}
+
+/* ------------------------------------------------------------------ */
+/* Identity self-test fixture -- hidden, consumed by the verify       */
+/* script to assert that the identity badges' key tokens resolve.    */
+/* Mirrors the [data-token-self-test] pattern from story 1.1.         */
+/* ------------------------------------------------------------------ */
+[data-identity-self-test] {
+  --self-test-verified-fill: var(--color-primary-container);
+  --self-test-verified-text: var(--color-on-primary-container);
+  --self-test-velocity-fill: var(--color-velocity-flag-fill);
+  --self-test-velocity-text: var(--color-velocity-flag-text);
+  --self-test-on-break-fill: var(--color-surface-container-high);
+  --self-test-on-break-text: var(--color-on-surface-variant);
+  --self-test-avatar-ring: var(--color-primary);
+  --self-test-toast-success: var(--color-success);
+  --self-test-toast-error: var(--color-error);
+  --self-test-toast-warning: var(--color-warning);
+  --self-test-toast-info: var(--color-info);
+  --self-test-toast-foreground: var(--color-on-primary);
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Profile Surfaces (Story 1.8)                                        */
+/* ------------------------------------------------------------------ */
+/* Tier progress bar, KPI counter, tier-privilege-tooltip, and star     */
+/* rating input + display. Recipes use ONLY existing tokens from 1.1.  */
+/* The tier ladder thresholds live in config/ranks.php (Epic 6 owns     */
+/* the authoritative constants). 1.8 reads them from the DOM data       */
+/* attributes (data-points, data-tier, etc.) — the JS layer converts   */
+/* the raw points total into a tier for visual rendering.               */
+
+/* --- Tier progress bar --- */
+/* Horizontal bar on the Profile page. Track uses surface-container    */
+/* fill; fill uses the current tier color (defaults to primary so the  */
+/* component reads even before JS resolves the tier). 8px tall, full   */
+/* pill radius. The role="progressbar" semantics + aria-value* are set */
+/* by the JS layer based on data-points / data-tier. */
+.tier-progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: var(--color-surface-container);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  /* Aria-progressbar with values written by the JS layer; we set the
+     CSS to inherit the user agent default for role=progressbar. */
+  position: relative;
+}
+.tier-progress-track {
+  /* The track is the .tier-progress itself (no inner element needed);
+     this class is provided so the same recipe can host a separate
+     inner element if a future surface needs one. */
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+.tier-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  /* Default to primary; JS overrides the fill background by setting
+     data-tier on the bar (the tier-color rule below picks the right
+     --color-rank-* token). */
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  /* No transition: the value updates in place when data refreshes
+     (no animation, per the SPEC and the rank-badge precedent). */
+}
+/* Tier-color overrides. The JS layer sets data-tier on the bar; CSS
+   binds the fill to the right rank token. The mapping is per the rank
+   ladder declared in DESIGN.md (E Recruit gray through S Legend red). */
+.tier-progress[data-tier="e"]  .tier-progress-fill { background: var(--color-rank-e); }
+.tier-progress[data-tier="d"]  .tier-progress-fill { background: var(--color-rank-d); }
+.tier-progress[data-tier="c"]  .tier-progress-fill { background: var(--color-rank-c); }
+.tier-progress[data-tier="b"]  .tier-progress-fill { background: var(--color-rank-b); }
+.tier-progress[data-tier="a"]  .tier-progress-fill { background: var(--color-rank-a); }
+.tier-progress[data-tier="s"]  .tier-progress-fill { background: var(--color-rank-s); }
+
+/* Caption row below the bar shows the next tier name + threshold. */
+.tier-progress-caption {
+  display: block;
+  margin-top: var(--spacing-1);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  color: var(--color-on-surface-variant);
+}
+
+/* --- KPI counter --- */
+/* A single large number rendered in display-lg (32px/700) with primary */
+/* text. Caption subtitle in on-surface-variant. The tile is a group     */
+/* landmark with role="group" + aria-label set by the developer.        */
+.kpi-counter {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-1);
+  /* No padding/background by default — the tile is text-only, and the
+     parent surface provides the card chrome. */
+  min-width: 0; /* allow flex children to shrink in a row */
+}
+.kpi-counter-value {
+  font-family: var(--font-display-lg);
+  font-size: var(--font-display-lg-size);
+  font-weight: var(--font-display-lg-weight);
+  line-height: var(--font-display-lg-line-height);
+  letter-spacing: var(--font-display-lg-letter-spacing);
+  color: var(--color-primary);
+  /* No animation on value change. The number updates in place. */
+  font-variant-numeric: tabular-nums; /* stable width for 2 -> 12 transitions */
+}
+.kpi-counter-label {
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  color: var(--color-on-surface-variant);
+}
+
+/* --- Tier privilege tooltip --- */
+/* A focusable <button> trigger that opens a popover on hover or focus. */
+/* The popover is NOT a modal (no overlay, no focus trap); ESC closes   */
+/* it and returns focus to the trigger. Popover uses surface-raised     */
+/* fill, outline-variant border, radius-md, spacing-3 padding, and     */
+/* max-width 280px (per DESIGN.md tier-privilege-tooltip block).        */
+.tier-privilege-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: transparent;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  color: var(--color-on-surface);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  cursor: pointer;
+  /* Tap target >= 44px (iOS) / 48dp (Android) -- a button with 1/2
+     padding + 12px text plus 1px borders is below the iOS floor, so
+     we enforce a minimum height. */
+  min-height: 44px;
+}
+.tier-privilege-trigger:hover,
+.tier-privilege-trigger:focus-visible {
+  background: var(--color-surface-container);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tier-privilege-popover {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  max-width: 280px;
+  padding: var(--spacing-3);
+  background: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  /* Shadow is a token-derived mix (12% black over transparent). We use
+     color-mix() so the recipe references only existing tokens; modern
+     browsers (2022+) all support color-mix(in srgb, ...). */
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--color-shadow-color) 12%, transparent),
+              0 2px 4px color-mix(in srgb, var(--color-shadow-color) 8%, transparent);
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+}
+.tier-privilege-popover[data-open="true"] {
+  display: block;
+  /* Slide/fade animation; the JS layer reads prefers-reduced-motion
+     before applying any transform, and the keyframes are suppressed
+     under reduced-motion in the @media block below. */
+  animation: tier-privilege-popover-in 160ms ease;
+}
+.tier-privilege-popover-title {
+  display: block;
+  font-family: var(--font-title-sm);
+  font-size: var(--font-title-sm-size);
+  font-weight: var(--font-title-sm-weight);
+  line-height: var(--font-title-sm-line-height);
+  color: var(--color-on-surface);
+  margin-bottom: var(--spacing-2);
+}
+.tier-privilege-popover-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+.tier-privilege-popover-list li {
+  color: var(--color-on-surface-variant);
+}
+
+@keyframes tier-privilege-popover-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Star rating input + display --- */
+/* A fieldset of 5 named radio inputs (1-5). The radios are visually   */
+/* hidden but remain in the tab order; the visible label is a 24px      */
+/* star icon. Filled stars use secondary, empty use outline-variant.    */
+/* 48dp touch targets per the accessibility floor.                      */
+.star-rating-input {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  /* The fieldset resets browser default margin/padding/border. */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-height: 48px;
+}
+.star-rating-input-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+.star-rating-input-star {
+  /* Each star is a 48x48dp button so it satisfies the Android tap
+     target floor. The visible glyph is a 24px star icon centered. */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-outline-variant); /* unfilled state */
+  font: inherit;
+  /* No emoji -- the visible glyph is an inline SVG. */
+}
+.star-rating-input-star svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  fill: currentColor;
+}
+.star-rating-input-star[aria-checked="true"],
+.star-rating-input-star[data-filled="true"] {
+  color: var(--color-secondary); /* filled state */
+}
+.star-rating-input-star:hover,
+.star-rating-input-star:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.star-rating-input-star[disabled] {
+  cursor: not-allowed;
+  color: var(--color-on-surface-variant);
+  opacity: 0.6;
+}
+.star-rating-input-clear {
+  margin-left: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  background: transparent;
+  border: 0;
+  color: var(--color-primary);
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  min-height: 44px;
+}
+.star-rating-input-clear:hover,
+.star-rating-input-clear:focus-visible {
+  text-decoration: underline;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.star-rating-input-clear[hidden] {
+  display: none;
+}
+
+/* Read-only display: 5 star icons with a CSS overlay that paints the   */
+/* left N% in secondary, the remainder in outline-variant. Used for     */
+/* the average rating on a profile / review breakdown.                   */
+.star-rating-display {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  position: relative;
+  font-size: 0; /* collapse whitespace between inline elements */
+}
+.star-rating-display-stars {
+  position: relative;
+  display: inline-block;
+  font-size: 0; /* ditto */
+  color: var(--color-outline-variant);
+}
+.star-rating-display-stars svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+  fill: currentColor;
+}
+.star-rating-display-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  overflow: hidden;
+  color: var(--color-secondary);
+  white-space: nowrap;
+}
+.star-rating-display-fill svg {
+  display: inline-block;
+  vertical-align: top;
+}
+.star-rating-display-sr {
+  /* Screen-reader-only label carries the precise rating so the
+     visual fill % does not have to be read out. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* --- Reduced motion: no transform on the popover, no transition on    */
+/* the progress fill or KPI value (SPEC TIER_PROGRESS_KEYBOARD, TIER_    */
+/* PRIVILEGE_REDUCED_MOTION).                                            */
+@media (prefers-reduced-motion: reduce) {
+  .tier-privilege-popover[data-open="true"] {
+    animation: none;
+  }
+  .tier-progress-fill,
+  .kpi-counter-value {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile Surfaces self-test fixture -- hidden, never rendered,        */
+/* consumed by the per-slice verify script to assert every documented  */
+/* profile-surface token resolves. Mirrors the 1.1 self-test pattern.   */
+/* ------------------------------------------------------------------ */
+[data-profile-self-test] {
+  --self-test-tier-progress-bg: var(--color-surface-container);
+  --self-test-tier-progress-radius: var(--radius-full);
+  --self-test-tier-progress-fill-default: var(--color-primary);
+  --self-test-tier-progress-fill-e: var(--color-rank-e);
+  --self-test-tier-progress-fill-d: var(--color-rank-d);
+  --self-test-tier-progress-fill-c: var(--color-rank-c);
+  --self-test-tier-progress-fill-b: var(--color-rank-b);
+  --self-test-tier-progress-fill-a: var(--color-rank-a);
+  --self-test-tier-progress-fill-s: var(--color-rank-s);
+  --self-test-kpi-counter-foreground: var(--color-primary);
+  --self-test-kpi-counter-font-family: var(--font-display-lg);
+  --self-test-kpi-counter-font-size: var(--font-display-lg-size);
+  --self-test-kpi-counter-label-color: var(--color-on-surface-variant);
+  --self-test-privilege-popover-bg: var(--color-surface-raised);
+  --self-test-privilege-popover-border: var(--color-outline-variant);
+  --self-test-privilege-popover-radius: var(--radius-md);
+  --self-test-privilege-popover-padding: var(--spacing-3);
+  --self-test-privilege-popover-foreground: var(--color-on-surface);
+  --self-test-star-rating-filled: var(--color-secondary);
+  --self-test-star-rating-empty: var(--color-outline-variant);
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Board (1.5) -- Corkboard metaphor + list-view toggle.                */
+/*                                                                       */
+/* Decorations only: cork texture, pushpin graphics, ±2° rotation.      */
+/* Ranking is never conveyed by rotation. The list-view toggle, the      */
+/* <768px auto-degrade, and prefers-reduced-motion all collapse the      */
+/* cork to a plain grid with identical listing order.                    */
+/*                                                                       */
+/* All recipes reference existing 1.1 tokens. No raw hex outside the     */
+/* allowlist (tickettrade.css itself is allowlisted by check_no_raw_hex). */
+/* ------------------------------------------------------------------ */
+
+/* Corkboard surface. Tileable cork SVG; the SVG asset is the visual     */
+/* texture; the token colors fine-tune tint.                             */
+.corkboard {
+  background-color: var(--color-cork-base);
+  background-image: url("/assets/img/cork.svg");
+  background-repeat: repeat;
+  background-size: 192px 192px;
+  box-shadow: inset 0 0 0 1px var(--color-cork-grain);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--spacing-card-gap);
+  position: relative;
+}
+
+/* Corkboard header row: holds the title (left) and the list-view        */
+/* toggle (right). Auto-degrades to no-toggle on <768px (see media       */
+/* query below).                                                          */
+.corkboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.corkboard-header-title {
+  font-family: var(--font-headline-md);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+/* List-view toggle (two-state). Uses the existing surface-container +   */
+/* on-surface-variant tokens from 1.1; pressed state uses --color-primary */
+/* foreground. Below the md breakpoint the toggle is hidden.             */
+.corkboard-list-view-toggle {
+  display: inline-flex;
+  align-items: stretch;
+  background-color: var(--color-surface-container);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.corkboard-list-view-toggle button {
+  appearance: none;
+  background-color: transparent;
+  border: 0;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+  padding: var(--spacing-2) var(--spacing-3);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.corkboard-list-view-toggle button[aria-pressed="true"] {
+  color: var(--color-primary);
+  background-color: var(--color-primary-container);
+}
+
+.corkboard-list-view-toggle button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Cork card. Paper surface on the cork. The decorative rotation is set */
+/* inline by corkboard.js#applyRotations via the transform property on   */
+/* elements that match .corkboard-card[data-listing-id].                  */
+/* Ranking is never conveyed by rotation -- the corkboard renders cards  */
+/* in DOM order, identical to the plain grid.                            */
+.corkboard-card {
+  background-color: #FFF8E7; /* paper surface; cork is decorative only */
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  transition: transform var(--motion-default), box-shadow var(--motion-default);
+  will-change: transform;
+}
+
+/* Cards that carry a data-listing-id get the seeded rotation applied   */
+/* inline by corkboard.js#applyRotations (transform: rotate(±2deg)).    */
+/* The selector exists as a stable hook for the JS module to address    */
+/* cards without depending on inline classes.                            */
+.corkboard-card[data-listing-id] {
+  /* transform is set inline by applyRotations; baseline identity so a  */
+  /* non-rotated card still participates in the grid layout.             */
+  transform: rotate(0deg);
+}
+
+.corkboard-card:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.corkboard-card-title {
+  font-family: var(--font-title-sm);
+  font-size: var(--font-title-sm-size);
+  font-weight: var(--font-title-sm-weight);
+  line-height: var(--font-title-sm-line-height);
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.corkboard-card-price {
+  font-family: var(--font-headline-md);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+.corkboard-card-meta {
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}
+
+/* Pushpin graphic. Layered as a child of the card (or as ::before on   */
+/* the card). Decorative only (the ::before pseudo-element is not       */
+/* exposed to assistive tech by definition; aria-hidden lives on the    */
+/* .corkboard-pin node when used as a real element). Red/blue alternation */
+/* is a presentational concern of the rendering surface; corkboard.js    */
+/* applies [data-pin="red"] or [data-pin="blue"] based on the id.        */
+.corkboard-pin {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-pin-red);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+}
+
+.corkboard-pin[data-pin="blue"] {
+  background-color: var(--color-pin-blue);
+}
+
+/* ::before variant keeps the existing visual when the .corkboard-pin   */
+/* element is absent (e.g., a generated DOM). Same decorative semantics. */
+.corkboard-card::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-pin-red);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.20);
+}
+
+.corkboard-card[data-pin="blue"]::before {
+  background-color: var(--color-pin-blue);
+}
+
+/* List view: collapses the cork decoration to a plain grid. Triggered  */
+/* by the toggle when [aria-pressed="true"]. DOM order is preserved.    */
+.corkboard-list-view .corkboard-card,
+.corkboard-list-view .corkboard-card[data-listing-id] {
+  transform: none;
+  box-shadow: none;
+  border-radius: var(--radius-md);
+}
+
+.corkboard-list-view .corkboard-card::before,
+.corkboard-list-view .corkboard-pin {
+  display: none;
+}
+
+/* Empty / error states. Centered; reduced-motion safe. role="status" on */
+/* empty; role="alert" on error. The cork surface stays visible behind   */
+/* the state copy because cork is the surface, not the data.             */
+.board-state-empty,
+.board-state-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-6) var(--spacing-5);
+  text-align: center;
+  background-color: transparent;
+  border-radius: var(--radius-md);
+}
+
+.board-state-empty p,
+.board-state-error p {
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  line-height: var(--font-body-md-line-height);
+  color: var(--color-on-surface);
+  margin: 0;
+  max-width: 32rem;
+}
+
+.board-state-empty a,
+.board-state-error a,
+.board-state-empty button,
+.board-state-error button {
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+  color: var(--color-primary);
+  background-color: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-2) var(--spacing-4);
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.board-state-empty a:hover,
+.board-state-empty button:hover,
+.board-state-error a:hover,
+.board-state-error button:hover {
+  background-color: var(--color-primary-container);
+}
+
+.board-state-empty a:focus-visible,
+.board-state-empty button:focus-visible,
+.board-state-error a:focus-visible,
+.board-state-error button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Refresh icon button is a small inline SVG; sized to match caption.    */
+.board-state-error .board-state-refresh {
+  width: 18px;
+  height: 18px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Board: <768px auto-degrade. Identical listing order; no rotation;    */
+/* no pushpin; the toggle is hidden.                                    */
+/* ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .corkboard {
+    padding: var(--spacing-4);
+  }
+  .corkboard-card,
+  .corkboard-card[data-listing-id] {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  .corkboard-card::before,
+  .corkboard-pin {
+    display: none;
+  }
+  .corkboard-list-view-toggle {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Board: prefers-reduced-motion. Same as <768px: no rotation, no       */
+/* pushpin, no transition.                                              */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .corkboard-card,
+  .corkboard-card[data-listing-id] {
+    transform: none;
+    transition: none;
+  }
+  .corkboard-card::before,
+  .corkboard-pin {
+    display: none;
+  }
+  .corkboard-list-view .corkboard-card,
+  .corkboard-list-view .corkboard-card[data-listing-id] {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Board self-test fixture. Hidden. Asserted by the per-slice verify    */
+/* script that every documented token resolves.                        */
+/* ------------------------------------------------------------------ */
+[data-board-self-test] {
+  --self-test-cork-base: var(--color-cork-base);
+  --self-test-cork-grain: var(--color-cork-grain);
+  --self-test-pin-red: var(--color-pin-red);
+  --self-test-pin-blue: var(--color-pin-blue);
+  --self-test-surface-raised: var(--color-surface-raised);
+  --self-test-surface-container: var(--color-surface-container);
+  --self-test-outline-variant: var(--color-outline-variant);
+  --self-test-primary: var(--color-primary);
+  --self-test-primary-container: var(--color-primary-container);
+  --self-test-on-surface: var(--color-on-surface);
+  --self-test-on-surface-variant: var(--color-on-surface-variant);
+  --self-test-secondary: var(--color-secondary);
+  --self-test-radius-sm: var(--radius-sm);
+  --self-test-radius-md: var(--radius-md);
+  --self-test-radius-lg: var(--radius-lg);
+  --self-test-spacing-card-gap: var(--spacing-card-gap);
+  --self-test-spacing-2: var(--spacing-2);
+  --self-test-spacing-3: var(--spacing-3);
+  --self-test-spacing-4: var(--spacing-4);
+  --self-test-spacing-5: var(--spacing-5);
+  --self-test-spacing-6: var(--spacing-6);
+  --self-test-motion-default: var(--motion-default);
+  --self-test-font-headline-md-size: var(--font-headline-md-size);
+  --self-test-font-title-sm-size: var(--font-title-sm-size);
+  --self-test-font-body-md-size: var(--font-body-md-size);
+  --self-test-font-body-sm-size: var(--font-body-sm-size);
+  --self-test-font-caption-size: var(--font-caption-size);
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Form Modals (1.9) -- dispute, report, purchase confirmation, admin  */
+/* re-auth dialog. Reuses the 1.3 modal-scrim + modal-dialog chrome    */
+/* via a layered .form-modal-* prefix that composes without overriding */
+/* base behaviors.                                                     */
+/*                                                                       */
+/* Token discipline: every visual value resolves through var(--token).    */
+/* No raw hex outside the allowlist (this file IS the allowlist per 1.1). */
+/* Modal scrim token is declared locally as --form-modal-scrim; bound    */
+/* to the existing --shadow-color (1.1) at 0.5 opacity for AA contrast.  */
+/* ------------------------------------------------------------------ */
+:root {
+  --form-modal-scrim: rgba(0, 0, 0, 0.5);
+  --form-modal-field-gap: var(--spacing-3);
+  --form-modal-actions-gap: var(--spacing-3);
+  --form-modal-padding: var(--spacing-5);
+  --form-modal-max-width: 600px;
+  --form-modal-radius: var(--radius-lg);
+  --form-modal-danger-border: var(--color-error);
+  --form-modal-danger-border-width: 2px;
+}
+
+/* Modal scrim layer (shared chrome from 1.3; this is the form-modal hook). */
+.form-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background-color: var(--form-modal-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-4);
+}
+
+/* Dialog surface. Extends the 1.3 .modal-dialog chrome with form-specific */
+/* padding + max-width; never overrides its base shadow.                  */
+.form-modal-dialog {
+  background-color: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border-radius: var(--form-modal-radius);
+  box-shadow: var(--shadow-2);
+  padding: var(--form-modal-padding);
+  max-width: var(--form-modal-max-width);
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* Title row. Title inherits 1.3 .modal-dialog title spacing. */
+.form-modal-title {
+  font-family: var(--font-headline-md);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+/* Subtitle / description text under the title. */
+.form-modal-description {
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  line-height: var(--font-body-md-line-height);
+  color: var(--color-on-surface-varian
+
+/* ------------------------------------------------------------------ */
+/* Form Modals (1.9) -- dispute, report, purchase confirmation, admin  */
+/* re-auth dialog. Reuses the 1.3 modal-scrim + modal-dialog chrome    */
+/* via a layered .form-modal-* prefix that composes without overriding */
+/* base behaviors.                                                     */
+/*                                                                       */
+/* Token discipline: every visual value resolves through var(--token).    */
+/* No raw hex outside the allowlist (this file IS the allowlist per 1.1). */
+/* Modal scrim token is declared locally as --form-modal-scrim; bound    */
+/* to the existing --shadow-color (1.1) at 0.5 opacity for AA contrast.  */
+/* ------------------------------------------------------------------ */
+:root {
+  --form-modal-scrim: rgba(0, 0, 0, 0.5);
+  --form-modal-field-gap: var(--spacing-3);
+  --form-modal-actions-gap: var(--spacing-3);
+  --form-modal-padding: var(--spacing-5);
+  --form-modal-max-width: 600px;
+  --form-modal-radius: var(--radius-lg);
+  --form-modal-danger-border: var(--color-error);
+  --form-modal-danger-border-width: 2px;
+}
+
+/* Modal scrim layer (shared chrome from 1.3; this is the form-modal hook). */
+.form-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background-color: var(--form-modal-scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-4);
+}
+
+/* Dialog surface. Extends the 1.3 .modal-dialog chrome with form-specific */
+/* padding + max-width; never overrides its base shadow.                  */
+.form-modal-dialog {
+  background-color: var(--color-surface-raised);
+  color: var(--color-on-surface);
+  border-radius: var(--form-modal-radius);
+  box-shadow: var(--shadow-2);
+  padding: var(--form-modal-padding);
+  max-width: var(--form-modal-max-width);
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* Title row. Title inherits 1.3 .modal-dialog title spacing. */
+.form-modal-title {
+  font-family: var(--font-headline-md);
+  font-size: var(--font-headline-md-size);
+  font-weight: var(--font-headline-md-weight);
+  line-height: var(--font-headline-md-line-height);
+  margin: 0 0 var(--spacing-3) 0;
+}
+
+/* Subtitle / description text under the title. */
+.form-modal-description {
+  font-family: var(--font-body-md);
+  font-size: var(--font-body-md-size);
+  font-weight: var(--font-body-md-weight);
+  line-height: var(--font-body-md-line-height);
+  color: var(--color-on-surface-variant);
+  margin: 0 0 var(--spacing-4) 0;
+}
+
+/* 3-field layout used by dispute + report modals. */
+.form-field-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--form-modal-field-gap);
+}
+
+/* Single form field group. */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Form field label. */
+.form-field-label {
+  font-family: var(--font-body-sm);
+  font-size: var(--font-body-sm-size);
+  font-weight: var(--font-body-sm-weight);
+  line-height: var(--font-body-sm-line-height);
+  color: var(--color-on-surface);
+}
+
+/* Required marker. */
+.form-field-required {
+  color: var(--color-error);
+  margin-left: var(--spacing-1);
+}
+
+/* Field-level error text. Pairs with input's aria-describedby and aria-invalid. */
+.form-field-error {
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  color: var(--color-error);
+  margin-top: var(--spacing-1);
+}
+
+/* Footer action row. Right-aligned on desktop, stacked on mobile <576px. */
+.form-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: var(--form-modal-actions-gap);
+  margin-top: var(--spacing-5);
+}
+
+@media (max-width: 575px) {
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  .form-actions > * {
+    width: 100%;
+  }
+}
+
+/* Dispute modal: destructive intent signaled via 2px error border. */
+.form-modal-dispute {
+  border: var(--form-modal-danger-border-width) solid var(--form-modal-danger-border);
+}
+
+/* Report modal: standard chrome; intent is factual, not destructive. */
+.form-modal-report {
+  /* no extra chrome; standard surface. */
+}
+
+/* Purchase confirmation: standard chrome; scrimGuardMs handled in JS. */
+.form-modal-purchase {
+  /* no extra chrome; standard surface. */
+}
+
+/* Admin re-auth dialog: destructive intent signaled via 2px error border. */
+.form-modal-reauth {
+  border: var(--form-modal-danger-border-width) solid var(--form-modal-danger-border);
+}
+
+/* Character counter for textarea fields. */
+.form-field-counter {
+  font-family: var(--font-caption);
+  font-size: var(--font-caption-size);
+  color: var(--color-on-surface-variant);
+  align-self: flex-end;
+}
+
+/* Evidence image preview (dispute modal only). */
+.form-field-evidence-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-outline-variant);
+}
+
+/* Body-wide reduced motion guard for form modals. */
+@media (prefers-reduced-motion: reduce) {
+  .form-modal-dialog {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Form Modals self-test fixture -- hidden, never rendered. Asserted   */
+/* by scripts/verify/1-9-build-form-modals-...sh that every token      */
+/* referenced by the form-modals CSS resolves to a non-empty value.    */
+/* ------------------------------------------------------------------ */
+[data-forms-self-test] {
+  --self-test-form-modal-scrim: var(--form-modal-scrim);
+  --self-test-form-modal-field-gap: var(--form-modal-field-gap);
+  --self-test-form-modal-actions-gap: var(--form-modal-actions-gap);
+  --self-test-form-modal-padding: var(--form-modal-padding);
+  --self-test-form-modal-max-width: var(--form-modal-max-width);
+  --self-test-form-modal-radius: var(--form-modal-radius);
+  --self-test-form-modal-danger-border: var(--form-modal-danger-border);
+  --self-test-form-modal-danger-border-width: var(--form-modal-danger-border-width);
+  --self-test-color-surface-raised: var(--color-surface-raised);
+  --self-test-color-on-surface: var(--color-on-surface);
+  --self-test-color-on-surface-variant: var(--color-on-surface-variant);
+  --self-test-color-error: var(--color-error);
+  --self-test-color-outline-variant: var(--color-outline-variant);
+  --self-test-shadow-2: var(--shadow-2);
+  --self-test-font-headline-md: var(--font-headline-md);
+  --self-test-font-headline-md-size: var(--font-headline-md-size);
+  --self-test-font-body-md: var(--font-body-md);
+  --self-test-font-body-md-size: var(--font-body-md-size);
+  --self-test-font-body-sm: var(--font-body-sm);
+  --self-test-font-body-sm-size: var(--font-body-sm-size);
+  --self-test-font-caption: var(--font-caption);
+  --self-test-font-caption-size: var(--font-caption-size);
+  --self-test-radius-sm: var(--radius-sm);
+  --self-test-radius-lg: var(--radius-lg);
+  --self-test-spacing-1: var(--spacing-1);
+  --self-test-spacing-3: var(--spacing-3);
+  --self-test-spacing-4: var(--spacing-4);
+  --self-test-spacing-5: var(--spacing-5);
+}
