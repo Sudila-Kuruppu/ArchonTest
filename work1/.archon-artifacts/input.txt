@@ -1,26 +1,45 @@
-# Feature: Fix E2E Test Issues — Brew & Bean Coffee Shop
+# Epic 2: Product Catalog Management — DressCave
 
-Fix the following issues identified by automated E2E testing (Chromium/Playwright across mobile/tablet/desktop):
+## Epic Goal
+Enable store administrators to manage the product catalog including creating products with variants, uploading images, organizing by categories, and marking items as featured/new arrivals.
 
-## 1. CRITICAL — Mobile hamburger menu never visible
-- File: `public/css/style.css` (line ~172)
-- `.hamburger` has `display: none` with no media query to make it visible
-- Need: `@media (max-width: 767px)` that shows hamburger, hides nav-links by default, shows nav-links when `.nav-open` class is added
+## Functional Requirements Covered
+FR1: Admin can create new products with name, description, category, price, and base sizes
+FR2: Admin can upload multiple images per product
+FR3: Admin can set product variants (colors, sizes)
+FR4: Admin can organize products into categories (Women, Kids, Men) and subcategories
+FR5: Admin can edit existing product details
+FR6: Admin can delete products from the catalog
+FR7: Admin can mark products as featured or new arrivals
 
-## 2. MEDIUM — Missing meta description on all pages  
-- File: `views/partials/head.ejs` (line ~6)
-- No `<meta name="description">` tag — hurts SEO
-- Need: Add `<meta name="description" content="Brew &amp; Bean — handcrafted coffee, warm conversations, and a cozy neighbourhood café.">` after viewport meta
+## Stories
 
-## 3. LOW — Emoji placeholders instead of real product images
-- Files: `views/pages/home.ejs:22`, `views/pages/menu.ejs:18`
-- Coffee cards use ☕ emoji as image placeholder (8 total)
-- Need: Replace with `<img>` tags pointing to actual Unsplash product images
+### Story 2.1: Create Products Table in Database
+Create the products table in Supabase with all required fields (id, name, description, category, subcategory, price, sizes[], colors[], images[], is_featured, is_new_arrival, age_range, created_at, updated_at). Add indexes on frequently queried columns. Enable RLS: public read, admin write. Implement as a SQL migration file.
 
-## 4. LOW — Google Fonts 404 when offline
-- File: `views/partials/head.ejs` (lines 7-9)
-- External Google Fonts CSS returns 404 when offline
-- Need: Add `@font-face` fallback in CSS or self-host
+### Story 2.2: Product Creation Form
+Admin form with fields: name, description, category dropdown, subcategory, price, size checkboxes, color picker, age range (if Kids), image upload. Saves to Supabase, redirects to product detail.
 
-## 5. Add suitable images for each place
-- Replace emoji placeholders with real coffee images from Unsplash for each coffee item
+### Story 2.3: Edit Existing Product Details
+Pre-filled edit form for products. Update any field, toggle featured/new arrival, add/remove images. Changes reflected immediately on storefront.
+
+### Story 2.4: Delete Product from Catalog
+Soft delete with confirmation dialog. Product no longer appears in catalog. Related records (reviews, orders) remain intact.
+
+### Story 2.5: Manage Product Categories
+CRUD for categories (Women, Kids, Men) and subcategories. Category hierarchy stored and maintained. Category navigation appears on storefront.
+
+### Story 2.6: Mark Products as Featured or New Arrivals
+Toggle is_featured and is_new_arrival flags on products. Featured products appear in homepage section. "New" badge on new arrivals. Configurable limits.
+
+### Story 2.7: Product Image Upload and Management
+Upload multiple images per product to Supabase Storage. Auto-optimize (WebP, max 1200x1600). Drag-and-drop reorder, set primary, delete individual images.
+
+## Current Codebase Context
+- Next.js 14.x App Router with Tailwind CSS
+- Supabase for auth and database
+- shadcn/ui components installed
+- Zustand and nuqs for state management
+- Epic 1 (FR16-FR20) already implemented: signup, login, password reset, measurements, profile, account deletion, user menu
+- Vitest + Playwright testing frameworks installed
+- Zod + react-hook-form for validation

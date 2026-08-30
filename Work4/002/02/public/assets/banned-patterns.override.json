@@ -1,0 +1,33 @@
+{
+  "patterns": {
+    "EXCLAMATION_MARK": {
+      "rationale": "Landing-hero block is the documented exception to the no-exclamation-mark rule (CAP-6 voice-and-tone microcopy). The hero is a marketing surface; everywhere else exclamation marks are banned.",
+      "allowed_paths": [
+        "public/index.php",
+        "public/assets/js/index-hero.js"
+      ]
+    },
+    "PUSH_NOTIFICATION": {
+      "rationale": "Toast dismiss button aria-label is screen-reader copy for the in-page toast widget, not a push notification channel. Campus-only product has no push channel.",
+      "allowed_paths": [
+        "public/assets/js/toast.js"
+      ]
+    },
+    "TIER_WITHOUT_CODE": {
+      "rationale": "Test fixture pages (public/*-test.html) and the tier-table JS modules use tier names without codes inside test data tables and assertion descriptions. These are not shipped to users and exist only for the per-slice verify scripts to assert tier-specific behavior.",
+      "allowed_paths": [
+        "public/toast-test.html",
+        "public/profile-test.html",
+        "public/board-test.html",
+        "public/brand-test.html",
+        "public/data-test.html",
+        "public/forms-test.html",
+        "public/state-test.html",
+        "public/theme-test.html",
+        "public/a11y-test.html",
+        "public/assets/js/identity.js",
+        "public/assets/js/star-rating.js"
+      ]
+    }
+  }
+}

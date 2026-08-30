@@ -1,170 +1,178 @@
 # DCW DISCOVER — Codebase & Research Report
 
 ## Meta
-- **Feature:** Fix E2E Test Issues — Brew & Bean Coffee Shop
+- **Feature:** Epic 2: Product Catalog Management — DressCave
 - **Phase:** DISCOVER
 - **Date:** 2026-06-06
 
 ## Codebase Overview
-- **Framework:** Express.js (v4.21.0) with EJS templating (v3.1.10)
-- **Language:** JavaScript (Node.js, no bundler/transpiler)
-- **Test framework:** No test framework installed; E2E tests exist externally (Chromium/Playwright)
-- **Source root:** `/home/user/archontesting/work1/coffee-shop/`
+- **Framework:** Next.js 14.2.0 (App Router)
+- **Language:** TypeScript 5.x
+- **UI Library:** @base-ui/react v1.5.0 (MUI headless primitives) + Tailwind CSS 3.4
+- **Form handling:** react-hook-form v7.77 + @hookform/resolvers v5.4 + Zod v4.4
+- **State management:** Zustand v5 (vanilla stores via React context)
+- **URL state:** nuqs v2.8
+- **Backend:** Supabase (Auth, PostgreSQL, Storage)
+- **Test framework:** Vitest v4 + @testing-library/react
+- **Source root:** `/home/user/archontesting/work1/dresscave/`
 
 ### Key Files
 | File | Purpose |
 |------|---------|
-| `coffee-shop/server.js` | Express app entry point, route mounting, 404 handler |
-| `coffee-shop/routes/index.js` | All route definitions (home, menu, about, contact GET/POST) |
-| `coffee-shop/views/partials/head.ejs` | HTML `<head>` partial — charset, viewport, title, font links, stylesheet |
-| `coffee-shop/views/partials/nav.ejs` | Navigation bar with hamburger button and nav links |
-| `coffee-shop/views/partials/footer.ejs` | Footer with links, social icons, copyright |
-| `coffee-shop/views/pages/home.ejs` | Home page — featured coffees grid with emoji placeholders |
-| `coffee-shop/views/pages/menu.ejs` | Menu page — full coffee list grouped by category with emoji placeholders |
-| `coffee-shop/views/pages/about.ejs` | About page — story, mission, location |
-| `coffee-shop/views/pages/contact.ejs` | Contact page — form with server-side validation |
-| `coffee-shop/views/pages/404.ejs` | 404 error page |
-| `coffee-shop/public/css/style.css` | All styles — coffee-themed, mobile-first responsive |
-| `coffee-shop/public/js/main.js` | Client-side JS — hamburger toggle, form validation, active nav |
-| `coffee-shop/data/menu.json` | 8 coffee items with id, name, description, price, category, featured |
-| `coffee-shop/package.json` | Dependencies: express ^4.21.0, ejs ^3.1.10 |
+| `app/layout.tsx` | Root layout — wraps NuqsAdapter, StoreProvider, AuthProvider, Header |
+| `app/page.tsx` | Home page (currently default Next.js starter) |
+| `app/globals.css` | Tailwind base + shadcn CSS variable theme (light/dark) |
+| `middleware.ts` | Route protection for `/account/*` paths |
+| `lib/supabase/client.ts` | Supabase browser client factory |
+| `lib/supabase/server.ts` | Supabase server client factory (cookies) |
+| `lib/supabase/middleware.ts` | Supabase middleware session refresh |
+| `lib/actions/auth.ts` | Server Actions: signup, login, logout, resetPasswordRequest, updatePassword, updateProfile, deleteAccount |
+| `lib/schemas/product.ts` | Product Zod schema (name, description, price, category, sizes, colors, images, etc.) |
+| `lib/schemas/user.ts` | User/auth Zod schemas (signup, login, measurement, profile, deletion) |
+| `lib/schemas/order.ts` | Order Zod schema (items, status, total) |
+| `lib/store/cart.ts` | Zustand vanilla store for cart state |
+| `lib/store/wishlist.ts` | Zustand vanilla store for wishlist state |
+| `lib/store/auth.ts` | Zustand vanilla store for auth state |
+| `lib/store/store-provider.tsx` | React context provider wrapping all stores |
+| `components/auth/auth-provider.tsx` | Client component managing Supabase auth listener |
+| `components/layout/header.tsx` | Header with nav (Women/Kids/Men), user menu, mobile menu |
+| `components/ui/button.tsx` | Base UI Button shadcn-style wrapper |
+| `components/ui/input.tsx` | Base UI Input shadcn-style wrapper |
+| `components/ui/dialog.tsx` | Base UI Dialog shadcn-style wrapper (with header/footer) |
+| `components/ui/select.tsx` | Base UI Select shadcn-style wrapper |
+| `components/ui/card.tsx` | Card shadcn-style component |
+| `components/auth/signup-form.tsx` | Signup form (pattern reference) |
+| `components/auth/login-form.tsx` | Login form (pattern reference) |
+| `components/profile/profile-form.tsx` | Profile edit form (pattern reference) |
+| `components/profile/measurements-form.tsx` | Measurements form (complex form with field array pattern) |
+| `components/profile/delete-account-dialog.tsx` | Delete account dialog (dialog pattern + form) |
+| `app/(dashboard)/layout.tsx` | Dashboard sidebar layout template |
+| `tailwind.config.ts` | Full Tailwind theme — brand colors, typography, animations |
 
 ## Existing Patterns
 
-### Template Pattern
-```
-file:coffee-shop/views/pages/home.ejs:1-2
-Every page includes <%- include('../partials/head', { title: title }) %> and <%- include('../partials/nav', { currentPage: currentPage }) %> at the top, then <%- include('../partials/footer') %> at the bottom.
-Data is passed from routes as an object with `title`, `currentPage`, and page-specific fields.
-```
-
 ### Component Pattern
 ```
-file:coffee-shop/views/pages/home.ejs:21-28
-Coffee cards use the pattern:
-  <div class="coffee-card">
-    <div class="coffee-card-img">☕</div>     ← emoji placeholder
-    <div class="coffee-card-body">
-      <h3><%= item.name %></h3>
-      <p><%= item.description %></p>
-      <span class="coffee-card-price">$<%= item.price.toFixed(2) %></span>
-    </div>
-  </div>
-The same pattern duplicates in both home.ejs (line 22) and menu.ejs (line 18) — 8 total cards.
+file:components/auth/signup-form.tsx:1 - 177
 ```
+- **Functional components** with `"use client"` directive for interactive components
+- **Server Components** for simple page layouts with metadata export
+- **Props pattern:** destructured `{ children }` and typed props interfaces
+- **Hooks usage:** `useForm` from react-hook-form, `useRouter`, `useState`
+- **Form pattern:** `zodResolver` + `useForm` + server action call on submit
+- **Error display:** Inline `<div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">` block
 
-### Styling Pattern
+### Data Fetching Pattern
 ```
-file:coffee-shop/public/css/style.css:1-687
-Single CSS file with:
-  - CSS custom properties (lines 7-34) for colors, fonts, shadows, radii, max-width
-  - Mobile-first base styles (lines 36-625): single-column grids, hamburger hidden
-  - Tablet @media (min-width: 768px) at line 630: 2-col grids
-  - Desktop @media (min-width: 1024px) at line 667: 3-4 col grids
-  - No max-width: 767px media query exists
+file:lib/actions/auth.ts:7 - 191
 ```
+- **Server Actions** (`"use server"`) for mutations
+- Return `{ success: true/false, error?: string }` tuple
+- Supabase `createClient()` from `@/lib/supabase/server`
+- `revalidatePath` + `redirect` from Next.js navigation
+- **Server Components** fetch directly via Supabase client (`app/(dashboard)/account/page.tsx:19`)
+- No TanStack Query or API routes currently used
 
-### Navigation Pattern
+### State Management Pattern
 ```
-file:coffee-shop/public/js/main.js:7-31
-Hamburger toggle uses class `nav-open` on `.nav-links` and `aria-expanded` on button.
-The JS already supports toggling — just needs CSS media query to activate.
+file:lib/store/store-provider.tsx:1 - 84
 ```
+- **Zustand vanilla stores** created with `createStore` (not `create`)
+- Stores wrapped in **React context** providers
+- Custom hooks: `useCartStore`, `useWishlistStore`, `useAuthStore` with selector pattern
+- Example: `useAuthStore((state) => state.user)`
+
+### Routing Pattern
+```
+file:app/(dashboard)/layout.tsx:1 - 48
+```
+- Route groups: `(auth)/`, `(dashboard)/` for layout grouping
+- Flat routing with nested page files
+- `middleware.ts` protects `/account/*` routes
+- Dashboard uses sidebar-aside + main grid layout
 
 ### Error Handling Pattern
 ```
-file:coffee-shop/routes/index.js:70-117
-Server-side: try/catch for menu data load (lines 7-12), field-level validation with errors object.
-Client-side: main.js lines 36-81 — form validation with preventDefault.
-404: server.js line 22-24 — renders 404.ejs for unmatched routes.
+file:lib/actions/auth.ts:24 - 28
 ```
+- **Server Actions:** check `error` from Supabase, return `{ success: false, error: error.message }`
+- **Client forms:** `serverError` state variable, displayed in destructive color alert
+- **Form validation:** Zod schema + react-hook-form errors shown per-field
+- No global error boundary or toast system yet
 
-### Styling Pattern for .coffee-card-img
+### Styling Pattern
 ```
-file:coffee-shop/public/css/style.css:309-317
-.coffee-card-img {
-  width: 100%;
-  height: 180px;
-  background: gradient;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4rem;  ← for emoji
-}
-The background gradient and centering mean images will need to cover/contain the area properly.
+file:tailwind.config.ts:1 - 180
 ```
+- **Tailwind CSS** with CSS variable theme (shadcn style)
+- Brand colors defined under `brand:` namespace
+- Custom font families: `Playfair Display` (heading), `Inter` (body)
+- Custom animations: fade-in, fade-in-up, slide-up, scale-in
+- 44px touch targets for mobile
+- `cn()` utility from `@/lib/utils` (clsx + tailwind-merge)
 
-### Variable Font Fallbacks in CSS
+### Testing Pattern
 ```
-file:coffee-shop/public/css/style.css:21-22
---font-heading: 'Playfair Display', Georgia, serif;
---font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
-System fallbacks already declared in CSS custom properties.
+file:tests/auth/schemas.test.ts:1 - 228
 ```
+- Vitest with `describe/it/expect`
+- Schema tests: `Schema.safeParse()` with `.success` assertion
+- Store tests: `createStore()` + `getState()` + subscription
+- Single setup file with `@testing-library/jest-dom/vitest`
+- Test location: `/tests/` directory, organized by domain
+
+### Imports Pattern
+- Absolute paths with `@/*` alias (maps to project root)
+- Barrel exports via index files (where applicable)
+- Imports organized: React → Next.js → components → lib → icons
 
 ## Web Research
 
-### Self-Hosting Google Fonts (Playfair Display + Inter)
-- **Source:** gwfh.mranftl.com (google-webfonts-helper), multiple articles (web.dev, FontFYI)
-- **Finding:** The most practical approach for a simple Express/EJS site without a build system is:
-  1. Use google-webfonts-helper API to download WOFF2 files for Playfair Display (weights 400, 700) and Inter (weights 400, 500, 600)
-  2. Place them in `public/fonts/` directory
-  3. Add `@font-face` declarations at the top of `style.css` replacing the Google Fonts `<link>` tags
-  4. Use `font-display: swap` for both fonts
-  5. Remove the `preconnect` and stylesheet `<link>` tags from `head.ejs`
-- **Relevance:** Fixes issue #4 (Google Fonts 404 when offline) and improves performance
-- **Key commands:** `curl "https://gwfh.mranftl.com/api/fonts/inter?download=zip&subsets=latin&formats=woff2&variants=regular,500,600" -o inter.zip`
+### Supabase Image Upload & Storage
+- **Source:** Web search + Supabase docs
+- **Finding:** Best practice is to upload via signed URLs from Server Actions (avoids Next.js 1MB body limit). Create a `product-images` bucket with RLS policies. Store image URLs in the product record. Use `supabase.storage.from('bucket').upload()` with unique file paths. The public URL pattern is `{SUPABASE_URL}/storage/v1/object/public/{bucket}/{path}`.
+- **Relevance:** Story 2.7 requires image upload to Supabase Storage. Must implement signed URL pattern or direct client upload with RLS.
 
-### Unsplash Images for Coffee Products
-- **Source:** unsplash.com/documentation, unsplash.com/developers
-- **Finding:** Unsplash Source API (`source.unsplash.com`) is deprecated. The recommended approach is to use direct hotlinked image URLs from the Unsplash CDN. For a static site without an API key, use direct Unsplash photo URLs for specific coffee images. Example direct image URLs:
-  - Espresso: `https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop` (espresso shot)
-  - Latte: `https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=400&h=300&fit=crop` (latte art)
-  - Cappuccino: `https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&h=300&fit=crop`
-  - Cold Brew: `https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop` (cold coffee)
-  - General coffee: Multiple specific Unsplash photo IDs available
-- **Relevance:** Fixes issues #3 and #5 — replace emoji placeholders with real product images
+### Next.js Server Actions + react-hook-form + Zod
+- **Source:** Web search
+- **Finding:** The established pattern is: client form with `react-hook-form` + `zodResolver` for client validation → form submits to server action → server re-validates with Zod → inserts to Supabase → returns success/error. Server Actions can be called from client components as async functions (not form action prop only).
+- **Relevance:** Directly applicable to Story 2.2, 2.3 (product CRUD forms).
 
-### Hamburger Menu CSS Pattern
-- **Source:** Standard responsive nav pattern
-- **Finding:** The standard mobile hamburger pattern requires:
-  ```css
-  @media (max-width: 767px) {
-    .hamburger { display: flex; }
-    .nav-links { display: none; }
-    .nav-links.nav-open { display: flex; }
-  }
-  ```
-  The JS in `main.js` already adds/removes `nav-open` class on click — only CSS is missing.
-- **Relevance:** Fixes issue #1 — critical mobile navigation bug
+### Supabase RLS for Admin Roles
+- **Source:** Web search + Supabase docs
+- **Finding:** Check admin status by looking up a `profiles.is_admin` boolean column. Use `security definer` functions for admin checks, or inline subqueries. For Storage, use `bucket_id = 'product-images' AND auth.uid() IN (SELECT id FROM profiles WHERE is_admin = true)`. The `service_role` key can bypass RLS for server-side admin operations.
+- **Relevance:** Stories 2.1-2.7 require admin-only write access. RLS must be: public read, admin write. Need to add `is_admin` column to profiles or create an admin table.
+
+### @base-ui/react Components (shadcn-style)
+- **Source:** Web search + https://baseui-cn.com
+- **Finding:** @base-ui/react by MUI provides headless primitives for Dialog, Select, Menu, etc. The project already has shadcn-style wrappers. Base UI uses compound component pattern (`Root`, `Trigger`, `Popup`, `Portal`, `Item`). Compatible with Tailwind CSS.
+- **Relevance:** Stories 2.2-2.6 can reuse existing wrappers. Color picker may need a custom component (Base UI doesn't have a built-in color picker).
+
+### Supabase Soft Delete Pattern
+- **Source:** General knowledge
+- **Finding:** Add `deleted_at TIMESTAMPTZ` column to products table. Modify queries to filter `WHERE deleted_at IS NULL`. Admin queries can include deleted records. Related records (reviews, orders) remain intact via foreign key references.
+- **Relevance:** Story 2.4 requires soft delete.
 
 ## Integration Points
-- [ ] `coffee-shop/public/css/style.css:172` — Add `@media (max-width: 767px)` rule for hamburger visibility and nav-links toggle
-- [ ] `coffee-shop/views/partials/head.ejs:6` — Add `<meta name="description">` tag after viewport meta
-- [ ] `coffee-shop/views/pages/home.ejs:22` — Replace `☕` emoji with `<img>` tag in featured coffee card
-- [ ] `coffee-shop/views/pages/menu.ejs:18` — Replace `☕` emoji with `<img>` tag in menu coffee cards
-- [ ] `coffee-shop/views/partials/head.ejs:7-9` — Remove Google Fonts preconnect/stylesheet links, add `@font-face` CSS to style.css
-- [ ] `coffee-shop/public/css/style.css` — Add `@font-face` declarations for Playfair Display (400, 700) and Inter (400, 500, 600)
-- [ ] `coffee-shop/public/fonts/` — Create directory and add self-hosted WOFF2 font files
 
-## Coffee-to-Image Mapping (for issues #3 and #5)
-Based on Unsplash research, suitable images for each menu item:
-
-| Coffee Item | Suggested Unsplash Subject | Image Style |
-|-------------|---------------------------|-------------|
-| Classic Espresso | Espresso shot with crema | Dark, rich, close-up |
-| Vanilla Latte | Latte art in white cup | Creamy, warm tones |
-| Cappuccino | Cappuccino with foam art | Brown/white layers |
-| Caramel Macchiato | Layered espresso drink | Golden, caramel drizzle |
-| Cold Brew | Cold brew on ice | Dark, refreshing, ice visible |
-| Iced Mocha | Chocolate coffee drink | Dark, cold glass |
-| Matcha Latte | Matcha green tea latte | Green, vibrant |
-| Americano | Black coffee in mug | Simple, clean |
+- [ ] `lib/schemas/product.ts` — Expand schema: currently has basic product fields, need to add `is_new_arrival`, `age_range` optional for children, align with input schema (no `id` required for creation)
+- [ ] `lib/actions/` — Create `lib/actions/products.ts` with Server Actions for CRUD operations on products
+- [ ] `lib/supabase/` — Add Supabase Storage client for image uploads
+- [ ] `app/(dashboard)/` — Add `admin/` route group under dashboard for product management (or standalone `/admin/` routes)
+- [ ] `app/(dashboard)/layout.tsx` — Add admin sidebar links (conditionally for admin users)
+- [ ] `middleware.ts` — Add `/admin/*` to protected routes list with admin role check
+- [ ] `lib/actions/products.ts` — New file: createProduct, updateProduct, deleteProduct (soft), getProducts, getProduct, uploadImage, deleteImage, setFeatured, setNewArrival
+- [ ] `lib/schemas/product.ts` — Add `CreateProductSchema` (without `id`, `images` URLs can be nullable for creation), update `ProductSchema` to include `is_new_arrival`, `deleted_at`, `age_range`
+- [ ] `components/products/` — New directory: create-product-form, edit-product-form, product-image-uploader, product-variant-selector, category-manager, delete-product-dialog
+- [ ] `app/admin/products/` — New routes: `/admin` (dashboard), `/admin/products` (list), `/admin/products/new` (create), `/admin/products/[id]/edit` (edit)
+- [ ] `app/admin/categories/` — New routes: category CRUD management
+- [ ] `tests/` — Add `tests/products/` directory with schema, store, and action tests
+- [ ] `tailwind.config.ts` — May need to add Supabase Storage remote pattern to `next.config.mjs` for product images
+- [ ] `.env.local` — Will need `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` configured (currently placeholder values)
+- [ ] Supabase SQL migration — Create `products` table, `categories` table, RLS policies, Storage bucket setup for product images
 
 ## Clarifications
-- None — all issues are clearly described with file:line references in `E2E-ISSUES.md` and `input.txt`
-- Note: For the self-hosted fonts approach, actual WOFF2 files need to be downloaded and added to the repo (or we use an alternative CSS-based fallback approach)
-- Note: The `display: none` on `.hamburger` is at line 172 of style.css (as noted in input.txt), but CSS line 173 shows `display: none` — this matches
+None — the feature description is clear and well-scoped. The existing codebase patterns provide a solid foundation for all 7 stories.
 
 ---
 *DCW artifact — generated by deterministic-code-workflow*

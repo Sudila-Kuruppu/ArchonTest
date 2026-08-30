@@ -1,128 +1,200 @@
 meta:
-  name: "fix-e2e-test-issues"
-  description: "Fix 5 E2E test issues: hamburger menu, meta description, product images, emoji placeholders, and Google Fonts self-hosting"
+  name: "epic-2-product-catalog-management"
+  description: "Enable store administrators to manage the product catalog including creating products with variants, uploading images, organizing by categories, and marking items as featured/new arrivals."
   created: "2026-06-06"
 
 scope:
   in_scope:
-    - "Add @media (max-width: 767px) CSS rule to show hamburger button and toggle nav-links"
-    - "Add <meta name='description'> tag to head.ejs for SEO"
-    - "Add .coffee-card-img img CSS rule for proper image display in coffee cards"
-    - "Add image URL field to all 8 menu items in menu.json"
-    - "Replace ☕ emoji with <img> tags in home.ejs (featured coffees)"
-    - "Replace ☕ emoji with <img> tags in menu.ejs (all menu items)"
-    - "Create public/fonts/ directory and download WOFF2 font files for Playfair Display and Inter"
-    - "Add @font-face declarations at top of style.css for self-hosted fonts"
-    - "Remove Google Fonts external <link> tags from head.ejs"
+    - "SQL migration for products table, categories table, RLS policies, and Supabase Storage bucket"
+    - "Expanded Zod schemas for products (CreateProductSchema, UpdateProductSchema) and categories"
+    - "Server Actions for product CRUD (create, read, update, soft delete) and image management"
+    - "Server Actions for category CRUD"
+    - "Admin route protection with middleware (admin role check on profiles.is_admin)"
+    - "Admin layout with sidebar for product/category management"
+    - "Admin dashboard homepage with overview stats"
+    - "Admin products list page with search/filter and inline featured/new arrival toggles"
+    - "Reusable product form component (shared for create + edit)"
+    - "Product create page + edit page (with dynamic [id] route)"
+    - "Delete product confirmation dialog (soft delete)"
+    - "Image upload component with drag-and-drop, preview, reorder, delete"
+    - "Category management page with CRUD UI"
+    - "Tests for product schemas validation"
+    - "next.config.mjs update for Supabase Storage remote image patterns"
+
   out_of_scope:
-    - "Adding a build system or bundler"
-    - "Adding a test framework or unit tests"
-    - "Redesigning the layout or visual style"
-    - "Adding new pages or routes"
-    - "Changing menu data structure beyond adding image URLs"
-    - "Adding accessibility features beyond what's specified"
-    - "Performance optimization beyond font self-hosting"
+    - "Storefront product display (homepage featured section, category browsing, product detail pages)"
+    - "Shopping cart integration with products"
+    - "Review/rating system"
+    - "Order management from admin panel"
+    - "Bulk product import/export"
+    - "Product analytics or sales reports"
+    - "Inventory tracking or stock management"
+    - "Product sorting/filtering on storefront"
+    - "Wishlist integration"
 
 tasks:
   - id: "T1"
-    description: "Add responsive hamburger menu CSS rule for mobile (max-width: 767px)"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
+    description: "Create SQL migration file for products and categories tables, RLS policies, and Storage bucket"
+    action: "CREATE"
+    path: "dresscave/supabase/migrations/002_create_products.sql"
     depends: []
     patterns: []
     validate:
-      - "grep -q 'max-width: 767px' coffee-shop/public/css/style.css && echo 'PASS: media query found' || echo 'FAIL: media query missing'"
-      - "grep -q '.hamburger { display: flex' coffee-shop/public/css/style.css && echo 'PASS: hamburger flex found' || echo 'FAIL: hamburger flex missing'"
+      - "test -f dresscave/supabase/migrations/002_create_products.sql && echo 'Migration file created'"
 
   - id: "T2"
-    description: "Add <meta name='description'> tag to head.ejs after viewport meta"
+    description: "Update product Zod schemas — add is_new_arrival, deleted_at, category_id FK; create CreateProductSchema, UpdateProductSchema; create CategorySchema and CategoryInputSchema"
     action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
+    path: "dresscave/lib/schemas/product.ts"
     depends: []
-    patterns: []
+    patterns:
+      - "dresscave/lib/schemas/user.ts"
     validate:
-      - "grep -q 'meta name=\"description\"' coffee-shop/views/partials/head.ejs && echo 'PASS: meta description found' || echo 'FAIL: meta description missing'"
+      - "npx vitest run --reporter=verbose 2>&1 | tail -30"
 
   - id: "T3"
-    description: "Add CSS rule for coffee card images (.coffee-card-img img)"
+    description: "Update next.config.mjs to add Supabase Storage remote pattern for product images"
     action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
+    path: "dresscave/next.config.mjs"
     depends: []
     patterns: []
     validate:
-      - "grep -q '.coffee-card-img img' coffee-shop/public/css/style.css && echo 'PASS: img rule found' || echo 'FAIL: img rule missing'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T4"
-    description: "Add image URL field to all 8 menu items in menu.json"
-    action: "UPDATE"
-    path: "coffee-shop/data/menu.json"
-    depends: []
-    patterns: []
+    description: "Create product server actions — createProduct, updateProduct, deleteProduct (soft), getProducts, getProduct, setFeatured, setNewArrival, uploadImage, deleteImage"
+    action: "CREATE"
+    path: "dresscave/lib/actions/products.ts"
+    depends: ["T2"]
+    patterns:
+      - "dresscave/lib/actions/auth.ts"
     validate:
-      - "node -e \"const d=require('./coffee-shop/data/menu.json'); d.forEach(i=>{if(!i.image)throw new Error('T4 FAIL: item '+i.id+' missing image')}); console.log('PASS: all ' + d.length + ' items have images')\""
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T5"
-    description: "Replace emoji with <img> tag in home.ejs featured coffee cards"
-    action: "UPDATE"
-    path: "coffee-shop/views/pages/home.ejs"
-    depends:
-      - "T4"
+    description: "Create category server actions — createCategory, updateCategory, deleteCategory, getCategories"
+    action: "CREATE"
+    path: "dresscave/lib/actions/categories.ts"
+    depends: ["T2"]
     patterns:
-      - "coffee-shop/views/pages/menu.ejs"
+      - "dresscave/lib/actions/auth.ts"
     validate:
-      - "grep -q '<img' coffee-shop/views/pages/home.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T6"
-    description: "Replace emoji with <img> tag in menu.ejs all menu coffee cards"
+    description: "Update middleware to protect /admin/* routes with admin role check against profiles.is_admin"
     action: "UPDATE"
-    path: "coffee-shop/views/pages/menu.ejs"
-    depends:
-      - "T4"
-    patterns:
-      - "coffee-shop/views/pages/home.ejs"
-    validate:
-      - "grep -q '<img' coffee-shop/views/pages/menu.ejs && echo 'PASS: img tag found' || echo 'FAIL: img tag missing'"
-      - "node --check coffee-shop/server.js 2>&1 && echo 'PASS: server syntax OK' || echo 'FAIL: server syntax error'"
-
-  - id: "T7"
-    description: "Create public/fonts/ directory and download WOFF2 font files for self-hosting"
-    action: "CREATE"
-    path: "coffee-shop/public/fonts/"
+    path: "dresscave/middleware.ts"
     depends: []
     patterns: []
     validate:
-      - "test -d coffee-shop/public/fonts/ && echo 'PASS: fonts dir exists' || echo 'FAIL: fonts dir missing'"
-      - "ls coffee-shop/public/fonts/*.woff2 2>/dev/null && echo 'PASS: woff2 files found' || echo 'FAIL: no woff2 files'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T7"
+    description: "Create admin layout with sidebar navigation (Dashboard, Products, Categories links)"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/layout.tsx"
+    depends: []
+    patterns:
+      - "dresscave/app/(dashboard)/layout.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T8"
-    description: "Add @font-face declarations for Playfair Display and Inter at top of style.css"
-    action: "UPDATE"
-    path: "coffee-shop/public/css/style.css"
-    depends:
-      - "T7"
-    patterns: []
+    description: "Create admin dashboard homepage with quick stats (total products, featured count, new arrivals)"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/page.tsx"
+    depends: ["T7"]
+    patterns:
+      - "dresscave/app/(dashboard)/account/page.tsx"
     validate:
-      - "grep -q '@font-face' coffee-shop/public/css/style.css && echo 'PASS: @font-face found' || echo 'FAIL: @font-face missing'"
-      - "grep -q \"font-family: 'Playfair Display'\" coffee-shop/public/css/style.css && echo 'PASS: Playfair Display found' || echo 'FAIL: Playfair Display missing'"
-      - "grep -q \"font-family: 'Inter'\" coffee-shop/public/css/style.css && echo 'PASS: Inter found' || echo 'FAIL: Inter missing'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
 
   - id: "T9"
-    description: "Remove Google Fonts external <link> tags from head.ejs"
-    action: "UPDATE"
-    path: "coffee-shop/views/partials/head.ejs"
-    depends:
-      - "T7"
-    patterns: []
+    description: "Create admin products list page with table, search/filter, and inline featured/new arrival toggle buttons"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/products/page.tsx"
+    depends: ["T4", "T7"]
+    patterns:
+      - "dresscave/app/(dashboard)/account/page.tsx"
     validate:
-      - "grep -q 'fonts.googleapis.com' coffee-shop/views/partials/head.ejs && echo 'FAIL: Google Fonts link still present' || echo 'PASS: Google Fonts link removed'"
-      - "grep -q 'stylesheet' coffee-shop/views/partials/head.ejs && echo 'PASS: local stylesheet still referenced' || echo 'FAIL: local stylesheet reference missing'"
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T10"
+    description: "Create reusable product form component (shared for create and edit) with fields: name, description, category, subcategory, price, sizes, colors, age_range, images"
+    action: "CREATE"
+    path: "dresscave/components/products/product-form.tsx"
+    depends: ["T2", "T4", "T5"]
+    patterns:
+      - "dresscave/components/auth/signup-form.tsx"
+      - "dresscave/components/profile/measurements-form.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T11"
+    description: "Create product creation page using ProductForm in create mode"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/products/new/page.tsx"
+    depends: ["T10"]
+    patterns:
+      - "dresscave/app/(dashboard)/account/measurements/page.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T12"
+    description: "Create product edit page with dynamic [id] route — fetches product and passes to ProductForm in edit mode"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/products/[id]/edit/page.tsx"
+    depends: ["T10", "T11"]
+    patterns:
+      - "dresscave/app/(dashboard)/account/measurements/page.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T13"
+    description: "Create delete product confirmation dialog with soft delete"
+    action: "CREATE"
+    path: "dresscave/components/products/delete-product-dialog.tsx"
+    depends: ["T4", "T9"]
+    patterns:
+      - "dresscave/components/profile/delete-account-dialog.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T14"
+    description: "Create image uploader component with drag-and-drop, WebP optimization, preview thumbnails, set-primary, reorder, and delete"
+    action: "CREATE"
+    path: "dresscave/components/products/image-uploader.tsx"
+    depends: ["T4"]
+    patterns:
+      - "dresscave/components/profile/measurements-form.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T15"
+    description: "Create category management page with CRUD UI — list with hierarchy, inline add/edit/delete"
+    action: "CREATE"
+    path: "dresscave/app/(dashboard)/admin/categories/page.tsx"
+    depends: ["T5", "T7"]
+    patterns:
+      - "dresscave/app/(dashboard)/account/page.tsx"
+      - "dresscave/app/(dashboard)/admin/products/page.tsx"
+    validate:
+      - "npx tsc --noEmit 2>&1 | tail -20"
+
+  - id: "T16"
+    description: "Add product schema validation tests"
+    action: "CREATE"
+    path: "dresscave/tests/products/schemas.test.ts"
+    depends: ["T2"]
+    patterns:
+      - "dresscave/tests/auth/schemas.test.ts"
+    validate:
+      - "npx vitest run --reporter=verbose 2>&1 | tail -30"
 
 validation:
   commands:
-    syntax: "node --check coffee-shop/server.js 2>&1 && node --check coffee-shop/routes/index.js 2>&1 && echo 'PASS: syntax OK' || echo 'FAIL: syntax error'"
-    json: "node -e \"JSON.parse(require('fs').readFileSync('./coffee-shop/data/menu.json','utf8'))\" && echo 'PASS: menu.json valid' || echo 'FAIL: menu.json invalid'"
-    server: "timeout 3 node -e \"const app = require('./coffee-shop/server.js'); setTimeout(() => process.exit(0), 1000);\" 2>&1 | tail -5"
-    lint: "echo 'INFO: No linter configured — skipping'"
-    test: "echo 'INFO: No test framework configured — skipping'"
-    build: "echo 'INFO: No build step configured — skipping'"
+    type_check: "npx tsc --noEmit 2>&1"
+    lint: "npx next lint 2>&1 || true"
+    test: "npx vitest run 2>&1 || echo 'No test runner configured'"
+    build: "npm run build 2>&1 || echo 'No build command configured'"

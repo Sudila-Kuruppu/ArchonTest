@@ -1,0 +1,7 @@
+{
+    "skill_name": "my-skill",
+    "description": "A generated skill",
+    "version": "0.1.0",
+    "author": "",
+    "python_min_version": "3.10"
+}
