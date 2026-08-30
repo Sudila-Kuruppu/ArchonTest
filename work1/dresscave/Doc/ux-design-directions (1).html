@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DressCave Design Directions Showcase</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FAFAFA;
+      padding: 40px;
+      color: #4A4A4A;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: #1A1A1A;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #6B6B6B;
+      margin-bottom: 40px;
+    }
+
+    /* Navigation */
+    .direction-nav {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .direction-btn {
+      padding: 12px 24px;
+      background: #1A1A1A;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .direction-btn:hover {
+      background: #2D2D2D;
+      transform: translateY(-2px);
+    }
+
+    .direction-btn.active {
+      background: #25D366;
+    }
+
+    /* Mockup Container */
+    .mockup-wrapper {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      margin-bottom: 48px;
+    }
+
+    .mockup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #F5F5F3;
+    }
+
+    .mockup-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: #1A1A1A;
+    }
+
+    .mockup-meta {
+      font-size: 14px;
+      color: #858585;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Device Frame */
+    .device-frame {
+      width: 100%;
+      max-width: 390px;
+      height: 844px;
+      background: #FFFFFF;
+      border-radius: 40px;
+      border: 12px solid #1A1A1A;
+      margin: 0 auto;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .device-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 30px;
+      background: #1A1A1A;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* Screen Content */
+    .screen-content {
+      height: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+    }
+
+    .screen-content::-webkit-scrollbar {
+      width: 0;
+    }
+
+    /* DIRECTION 1: Minimalist Hero */
+    .direction-1 .hero-banner {
+      height: 400px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%),
+                  url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><rect fill="%23f5f5f5" width="400" height="600"/><rect x="100" y="150" width="200" height="300" fill="%23e0e0e0"/><text x="200" y="320" text-anchor="middle" fill="%23999999" font-size="20">Dress Photo</text></svg>');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+    }
+
+    .direction-1 .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      color: white;
+      margin-bottom: 12px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .direction-1 .hero-cta {
+      padding: 16px 32px;
+      background: white;
+      color: #1A1A1A;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 16px;
+      align-self: flex-start;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    .direction-1 .dress-grid {
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .direction-1 .dress-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: transform 0.3s ease;
+    }
+
+    .direction-1 .dress-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .direction-1 .card-image {
+      aspect-ratio: 3/4;
+      background: #F5F5F3;
+      position: relative;
+    }
+
+    .direction-1 .heart-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .direction-1 .heart-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .direction-1 .card-content {
+      padding: 16px;
+    }
+
+    .direction-1 .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1A1A1A;
+      margin-bottom: 8px;
+    }
+
+    .direction-1 .card-price {
+      font-size: 18px;
+      font-weight: 600;
+      color: #E63946;
+      margin-bottom: 8px;
+    }
+
+    /* DIRECTION 2: Content-Dense */
+    .direction-2 .dress-grid {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .direction-2 .dress-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .direction-2 .card-image {
+      aspect-ratio: 3/4;
+      background: #F5F5F3;
+    }
+
+    .direction-2 .card-content {
+      padding: 12px;
+    }
+
+    .direction-2 .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A1A;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .direction-2 .card-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: #E63946;
+      margin-bottom: 4px;
+    }
+
+    .direction-2 .card-meta {
+      font-size: 12px;
+      color: #858585;
+      display: flex;
+      gap: 8px;
+    }
+
+    .direction-2 .top-bar {
+      background: #1A1A1A;
+      color: white;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .direction-2 .filters {
+      display: flex;
+      gap: 12px;
+      padding: 12px 16px;
+      background: white;
+      border-bottom: 1px solid #E5E5E0;
+      overflow-x: auto;
+    }
+
+    .direction-2 .filter-chip {
+      padding: 8px 16px;
+      background: #F5F5F3;
+      border-radius: 20px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .direction-2 .filter-chip.active {
+      background: #1A1A1A;
+      color: white;
+    }
+
+    /* DIRECTION 3: Overlay-Heavy */
+    .direction-3 .main-view {
+      height: 100%;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 844"><rect fill="%23f5f5f5" width="400" height="844"/><rect x="100" y="200" width="200" height="400" fill="%23e0e0e0"/><text x="200" y="420" text-anchor="middle" fill="%23999999" font-size="20">Full Dress</text></svg>');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .direction-3 .overlay-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 32px 24px;
+      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.9) 100%);
+    }
+
+    .direction-3 .overlay-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      color: #1A1A1A;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+    }
+
+    .direction-3 .overlay-price {
+      font-size: 24px;
+      font-weight: 600;
+      color: #E63946;
+      margin-bottom: 24px;
+    }
+
+    .direction-3 .variant-options {
+      background: rgba(255,255,255,0.95);
+      padding: 24px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .direction-3 .variant-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #858585;
+      margin-bottom: 12px;
+    }
+
+    .direction-3 .size-chips {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .direction-3 .size-chip {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #E5E5E0;
+      border-radius: 50%;
+      font-weight: 600;
+      color: #4A4A4A;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .direction-3 .size-chip:hover {
+      background: #1A1A1A;
+      color: white;
+      border-color: #1A1A1A;
+    }
+
+    .direction-3 .size-chip.selected {
+      background: #1A1A1A;
+      color: white;
+    }
+
+    .direction-3 .color-chips {
+      display: flex;
+      gap: 12px;
+    }
+
+    .direction-3 .color-chip {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .direction-3 .color-chip.selected {
+      border-color: #1A1A1A;
+      transform: scale(1.1);
+    }
+
+    .direction-3 .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .direction-3 .btn-primary {
+      flex: 1;
+      padding: 16px;
+      background: #1A1A1A;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .direction-3 .btn-primary:hover {
+      background: #2D2D2D;
+    }
+
+    .direction-3 .btn-whatsapp {
+      flex: 1;
+      padding: 16px;
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .direction-3 .btn-whatsapp:hover {
+      background: #1ebc57;
+    }
+
+    /* DIRECTION 4: Gesture-Driven */
+    .direction-4 .gesture-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .direction-4 .full-screen-dress {
+      flex: 1;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"><rect fill="%23f5f5f5" width="400" height="600"/><rect x="50" y="100" width="300" height="400" fill="%23e0e0e0"/><text x="200" y="320" text-anchor="middle" fill="%23999999" font-size="24">Dress</text></svg>');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .direction-4 .gesture-hint {
+      position: absolute;
+      bottom: 100px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+    }
+
+    .direction-4 .gesture-bar {
+      height: 120px;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 32px;
+    }
+
+    .direction-4 .gesture-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .direction-4 .gesture-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .direction-4 .gesture-btn.heart {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .direction-4 .gesture-btn.heart:hover {
+      background: #E63946;
+    }
+
+    .direction-4 .gesture-btn.save {
+      width: auto;
+      padding: 14px 28px;
+      border-radius: 30px;
+      background: #25D366;
+      color: white;
+      font-weight: 600;
+    }
+
+    .direction-4 .gesture-btn.skip {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .direction-4 .gesture-btn.skip:hover {
+      background: white;
+      color: #1A1A1A;
+    }
+
+    .direction-4 .progress-indicator {
+      position: absolute;
+      top: 40px;
+      right: 24px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* DIRECTION 5: Elegant Editorial */
+    .direction-5 .editorial-layout {
+      height: 100%;
+      background: #FAFAFA;
+    }
+
+    .direction-5 .editorial-hero {
+      height: 450px;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><rect fill="%231a1a1a" width="400" height="500"/><rect x="100" y="100" width="200" height="300" fill="%23e0e0e0"/><text x="200" y="270" text-anchor="middle" fill="%23858585" font-size="20">Editorial</text></svg>');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 32px;
+    }
+
+    .direction-5 .editorial-badge {
+      position: absolute;
+      top: 32px;
+      left: 32px;
+      background: #FFD166;
+      color: #1A1A1A;
+      padding: 8px 16px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .direction-5 .editorial-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 44px;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .direction-5 .editorial-subtitle {
+      font-size: 16px;
+      color: rgba(255,255,255,0.9);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    .direction-5 .editorial-divider {
+      width: 60px;
+      height: 2px;
+      background: white;
+      margin-bottom: 24px;
+    }
+
+    .direction-5 .editorial-description {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: rgba(255,255,255,0.95);
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    .direction-5 .editorial-grid {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: repeating(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+    }
+
+    .direction-5 .editorial-item {
+      aspect-ratio: 1;
+      background: #F5F5F3;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .direction-5 .editorial-item-number {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: white;
+      color: #1A1A1A;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .direction-5 .editorial-nav {
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: white;
+      border-top: 1px solid #E5E5E0;
+    }
+
+    .direction-5 .editorial-nav-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: #1A1A1A;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* DIRECTION 6: Modern Minimal */
+    .direction-6 .modern-layout {
+      height: 100%;
+      background: #FFFFFF;
+    }
+
+    .direction-6 .modern-header {
+      padding: 32px 24px;
+      border-bottom: 3px solid #F5F5F3;
+    }
+
+    .direction-6 .modern-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: #1A1A1A;
+    }
+
+    .direction-6 .modern-subtitle {
+      font-size: 14px;
+      color: #858585;
+      margin-top: 4px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .direction-6 .modern-hero {
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .direction-6 .modern-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 52px;
+      color: #1A1A1A;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -2px;
+    }
+
+    .direction-6 .modern-subtitle-hero {
+      font-size: 16px;
+      color: #6B6B6B;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .direction-6 .modern-grid {
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .direction-6 .modern-card {
+      background: white;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .direction-6 .modern-card-image {
+      aspect-ratio: 3/4;
+      background: #F5F5F3;
+      position: relative;
+    }
+
+    .direction-6 .modern-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .direction-6 .modern-card:hover .modern-card-overlay {
+      opacity: 1;
+    }
+
+    .direction-6 .modern-card-cta {
+      padding: 14px 28px;
+      background: white;
+      color: #1A1A1A;
+      border: none;
+      border-radius: 2px;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+    }
+
+    .direction-6 .modern-card-content {
+      padding: 16px 0 0;
+    }
+
+    .direction-6 .modern-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1A1A1A;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .direction-6 .modern-card-price {
+      font-size: 18px;
+      font-weight: 600;
+      color: #E63946;
+      letter-spacing: -0.5px;
+    }
+
+    .direction-6 .modern-filters {
+      padding: 16px 24px;
+      display: flex;
+      gap: 16px;
+      border-bottom: 2px solid #F5F5F3;
+      overflow-x: auto;
+    }
+
+    .direction-6 .modern-filter {
+      font-size: 14px;
+      color: #6B6B6B;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .direction-6 .modern-filter:hover {
+      color: #1A1A1A;
+    }
+
+    .direction-6 .modern-filter.active {
+      color: #1A1A1A;
+      font-weight: 600;
+    }
+
+    .direction-6 .modern-filter.active::after {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: #1A1A1A;
+      margin-top: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .direction-nav {
+        gap: 8px;
+      }
+
+      .direction-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+      }
+
+      .device-frame {
+        height: 700px;
+        max-width: 350px;
+      }
+    }
+
+    /* Toggle functionality */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DressCave Design Directions</h1>
+    <p class="subtitle">Explore 6 visual approaches and choose the personality that matches your vision</p>
+
+    <div class="direction-nav">
+      <button class="direction-btn active" onclick="showDirection(1)">1: Minimalist Hero</button>
+      <button class="direction-btn" onclick="showDirection(2)">2: Content-Dense</button>
+      <button class="direction-btn" onclick="showDirection(3)">3: Overlay-Heavy</button>
+      <button class="direction-btn" onclick="showDirection(4)">4: Gesture-Driven</button>
+      <button class="direction-btn" onclick="showDirection(5)">5: Elegant Editorial</button>
+      <button class="direction-btn" onclick="showDirection(6)">6: Modern Minimal</button>
+    </div>
+
+    <!-- Direction 1: Minimalist Hero -->
+    <div class="mockup-wrapper direction-1" id="direction-1">
+      <div class="mockup-header">
+        <h2>Direction 1: Minimalist Hero</h2>
+        <span class="mockup-meta">Instagram Stories Aesthetic • Photography-First • Clean Chrome</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content">
+          <div class="hero-banner">
+            <h1 class="hero-title">Discover Beautiful Dresses</h1>
+            <p style="color: white; margin-bottom: 24px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Complete family shopping in minutes</p>
+            <button class="hero-cta">Start Browsing</button>
+          </div>
+          <div class="dress-grid">
+            <div class="dress-card">
+              <div class="card-image">
+                <div class="heart-btn">♥</div>
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">Elegant Summer Dress</h3>
+                <p class="card-price">$49</p>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image">
+                <div class="heart-btn">♥</div>
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">Floral Midi Dress</h3>
+                <p class="card-price">$59</p>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image">
+                <div class="heart-btn">♥</div>
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">Classic Wrap Dress</h3>
+                <p class="card-price">$69</p>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image">
+                <div class="heart-btn">♥</div>
+              </div>
+              <div class="card-content">
+                <h3 class="card-title">Chic Blouse</h3>
+                <p class="card-price">$39</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction 2: Content-Dense -->
+    <div class="mockup-wrapper direction-2 hidden" id="direction-2">
+      <div class="mockup-header">
+        <h2>Direction 2: Content-Dense</h2>
+        <span class="mockup-meta">Maximize Visibility • Efficient Layout • Asos Density Refined</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content direction-2">
+          <div class="top-bar">
+            <span style="font-size: 16px; font-weight: 600;">DressCave</span>
+            <span>🛍️ 5 saved</span>
+          </div>
+          <div class="filters">
+            <span class="filter-chip active">All</span>
+            <span class="filter-chip">Dresses</span>
+            <span class="filter-chip">Tops</span>
+            <span class="filter-chip">$0-$50</span>
+            <span class="filter-chip">$50-$100</span>
+          </div>
+          <div class="dress-grid">
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Elegant Summer Dress</h3>
+                <p class="card-price">$49</p>
+                <div class="card-meta">
+                  <span>XS-XL</span>
+                  <span>•</span>
+                  <span>5 colors</span>
+                </div>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Floral Midi Dress</h3>
+                <p class="card-price">$59</p>
+                <div class="card-meta">
+                  <span>S-XL</span>
+                  <span>•</span>
+                  <span>3 colors</span>
+                </div>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Classic Wrap Dress</h3>
+                <p class="card-price">$69</p>
+                <div class="card-meta">
+                  <span>XS-XL</span>
+                  <span>•</span>
+                  <span>4 colors</span>
+                </div>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Chic Blouse</h3>
+                <p class="card-price">$39</p>
+                <div class="card-meta">
+                  <span>XS-L</span>
+                  <span>•</span>
+                  <span>6 colors</span>
+                </div>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Elegant Blazer</h3>
+                <p class="card-price">$89</p>
+                <div class="card-meta">
+                  <span>S-XL</span>
+                  <span>•</span>
+                  <span>3 colors</span>
+                </div>
+              </div>
+            </div>
+            <div class="dress-card">
+              <div class="card-image"></div>
+              <div class="card-content">
+                <h3 class="card-title">Cropped Jacket</h3>
+                <p class="card-price">$79</p>
+                <div class="card-meta">
+                  <span>XS-L</span>
+                  <span>•</span>
+                  <span>2 colors</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction 3: Overlay-Heavy -->
+    <div class="mockup-wrapper direction-3 hidden" id="direction-3">
+      <div class="mockup-header">
+        <h2>Direction 3: Overlay-Heavy</h2>
+        <span class="mockup-meta">Premium App Feel • Raya Aesthetic • Elegant Overlays</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content direction-3">
+          <div class="main-view">
+            <div class="overlay-controls">
+              <h2 class="overlay-title">Elegant Summer Dress</h2>
+              <p class="overlay-price">$49</p>
+              <div class="variant-options">
+                <p class="variant-label">Size</p>
+                <div class="size-chips">
+                  <div class="size-chip">XS</div>
+                  <div class="size-chip selected">S</div>
+                  <div class="size-chip">M</div>
+                  <div class="size-chip">L</div>
+                  <div class="size-chip">XL</div>
+                </div>
+                <p class="variant-label">Color</p>
+                <div class="color-chips">
+                  <div class="color-chip selected" style="background: #e74c3c;"></div>
+                  <div class="color-chip" style="background: #3498db;"></div>
+                  <div class="color-chip" style="background: #2d2d2d;"></div>
+                  <div class="color-chip" style="background: #f1c40f;"></div>
+                </div>
+                <div class="action-buttons">
+                  <button class="btn-primary">Save to Order</button>
+                  <button class="btn-whatsapp">WhatsApp ♡</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction 4: Gesture-Driven -->
+    <div class="mockup-wrapper direction-4 hidden" id="direction-4">
+      <div class="mockup-header">
+        <h2>Direction 4: Gesture-Driven</h2>
+        <span class="mockup-meta">TikTok Engagement Model • Swipe/Save Pattern • Minimal Buttons</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content direction-4">
+          <div class="gesture-container">
+            <div class="full-screen-dress">
+              <div class="progress-indicator">3 / 15</div>
+              <div class="gesture-hint">Swipe up for next dress</div>
+            </div>
+            <div class="gesture-bar">
+              <div class="gesture-btn heart">♥</div>
+              <div class="gesture-btn">👁️</div>
+              <div class="gesture-btn save">♡ Save</div>
+              <div class="gesture-btn skip">✕</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction 5: Elegant Editorial -->
+    <div class="mockup-wrapper direction-5 hidden" id="direction-5">
+      <div class="mockup-header">
+        <h2>Direction 5: Elegant Editorial</h2>
+        <span class="mockup-meta">Vogue/Harpers Bazaar • Fashion Magazine Aesthetic • Editorial Layouts</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content direction-5">
+          <div class="editorial-layout">
+            <div class="editorial-hero">
+              <div class="editorial-badge">Spring Collection</div>
+              <h1 class="editorial-title">Elegance Rediscovered</h1>
+              <p class="editorial-subtitle">The art of timeless style for modern women</p>
+              <div class="editorial-divider"></div>
+              <p class="editorial-description">Discover our curated collection of summer dresses designed for effortless elegance and everyday sophistication.</p>
+            </div>
+            <div class="editorial-grid">
+              <div class="editorial-item">
+                <div class="editorial-item-number">1</div>
+              </div>
+              <div class="editorial-item">
+                <div class="editorial-item-number">2</div>
+              </div>
+              <div class="editorial-item">
+                <div class="editorial-item-number">3</div>
+              </div>
+              <div class="editorial-item">
+                <div class="editorial-item-number">4</div>
+              </div>
+              <div class="editorial-item">
+                <div class="editorial-item-number">5</div>
+              </div>
+              <div class="editorial-item">
+                <div class="editorial-item-number">6</div>
+              </div>
+            </div>
+            <div class="editorial-nav">
+              <span class="editorial-nav-title">DressCave</span>
+              <span>→ Shop Collection</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direction 6: Modern Minimal -->
+    <div class="mockup-wrapper direction-6 hidden" id="direction-6">
+      <div class="mockup-header">
+        <h2>Direction 6: Modern Minimal</h2>
+        <span class="mockup-meta">Glossier/Moncler Contemporary • Bold Typography • High Contrast</span>
+      </div>
+      <div class="device-frame">
+        <div class="device-notch"></div>
+        <div class="screen-content direction-6">
+          <div class="modern-layout">
+            <div class="modern-header">
+              <h1 class="modern-logo">DressCave</h1>
+              <p class="modern-subtitle">Women & Kids Fashion</p>
+            </div>
+            <div class="modern-filters">
+              <span class="modern-filter active">All</span>
+              <span class="modern-filter">Dresses</span>
+              <span class="modern-filter">Tops</span>
+              <span class="modern-filter">Kids</span>
+            </div>
+            <div class="modern-hero">
+              <h2 class="modern-title">DISCOVER</h2>
+              <p class="modern-subtitle-hero">Beautiful dresses for modern women</p>
+            </div>
+            <div class="modern-grid">
+              <div class="modern-card">
+                <div class="modern-card-image">
+                  <div class="modern-card-overlay">
+                    <button class="modern-card-cta">VIEW</button>
+                  </div>
+                </div>
+                <div class="modern-card-content">
+                  <h3 class="modern-card-title">Summer Dress</h3>
+                  <p class="modern-card-price">$49</p>
+                </div>
+              </div>
+              <div class="modern-card">
+                <div class="modern-card-image">
+                  <div class="modern-card-overlay">
+                    <button class="modern-card-cta">VIEW</button>
+                  </div>
+                </div>
+                <div class="modern-card-content">
+                  <h3 class="modern-card-title">Midi Dress</h3>
+                  <p class="modern-card-price">$59</p>
+                </div>
+              </div>
+              <div class="modern-card">
+                <div class="modern-card-image">
+                  <div class="modern-card-overlay">
+                    <button class="modern-card-cta">VIEW</button>
+                  </div>
+                </div>
+                <div class="modern-card-content">
+                  <h3 class="modern-card-title">Wrap Dress</h3>
+                  <p class="modern-card-price">$69</p>
+                </div>
+              </div>
+              <div class="modern-card">
+                <div class="modern-card-image">
+                  <div class="modern-card-overlay">
+                    <button class="modern-card-cta">VIEW</button>
+                  </div>
+                </div>
+                <div class="modern-card-content">
+                  <h3 class="modern-card-title">Blouse</h3>
+                  <p class="modern-card-price">$39</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const directions = document.querySelectorAll('.mockup-wrapper');
+      const buttons = document.querySelectorAll('.direction-btn');
+
+      function showDirection(directionNum) {
+        // Hide all directions
+        directions.forEach(dir => dir.classList.add('hidden'));
+
+        // Show selected direction
+        document.getElementById(`direction-${directionNum}`).classList.remove('hidden');
+
+        // Update active button state
+        buttons.forEach(btn => btn.classList.remove('active'));
+        buttons[directionNum - 1].classList.add('active');
+
+        // Scroll to top of device frame
+        document.getElementById(`direction-${directionNum}`).scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        const currentBtn = document.querySelector('.direction-btn.active');
+        const currentBtnIndex = Array.from(buttons).indexOf(currentBtn);
+
+        if (e.key === 'ArrowRight' && currentBtnIndex < buttons.length - 1) {
+          showDirection(currentBtnIndex + 2);
+        } else if (e.key === 'ArrowLeft' && currentBtnIndex > 0) {
+          showDirection(currentBtnIndex);
+        }
+      });
+
+      // Touch gesture support for mobile
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, false);
+
+      document.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, false);
+
+      function handleSwipe() {
+        const currentBtn = document.querySelector('.direction-btn.active');
+        const currentBtnIndex = Array.from(buttons).indexOf(currentBtn);
+        const swipeThreshold = 50;
+
+        if (touchEndX < touchStartX - swipeThreshold && currentBtnIndex < buttons.length - 1) {
+          // Swipe left - next direction
+          showDirection(currentBtnIndex + 2);
+        } else if (touchEndX > touchStartX + swipeThreshold && currentBtnIndex > 0) {
+          // Swipe right - previous direction
+          showDirection(currentBtnIndex);
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>

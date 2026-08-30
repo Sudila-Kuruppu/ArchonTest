@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" data-default-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>TicketTrade — theme test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS via CDN (per project convention). -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+
+  <!-- Theme tokens (story 1.1). -->
+  <link rel="stylesheet" href="assets/css/tickettrade.css">
+
+  <!-- Inline theme bootstrap (verbatim copy of theme-bootstrap.js). -->
+  <script>
+/*
+ * public/assets/js/theme-bootstrap.js -- INLINED (theme-test.html)
+ * Synchronous inline <script> in <head>; runs before first paint.
+ * See public/assets/js/theme-bootstrap.js for the canonical source.
+ */
+(function () {
+  'use strict';
+  var STORAGE_KEY = 'tickettrade.theme';
+  var ALLOWED = { light: 1, dark: 1, system: 1 };
+  var DEFAULT_THEME = 'dark';
+
+  function tickettradeThemeBootstrap() {
+    try {
+      var doc = document;
+      var html = doc.documentElement;
+      var stored = null;
+      try {
+        stored = globalThis.localStorage.getItem(STORAGE_KEY);
+      } catch (_e) { stored = null; }
+      // Note: do NOT normalise absent role default to DEFAULT_THEME here.
+      // Per spec the fallback chain is localStorage -> role default -> system
+      // pref -> 'dark'. If the page omitted data-default-theme entirely, the
+      // bootstrap must fall through to prefers-color-scheme rather than
+      // silently coercing to 'dark' and skipping that branch.
+      var roleDefault = html.getAttribute('data-default-theme');
+
+      var resolved = DEFAULT_THEME;
+      if (stored === 'light' || stored === 'dark') {
+        resolved = stored;
+      } else if (stored === 'system') {
+        var mql = globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: light)');
+        resolved = (mql && mql.matches) ? 'light' : 'dark';
+      } else if (roleDefault === 'light' || roleDefault === 'dark') {
+        resolved = roleDefault;
+      } else if (globalThis.matchMedia && globalThis.matchMedia('(prefers-color-scheme: light)').matches) {
+        resolved = 'light';
+      } else {
+        resolved = DEFAULT_THEME;
+      }
+      if (ALLOWED[resolved] !== 1) resolved = DEFAULT_THEME;
+      html.setAttribute('data-theme', resolved);
+      return resolved;
+    } catch (_err) {
+      try { document.documentElement.setAttribute('data-theme', DEFAULT_THEME); } catch (__) {}
+      return DEFAULT_THEME;
+    }
+  }
+
+  globalThis.tickettradeThemeBootstrap = tickettradeThemeBootstrap;
+  tickettradeThemeBootstrap();
+})();
+  </script>
+</head>
+<body>
+  <div id="first-paint-probe"
+       data-theme-probe
+       style="background-color: var(--color-surface-raised); color: var(--color-on-surface); padding: 0; margin: 0; height: 0; line-height: 0;">
+    <span data-probe-theme>__PROBE_BEFORE_PAINT__</span>
+  </div>
+
+  <main>
+    <h1>Theme self-test</h1>
+    <p>Bootstrap must have set <code>&lt;html data-theme&gt;</code> synchronously.</p>
+    <p id="resolved-theme">resolved theme: <span data-resolved-theme>__RESOLVED__</span></p>
+    <p id="stored-value">localStorage tickettrade.theme: <span data-stored-value>__STORED__</span></p>
+
+    <h2>Toggle widget</h2>
+    <theme-toggle></theme-toggle>
+
+    <h2>Self-test fixtures (hidden, consumed by the verify script)</h2>
+    <div hidden data-theme-self-test
+         data-resolved-theme="__RESOLVED__"
+         data-tickettrade-theme="__TICKETTRADE_THEME__"
+         data-has-bootstrap-fn="__HAS_BOOTSTRAP__"
+         data-toggle-defined="__TOGGLE_DEFINED__"
+         data-event-name="__EVENT_NAME__"
+         data-storage-key="__STORAGE_KEY__"></div>
+
+    <!-- PR 1-1 §Build fixtures: tokens asserted by lanes 1, 5, 8. -->
+    <h2>Token fixtures</h2>
+    <p id="primary-color-probe" style="color: var(--color-primary)">
+      primary-color-probe
+    </p>
+
+    <div data-spacing-check-host>
+      <div data-spacing-check="1" style="padding: 4px">spacing-1</div>
+      <div data-spacing-check="5" style="padding: 24px">spacing-5</div>
+      <div data-spacing-check="10" style="padding: 64px">spacing-10</div>
+    </div>
+
+    <code class="ticket-code-block" style="letter-spacing: 0.04em"
+          data-code="TK-FixtureCode1234567">TK-FIXTURE1234</code>
+  </main>
+
+  <script type="module" src="assets/js/theme.js"></script>
+
+  <script>
+    (function () {
+      function fill() {
+        var html = document.documentElement;
+        var root = document.querySelector('[data-theme-self-test]');
+        if (!root) return;
+        root.setAttribute('data-resolved-theme', html.getAttribute('data-theme') || '');
+
+        var api = globalThis.TicketTradeTheme;
+        root.setAttribute('data-tickettrade-theme', api ? 'present' : 'absent');
+        root.setAttribute('data-has-bootstrap-fn', typeof globalThis.tickettradeThemeBootstrap === 'function' ? 'yes' : 'no');
+        root.setAttribute('data-toggle-defined', !!customElements.get('theme-toggle') ? 'yes' : 'pending');
+        if (api) {
+          root.setAttribute('data-event-name', api.EVENT_NAME || '');
+          root.setAttribute('data-storage-key', api.STORAGE_KEY || '');
+        }
+        document.querySelector('[data-resolved-theme]').textContent = html.getAttribute('data-theme') || '';
+        try {
+          document.querySelector('[data-stored-value]').textContent = globalThis.localStorage.getItem('tickettrade.theme') || '(absent)';
+        } catch (e) {
+          document.querySelector('[data-stored-value]').textContent = '(unavailable)';
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fill);
+      } else {
+        fill();
+      }
+      globalThis.addEventListener('load', fill);
+    })();
+  </script>
+</body>
+</html>

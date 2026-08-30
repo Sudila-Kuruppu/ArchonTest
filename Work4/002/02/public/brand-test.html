@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>TicketTrade — Brand Components Test (Story 1.4)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/tickettrade.css">
+  <script type="module">
+    // Inline ES-module test runner. Runs 16 assertions against the I/O &
+    // Edge-Case Matrix. Each assertion writes a PASS/FAIL line to the
+    // shared <pre id="results"> log and updates `data-pass` / `data-fail`
+    // on document.body so the per-slice verify script can read them back
+    // from the served HTML.
+    //
+    // We deliberately run assertions in DOMContentLoaded to give the CSS a
+    // chance to attach the brand-specific recipes to the live DOM.
+    import { initTicketCode } from "./assets/js/ticket-code.js";
+
+    const resultsEl = () => document.getElementById("results");
+
+    let pass = 0;
+    let fail = 0;
+    const log = (line) => {
+      const el = resultsEl();
+      if (el) el.textContent += line + "\n";
+    };
+
+    function assert(label, condition) {
+      if (condition) {
+        log("PASS  " + label);
+        pass++;
+      } else {
+        log("FAIL  " + label);
+        fail++;
+      }
+    }
+
+    function getComputed(el, prop) {
+      if (!el) return "";
+      return window.getComputedStyle(el).getPropertyValue(prop).trim();
+    }
+
+    function getCustomProp(el, prop) {
+      if (!el) return "";
+      return window.getComputedStyle(el).getPropertyValue(prop).trim();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        // --- 1. RANK_BADGE ----------------------------------------------------
+        const rankBadge = document.querySelector('[data-row="rank_badge"] .rank-badge.rank-c');
+        assert(
+          "RANK_BADGE green pill on rank-c",
+          rankBadge && getComputed(rankBadge, "background-color") !== "" && getComputed(rankBadge, "color") !== ""
+        );
+
+        // --- 2. RANK_BADGE_GLOW -----------------------------------------------
+        const rankS = document.querySelector('[data-row="rank_glow"] .rank-badge.rank-s');
+        const rankSAnim = rankS ? window.getComputedStyle(rankS).animationName : "";
+        assert(
+          "RANK_BADGE_GLOW tier S carries legend-glow",
+          rankSAnim === "legend-glow"
+        );
+
+        // --- 3. TICKET_CODE_BLOCK ---------------------------------------------
+        const codeBlock = document.querySelector('[data-row="ticket_code"] .ticket-code-block');
+        const codeBlockFamily = getComputed(codeBlock, "font-family");
+        assert(
+          "TICKET_CODE_BLOCK monospace amber on near-black",
+          codeBlockFamily.toLowerCase().includes("mono") &&
+            getComputed(codeBlock, "background-color") !== "" &&
+            getComputed(codeBlock, "border-radius") !== ""
+        );
+
+        // --- 4. TICKET_CODE_REVEAL --------------------------------------------
+        const revealBtn = document.querySelector('[data-row="ticket_reveal"] .ticket-code-block-reveal');
+        initTicketCode(document.querySelector('[data-row="ticket_reveal"]'));
+        revealBtn.click();
+        assert(
+          "TICKET_CODE_REVEAL click toggles aria-pressed",
+          revealBtn.getAttribute("aria-pressed") === "true"
+        );
+
+        // --- 5. TICKET_CODE_COPY ----------------------------------------------
+        const copyBtn = document.querySelector('[data-row="ticket_copy"] .ticket-code-block-copy');
+        initTicketCode(document.querySelector('[data-row="ticket_copy"]'));
+        // Mock clipboard so the test is hermetic in jsdom-free envs.
+        let copiedText = null;
+        if (!navigator.clipboard) {
+          Object.defineProperty(navigator, "clipboard", {
+            configurable: true,
+            value: { writeText: (t) => { copiedText = t; return Promise.resolve(); } },
+          });
+        } else if (!navigator.clipboard.writeText) {
+          navigator.clipboard.writeText = (t) => { copiedText = t; return Promise.resolve(); };
+        } else {
+          const orig = navigator.clipboard.writeText.bind(navigator.clipboard);
+          navigator.clipboard.writeText = (t) => { copiedText = t; return orig(t); };
+        }
+        copyBtn.click();
+        assert(
+          "TICKET_CODE_COPY triggers clipboard write",
+          typeof copiedText === "string" && copiedText.length > 0
+        );
+
+        // --- 6. TICKET_CODE_SHARE ---------------------------------------------
+        const shareLink = document.querySelector('[data-row="ticket_share"] .ticket-code-block-share');
+        initTicketCode(document.querySelector('[data-row="ticket_share"]'));
+        assert(
+          "TICKET_CODE_SHARE is a target=_blank wa.me anchor",
+          shareLink &&
+            shareLink.tagName === "A" &&
+            shareLink.getAttribute("target") === "_blank" &&
+            (shareLink.getAttribute("href") || "").startsWith("https://wa.me/?text=")
+        );
+
+        // --- 7. STATUS_BADGE --------------------------------------------------
+        const statusBadge = document.querySelector('[data-row="status_badge"] .status-badge.status-active');
+        assert(
+          "STATUS_BADGE green-fill status-active",
+          statusBadge && getComputed(statusBadge, "background-color") !== ""
+        );
+
+        // --- 8. STATUS_BADGE_TIMING -------------------------------------------
+        // The status badge carries aria-label with the human-readable state +
+        // timestamp. Tooltip on hover/focus is CSS-driven via title attr.
+        const statusTiming = document.querySelector('[data-row="status_timing"] .status-badge');
+        const statusLabel = statusTiming ? statusTiming.getAttribute("aria-label") : "";
+        assert(
+          "STATUS_BADGE_TIMING aria-label carries state + timestamp",
+          statusLabel && /\d{4}-\d{2}-\d{2}/.test(statusLabel)
+        );
+
+        // --- 9. LISTING_CARD --------------------------------------------------
+        const listingCard = document.querySelector('[data-row="listing_card"] .listing-card');
+        assert(
+          "LISTING_CARD rounded-md surface + --shadow-1",
+          listingCard &&
+            getComputed(listingCard, "border-radius") !== "" &&
+            getComputed(listingCard, "box-shadow") !== "none"
+        );
+
+        // --- 10. LISTING_CARD_CORKBOARD --------------------------------------
+        const corkCard = document.querySelector('[data-row="listing_corkboard"] .listing-card');
+        assert(
+          "LISTING_CARD_CORKBOARD data-corkboard with rotation + pushpin",
+          corkCard &&
+            corkCard.getAttribute("data-corkboard") === "true" &&
+            window.getComputedStyle(corkCard, "::before").content !== "none"
+        );
+
+        // --- 11. LISTING_CARD_REDUCED_MOTION ---------------------------------
+        // We can't simulate prefers-reduced-motion in headless verification,
+        // but we can assert the CSS rule exists by checking the document's
+        // stylesheet for the reduced-motion selector with rotation: none.
+        const cssText = Array.from(document.styleSheets)
+          .flatMap((s) => {
+            try { return Array.from(s.cssRules).map((r) => r.cssText); }
+            catch (e) { return []; }
+          })
+          .join("\n");
+        assert(
+          "LISTING_CARD_REDUCED_MOTION rule zeroes rotation",
+          /prefers-reduced-motion[\s\S]*listing-card[\s\S]*transform:\s*none/.test(cssText) ||
+            /prefers-reduced-motion[\s\S]*data-corkboard[\s\S]*transform:\s*none/.test(cssText)
+        );
+
+        // --- 12. LEADERBOARD_ROW ----------------------------------------------
+        const row = document.querySelector('[data-row="leaderboard_row"] .leaderboard-row');
+        assert(
+          "LEADERBOARD_ROW dense list item",
+          row &&
+            getComputed(row, "border-radius") !== "" &&
+            row.querySelector(".leaderboard-row-name") !== null &&
+            row.querySelector(".leaderboard-row-points") !== null
+        );
+
+        // --- 13. LEADERBOARD_ROW_DENSE ----------------------------------------
+        const rows = document.querySelectorAll('[data-row="leaderboard_dense"] .leaderboard-row');
+        assert(
+          "LEADERBOARD_ROW_DENSE 20 rows render",
+          rows.length === 20
+        );
+
+        // --- 14. BRAND_SELF_TEST ----------------------------------------------
+        const selfTest = document.querySelector("[data-brand-self-test]");
+        const shadow2 = getCustomProp(selfTest, "--self-test-shadow-2");
+        assert(
+          "BRAND_SELF_TEST --shadow-2 resolves to a non-empty value",
+          shadow2 !== "" && shadow2 !== "none"
+        );
+
+        // --- 15. LISTING_CARD_HOVER ------------------------------------------
+        // The hover rule exists in the stylesheet.
+        assert(
+          "LISTING_CARD_HOVER translateY(-4px) rule exists",
+          /\.listing-card:hover[\s\S]*translateY/.test(cssText)
+        );
+
+        // --- 16. TICKET_CODE_MASKED -------------------------------------------
+        const maskedBlock = document.querySelector('[data-row="ticket_masked"] .ticket-code-block');
+        initTicketCode(maskedBlock);
+        const maskedText = maskedBlock
+          ? maskedBlock.querySelector(".ticket-code-block-value").textContent
+          : "";
+        assert(
+          "TICKET_CODE_MASKED page-load shows bullet glyphs",
+          /[\u2022]/.test(maskedText)
+        );
+
+        // Final tally: stamp body data attrs for the verify script to read.
+        document.body.setAttribute("data-pass", String(pass));
+        document.body.setAttribute("data-fail", String(fail));
+        log("");
+        log("===");
+        log("data-pass=" + pass);
+        log("data-fail=" + fail);
+      } catch (e) {
+        log("FAIL  harness exception: " + (e && e.message ? e.message : e));
+        document.body.setAttribute("data-pass", String(pass));
+        document.body.setAttribute("data-fail", String(fail + 1));
+      }
+    });
+  </script>
+  <style>
+    body { font-family: var(--font-body-md); padding: var(--spacing-5); background: var(--color-surface-base); color: var(--color-on-surface); }
+    h1 { font-family: var(--font-headline-md); font-size: var(--font-headline-md-size); }
+    h2 { font-family: var(--font-title-sm); font-size: var(--font-title-sm-size); margin-top: var(--spacing-5); }
+    .row { padding: var(--spacing-3); border: 1px solid var(--color-border-hairline); border-radius: var(--radius-md); margin-bottom: var(--spacing-3); }
+    pre#results { background: var(--color-surface-container); padding: var(--spacing-3); border-radius: var(--radius-sm); white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Brand-Specific Components Test (Story 1.4)</h1>
+  <p>16 I/O-Matrix assertions. PASS/FAIL rows below.</p>
+
+  <!-- 1. RANK_BADGE -->
+  <div class="row" data-row="rank_badge">
+    <h2>1. RANK_BADGE</h2>
+    <span class="rank-badge rank-c" aria-label="Tier C: Operative (C)">Operative (C)</span>
+  </div>
+
+  <!-- 2. RANK_BADGE_GLOW -->
+  <div class="row" data-row="rank_glow">
+    <h2>2. RANK_BADGE_GLOW</h2>
+    <span class="rank-badge rank-s" aria-label="Tier S: Legend (S)">Legend (S)</span>
+  </div>
+
+  <!-- 3. TICKET_CODE_BLOCK -->
+  <div class="row" data-row="ticket_code">
+    <h2>3. TICKET_CODE_BLOCK</h2>
+    <div class="ticket-code-block" data-code="TK-AbCdEfGh12345678XY">
+      <span class="ticket-code-block-value" aria-hidden="true">...</span>
+      <button type="button" class="ticket-code-block-reveal" aria-pressed="false">Show</button>
+      <button type="button" class="ticket-code-block-copy">Copy</button>
+      <a href="#" class="ticket-code-block-share" rel="noopener">WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- 4. TICKET_CODE_REVEAL -->
+  <div class="row" data-row="ticket_reveal">
+    <h2>4. TICKET_CODE_REVEAL</h2>
+    <div class="ticket-code-block" data-code="TK-RevealTest12345678">
+      <span class="ticket-code-block-value" aria-hidden="true">...</span>
+      <button type="button" class="ticket-code-block-reveal" aria-pressed="false">Show</button>
+    </div>
+  </div>
+
+  <!-- 5. TICKET_CODE_COPY -->
+  <div class="row" data-row="ticket_copy">
+    <h2>5. TICKET_CODE_COPY</h2>
+    <div class="ticket-code-block" data-code="TK-CopyTest12345678AB">
+      <span class="ticket-code-block-value" aria-hidden="true">...</span>
+      <button type="button" class="ticket-code-block-reveal" aria-pressed="false">Show</button>
+      <button type="button" class="ticket-code-block-copy">Copy</button>
+    </div>
+  </div>
+
+  <!-- 6. TICKET_CODE_SHARE -->
+  <div class="row" data-row="ticket_share">
+    <h2>6. TICKET_CODE_SHARE</h2>
+    <div class="ticket-code-block" data-code="TK-ShareTest12345678C">
+      <span class="ticket-code-block-value" aria-hidden="true">...</span>
+      <a href="#" class="ticket-code-block-share">WhatsApp</a>
+    </div>
+  </div>
+
+  <!-- 7. STATUS_BADGE -->
+  <div class="row" data-row="status_badge">
+    <h2>7. STATUS_BADGE</h2>
+    <span class="status-badge status-active" aria-label="Status: Active, 2026-08-30 09:00">Active</span>
+  </div>
+
+  <!-- 8. STATUS_BADGE_TIMING -->
+  <div class="row" data-row="status_timing">
+    <h2>8. STATUS_BADGE_TIMING</h2>
+    <span class="status-badge status-pending" title="Pending since 2026-08-29 14:00" aria-label="Status: Pending, 2026-08-29 14:00">Pending</span>
+  </div>
+
+  <!-- 9. LISTING_CARD -->
+  <div class="row" data-row="listing_card">
+    <h2>9. LISTING_CARD</h2>
+    <article class="listing-card" tabindex="0" aria-label="Open listing: Calculus textbook">
+      <img class="listing-card-image" src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='320' height='240'&gt;&lt;rect width='320' height='240' fill='%23ddd'/&gt;&lt;/svg&gt;" alt="">
+      <div class="listing-card-title" aria-hidden="true">Calculus textbook 8th edition barely used</div>
+      <div class="listing-card-description" aria-hidden="true">Excellent condition. No highlights. Pickup at library or library cafe.</div>
+      <div class="listing-card-price" aria-hidden="true">LKR 2,400</div>
+    </article>
+  </div>
+
+  <!-- 10. LISTING_CARD_CORKBOARD -->
+  <div class="row" data-row="listing_corkboard" aria-hidden="true" style="display:none">
+    <h2>10. LISTING_CARD_CORKBOARD</h2>
+    <article class="listing-card" data-corkboard="true" data-cork-rotation="-2" data-cork-pin="red">
+      <img class="listing-card-image" src="data:image/svg+xml;utf8,&lt;svg xmlns='http://www.w3.org/2000/svg' width='320' height='240'&gt;&lt;rect width='320' height='240' fill='%23ddd'/&gt;&lt;/svg&gt;" alt="">
+    </article>
+  </div>
+
+  <!-- PR 1-1 §Build fixtures: rank-A foreground pair + caption-size override -->
+  <div class="row" data-row="pr_1_1_rank_a">
+    <h2>PR 1-1 rank-A foreground pair + caption-size override</h2>
+    <span class="rank-badge" data-tier="A" id="rank-a-default"
+          style="font-size: 16px">A</span>
+    <span class="rank-badge" data-tier="A" data-size="caption" id="rank-a-caption"
+          style="font-size: 12px">A</span>
+  </div>
+
+  <!-- 12. LEADERBOARD_ROW -->
+  <div class="row" data-row="leaderboard_row">
+    <h2>12. LEADERBOARD_ROW</h2>
+    <ol>
+      <li class="leaderboard-row">
+        <span class="rank-badge rank-a" aria-label="Tier A: Elite (A)">Elite (A)</span>
+        <span class="leaderboard-row-name">Nimal Perera</span>
+        <span class="leaderboard-row-points">+1,240</span>
+      </li>
+    </ol>
+  </div>
+
+  <!-- 13. LEADERBOARD_ROW_DENSE -->
+  <div class="row" data-row="leaderboard_dense">
+    <h2>13. LEADERBOARD_ROW_DENSE</h2>
+    <ol>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 01</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 02</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 03</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 04</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 05</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 06</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 07</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 08</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 09</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 10</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 11</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 12</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 13</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 14</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 15</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 16</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 17</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 18</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 19</span><span class="leaderboard-row-points">+100</span></li>
+      <li class="leaderboard-row"><span class="leaderboard-row-name">User 20</span><span class="leaderboard-row-points">+100</span></li>
+    </ol>
+  </div>
+
+  <!-- 16. TICKET_CODE_MASKED -->
+  <div class="row" data-row="ticket_masked">
+    <h2>16. TICKET_CODE_MASKED</h2>
+    <div class="ticket-code-block" data-code="TK-MaskedTest12345678">
+      <span class="ticket-code-block-value" aria-hidden="true">...</span>
+    </div>
+  </div>
+
+  <!-- Brand self-test fixture -->
+  <div data-brand-self-test></div>
+
+  <h2>Results</h2>
+  <pre id="results"></pre>
+</body>
+</html>

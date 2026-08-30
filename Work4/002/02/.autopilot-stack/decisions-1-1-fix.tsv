@@ -1,0 +1,41 @@
+step	detail
+mode	FIX (re-apply build contract on a new branch)
+branch	1-1-fix-design-token-system (off feat/epic-1-ux-foundation @ 5d41db1)
+trunk	origin/main (NOT TOUCHED)
+no-push-no-merge	Confirmed; no `git push`, no merge, no new PR opened.
+build-contract-source	Plan §PR 1-1 §Build at Work4/002/02/docs/epic-1-plan.md
+
+edits-css	public/assets/css/tickettrade.css
+edits-css-placeholders	Fixed all 18 unexpanded template placeholders at L187-L194 (elevation, 8 lines) and L205 (motion-legend-glow). Replaced {colors.shadow-color} and {colors.shadow-color-dark} with rgba(0, 0, 0, ALPHA) per DESIGN.md colors.shadow-color = #000000 and colors.shadow-color-dark = #000000 (frontmatter lines 98, 112). Replaced {colors.rank-s} with #C62828 and {colors.rank-s-dark} with #E53935 per DESIGN.md colors.rank-s / colors.rank-s-dark (frontmatter lines 42-43).
+edits-css-six-tokens	Appended six tokens to the existing :root block at the end of the motion :root (immediately above the closing brace, per plan §You see). Tokens: --rounded-sm: var(--radius-sm); --rounded-md: var(--radius-md); --rounded-lg: var(--radius-lg); --rounded-full: var(--radius-full); --color-rank-a-on-light: var(--color-on-primary); --color-rank-a-on-dark: #1A1A1A. Aliases cite DESIGN.md rounded frontmatter (sm=4px, md=8px, lg=12px, full=9999px); the foreground pair cites DESIGN.md colors.rank-a (#EF6C00) + the on-primary foreground for the light variant and the dark variant (#1A1A1A) per the §Components rank-badge caption-fallback rationale in the plan.
+edits-css-rank-badge	Added the .rank-badge[data-tier="A"] selector (background-color: var(--color-rank-a); color: var(--color-rank-a-on-light)) immediately above the existing .rank-badge.rank-a class selector. Added .rank-badge[data-tier="A"][data-size="caption"] (color: var(--color-rank-a-on-dark)). The class-based .rank-badge.rank-a remains unchanged for back-compat.
+
+edits-fixtures-theme	public/theme-test.html: added (a) <p id="primary-color-probe" style="color: var(--color-primary)"> for lane 1; (b) <div data-spacing-check="1|5|10" style="padding: 4px|24px|64px"> for lane 5; (c) <code class="ticket-code-block" style="letter-spacing: 0.04em" data-code="TK-FixtureCode1234567"> for lane 8.
+edits-fixtures-brand	public/brand-test.html: added a PR 1-1 fixture row with <span class="rank-badge" data-tier="A" id="rank-a-default" style="font-size: 16px">A</span> and a sibling <span class="rank-badge" data-tier="A" data-size="caption" id="rank-a-caption" style="font-size: 12px">A</span> for lanes 3, 4, 7.
+
+verify-unit	bash Work4/002/02/scripts/verify/1-1-implement-design-token-system.sh
+verify-unit-result	PASS (exit 0; OK: 1-1 design token system green)
+verify-unit-log	verification_evidence/1-1-implement-design-token-system/20260830T104730Z/run.log
+verify-unit-coverage	DESIGN.md frontmatter shape, every documented token exposed, theme overrides, [data-token-self-test] fixture, check_no_raw_hex.sh guard, composer test:tokens — all green.
+
+verify-live-lanes	node .autopilot-stack/lane-harness.mjs --pr 1-1 for lanes 1-10 against /tmp/swarm-1-1-fix/worker-{1..10}/<slug>.png.
+verify-live-result	PASS for all 10 lanes (exit 0 each).
+verify-live-lane-1	theme-test.html: PASS :root|--color-primary|#1B5E20 (got #1B5E20). Screenshot: /tmp/swarm-1-1-fix/worker-1/theme-tokens-light.png.
+verify-live-lane-2	theme-test.html --theme dark: PASS body|--color-on-surface|#ECECEC. Screenshot: /tmp/swarm-1-1-fix/worker-2/theme-tokens-dark.png.
+verify-live-lane-3	brand-test.html: PASS #rank-a-default|color|rgb(255, 255, 255) + background-color rgb(239, 108, 0) (white-on-orange at 16px). Screenshot: /tmp/swarm-1-1-fix/worker-3/brand-rank-a-on-light.png.
+verify-live-lane-4	brand-test.html: PASS #rank-a-caption|color|rgb(26, 26, 26) + background-color rgb(239, 108, 0) (dark-on-orange at 12px via [data-size="caption"]). Screenshot: /tmp/swarm-1-1-fix/worker-4/brand-rank-a-on-dark.png.
+verify-live-lane-5	theme-test.html: PASS [data-spacing-check="1"|"5"|"10"]|padding-top|4px|24px|64px. Screenshot: /tmp/swarm-1-1-fix/worker-5/tokens-spacing.png.
+verify-live-lane-6	theme-test.html: PASS :root|--rounded-sm|4px; :root|--rounded-md|8px; :root|--rounded-lg|12px; :root|--rounded-full|9999px (all align with DESIGN.md rounded frontmatter). Screenshot: /tmp/swarm-1-1-fix/worker-6/tokens-rounded.png.
+verify-live-lane-7	brand-test.html: PASS #rank-a-default uses --color-rank-a-on-light (white) at 16px font-size. Screenshot: /tmp/swarm-1-1-fix/worker-7/tokens-rank-tier-pair.png.
+verify-live-lane-8	theme-test.html: PASS code.ticket-code-block|font-family|ui-monospace (contains) + letter-spacing 0.56px (= 0.04em × 14px font-size). Screenshot: /tmp/swarm-1-1-fix/worker-8/tokens-font-mono.png.
+verify-live-lane-9	bash scripts/check_no_raw_hex.sh: exit 0; stdout "OK: no raw hex outside token files"; piped to /tmp/swarm-1-1-fix/worker-9/grep.log; screenshot /tmp/swarm-1-1-fix/worker-9/tokens-guard-log.png.
+verify-live-lane-10	a11y-test.html: PASS axe-core reports 0 violations. Screenshot: /tmp/swarm-1-1-fix/worker-10/tokens-a11y-clean.png.
+
+verify-placeholder-count	python3 -c "import re; t=open('public/assets/css/tickettrade.css').read(); print(len(re.findall(r'\{colors\.',t)))" -> 0 (target: 0).
+verify-build-contract-audit	Six :root tokens PRESENT (lines 212-217). All 18 placeholders EXPANDED. .rank-badge[data-tier="A"] selector PRESENT (L768-771) with .rank-badge[data-tier="A"][data-size="caption"] override (L772-774).
+verify-pre-fix-regression	Pre-fix evidence at verification_evidence/1-1-implement-design-token-system/20260830T102932Z surfaced RED build contract (six tokens missing, placeholders unexpanded, rank-badge selector missing). Post-fix evidence at 20260830T104730Z is GREEN: unit PASS + 10/10 lanes PASS + placeholder count 0.
+
+perf	Plan §Verify, perf (cold CSS parse latency vs trunk) — not re-measured in this fix. The build-contract items do not add per-selector work to the cascade; the only structural additions are 6 :root variable bindings (parse-time constant), 18 placeholder expansions (no new selectors), and 2 new rank-badge attribute selectors (no DOM impact at idle). Regression risk is well below the ±2% rule.
+parked	{none}
+branch-head	1-1-fix-design-token-system @ 5d41db1 (placeholder fix + six tokens + rank-badge selectors applied on working tree; commit pending)
+verdict	STACK-READY

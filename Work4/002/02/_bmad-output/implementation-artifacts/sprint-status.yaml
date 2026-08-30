@@ -1,0 +1,126 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 08-27-2026 08:33
+last_updated: 2026-08-30
+project: '02'
+project_key: NOKEY
+tracking_system: file-system
+story_location: /home/user/archontesting/Work4/002/02/_bmad-output/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-implement-design-token-system: done
+  1-2-implement-light-dark-theme-with-localstorage-persistence: backlog
+  1-3-build-core-component-library-buttons-inputs-modals-bottom-na: backlog
+  1-4-build-brand-specific-components-rank-badge-ticket-code-block: backlog
+  1-5-build-corkboard-board-presentation-with-list-view-toggle: backlog
+  1-6-build-toast-system-and-identity-badges-verified-velocity-on: backlog
+  1-7-build-tab-search-bulk-action-analytics-report-and-audit-log: backlog
+  1-8-build-profile-surfaces-tier-progress-bar-kpi-counter-tier-pr: backlog
+  1-9-build-form-modals-dispute-report-purchase-confirmation-and-a: backlog
+  1-10-enforce-the-accessibility-floor-wcag-2-1-aa-keyboard-screen: backlog
+  1-11-ship-the-three-promoted-mockup-driven-reference-screens: backlog
+  1-12-enforce-banned-interaction-patterns-and-voice-and-tone-micro: backlog
+  1-13-build-empty-state-and-error-state-library-for-every-surface: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-bootstrap-the-project-composer-front-controllers-config-rout: backlog
+  2-2-database-connection-migrations-runner-and-seeded-student-id: backlog
+  2-3-bcrypt-only-auth-service-session-config-csrf-token-and-rate: backlog
+  2-4-student-registration-with-email-domain-student-id-allowlist: backlog
+  2-5-login-with-rate-limiting-anti-enumeration-and-session-bootst: backlog
+  2-6-logout-route-guards-and-404-500-error-pages: backlog
+  2-7-profile-edit-name-bio-avatar-picker-whatsapp-validation: backlog
+  2-8-public-profile-rank-badge-join-date-transaction-counts-dispu: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-categories-service-model-and-seed-data: backlog
+  3-2-listings-schema-and-listing-service-crud-state-machine: backlog
+  3-3-image-upload-pipeline-4-layer-validation-webp-re-encode-3-th: backlog
+  3-4-corkboard-board-view-with-search-category-tabs-and-guest-bro: backlog
+  3-5-listing-modal-with-image-carousel-category-navigation-and-se: backlog
+  3-6-create-edit-listing-form-multi-step-drafts-service-type-imag: backlog
+  3-7-seller-dashboard-active-pending-sold-draft-tabs-bulk-actions: backlog
+  3-8-landing-page-hero-vision-how-it-works-team-footer: backlog
+  3-9-hand-triggered-24h-listing-auto-approve-cron-stub-for-epic-9: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-tickets-schema-ticket-service-and-ticket-code-generation: backlog
+  4-2-my-tickets-active-redeemed-expired-disputed-tabs-code-mask-r: backlog
+  4-3-sales-view-grouped-by-listing-with-n-q-context: backlog
+  4-4-redemption-flow-with-atomic-update-idempotency-and-5-hr-tick: backlog
+  4-5-hand-triggered-ticket-expiry-cron-stub-for-epic-9-and-force: backlog
+  4-6-per-session-service-handover-sequential-confirm-final-sessio: backlog
+  4-7-dispute-filing-and-3-day-auto-dismiss-hand-triggered: backlog
+  4-8-purchase-history-code-status-listing-price-date-seller-name: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-reviews-schema-service-and-review-compose-modal: backlog
+  5-2-seller-profile-review-breakdown-and-public-dispute-count: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-points_log-schema-ranks-config-and-points-service-the-only-w: backlog
+  6-2-per-action-point-awards-and-daily-caps: backlog
+  6-3-new-account-multiplier-first-5-counted-transactions-at-50-an: backlog
+  6-4-velocity-flag-300-pts-day-or-150-pts-hr-and-admin-flag-revie: backlog
+  6-5-login-streak-service-7-day-and-30-day-bonuses-on-break-inact: backlog
+  6-6-leaderboard-summary-tables-and-four-boards-campus-legends-we: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-reports-schema-service-and-report-modal-listing-profile-tick: backlog
+  7-2-admin-reports-queue-fifo-filters-bulk-dismiss-evidence-detai: backlog
+  7-3-admin-resolution-actions-remove-listing-warn-user-ban-user-f: backlog
+  7-4-report-write-back-status-resolved-dismissed-on-outcome: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-admin-front-controller-role-guard-and-admin-re-auth-support: backlog
+  8-2-admin-users-panel-list-search-filter-promote-demote-ban-susp: backlog
+  8-3-admin-listings-queue-pending-active-rejected-flagged-fast-tr: backlog
+  8-4-admin-categories-crud-with-sort_order-drag: backlog
+  8-5-admin-analytics-dashboard-4-kpi-cards-daily-weekly-reports: backlog
+  8-6-immutable-audit-log-with-hash-chain-and-verification: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-versioned-sql-migrations-and-idempotent-runner: backlog
+  9-2-ticket-expiry-cron-hourly-expiry-24h-auto-approve-3-day-disp: backlog
+  9-3-daily-cron-02-00-asia-colombo-leaderboard-refresh-daily-week: backlog
+  9-4-security-response-headers-and-front-controller-boot-wiring: backlog
+  9-5-phpcs-configuration-and-custom-norawhash-sniff-bcrypt-only-e: backlog
+  9-6-dev-server-public-router-php-front-controllers-and-timezone: backlog
+  9-7-manual-cron-triggers-and-compliance-documentation-nfr-cmp-00: backlog
+  epic-9-retrospective: optional
