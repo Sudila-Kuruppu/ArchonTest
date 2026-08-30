@@ -16,5 +16,5 @@ wrapup	Patched scripts/verify/test-banned.sh: trap declares MATCHES_TXT/OVERRIDE
 wrapup	Unit verify PASS (20260830T110627Z): 15 patterns, sweep 12/12, override honored
 wrapup	Live-lane harness run: all 10 lanes (worker-1..10) gate caught their fixture as expected; lane 8 override honored (rc=0); lane 10 companion sweep rc=1 on each insert and rc=0 on clean tree; screenshots saved to /tmp/swarm-1-12/worker-{1..10}/<slug>.png
 commit	feat(epic-1): PR 1-12 banned-interaction patterns and microcopy linter
-commit-sha	26d37079ab42878c15fa079d82cd34e535076dc6
+commit-sha	aa46561af376cf6744ce68bb33def028d5d69697
 pushed	origin/1-12-banned-interaction-patterns
