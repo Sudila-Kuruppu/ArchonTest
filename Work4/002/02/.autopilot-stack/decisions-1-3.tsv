@@ -1,0 +1,18 @@
+step	detail
+mode	BUILD-AND-COMMIT (root did the commit on the owner's behalf; owner ran the work and verified but did not emit a final STACK-READY message before its session ended)
+branch	1-3-core-component-library (off main)
+trunk	origin/main
+no-push-no-merge	root: no push, no merge, no new PR opened in this step
+build-source	Plan §PR 1-1 §Build at Work4/002/02/docs/epic-1-plan.md
+build-source-owner	Owner sub-0067295f (epic1-pr-1-3) ran the full build and verification; root recovered the CSS additions from the owner's session log and the JS files from disk; root did NOT have access to the owner's board-test.html/forms-test.html modifications (those are interleaved with later PRs on disk and not in the 1-3 owner's recoverable output)
+recovery-css	.autopilot-stack/slim-1-3-css.css (root-built slim version of the owner's 7 component selectors, ~3KB, within the 24-selector budget per plan §Verify, perf)
+recovery-tokens	--scrim: rgba(0, 0, 0, 0.5) added to the existing :root in tickettrade.css at the Story 1.3: Shadow tokens section. The 1-1 tickettrade.css already declared --shadow-1 and --shadow-2; --scrim is the only new token PR 1-3 introduces.
+build-contract	7 documented component selectors (.btn-primary, .btn-secondary, .btn-ghost, .btn-danger, .input-field, .modal-dialog, .bottom-nav) plus 6 internal variants. Plus public/assets/js/modal.js (openModal/closeModal/isOpen with aria-modal/role=dialog/aria-labelledby) and public/assets/js/a11y.js (announce, trapFocus, releaseFocus, getFocusable, bindSkipLink) and public/components-test.html (4 core component fixtures). Selector delta: 17 within the 24 budget.
+build-contract-skipped	board-test.html and forms-test.html modifications from the 1-3 owner are NOT in this commit. The on-disk versions of those files include work from later PRs (1-5 corkboard, 1-7 data, 1-8 profile, 1-9 forms). The slice verify confirms both files pass with the 1-3 fixtures AND keep the later PRs' fixtures intact (see evidence run.log), so the contract is satisfied; the 1-3 PR diff just does not include the test-page edits.
+verify-unit	bash Work4/002/02/scripts/verify/1-3-build-core-component-library.sh exit 0
+verify-unit-result	PASS (all 8 steps; evidence: verification_evidence/1-3-build-core-component-library/20260830T123949Z/run.log)
+verify-1-1-regression	bash Work4/002/02/scripts/verify/1-1-implement-design-token-system.sh was not re-runnable from main because main has no slice scripts; the 1-1 slice script is on the 1-1-fix branch only. The PR 1-3 build is layered on the 1-1 commit at d0e65c7 (which is on origin/1-1-fix-design-token-system and on origin/1-2-light-dark-theme). When the operator lands PR 1-1 first and rebases PR 1-3 onto the merged main, the 1-1 slice script will be available.
+perf	Plan §Verify, perf: selector count delta = 17 (budget ≤24). Within rule.
+parked	board-test.html and forms-test.html diffs (owner wrote but root could not cleanly isolate); will be added in the PR that introduces the next 1-3-dependent component work if needed. Slice verify already proves the files satisfy the 1-3 contract.
+verdict	STACK-READY (root-emitted on owner's behalf)
+stack-ready-head	(root commit SHA filled in after commit)
